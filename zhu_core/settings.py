@@ -54,7 +54,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'apps.events',
+    'apps.feedback',
+    'apps.resources',
+    'apps.training',
     'apps.users',
+    'apps.vatsim',
 ]
 
 MIDDLEWARE = [
