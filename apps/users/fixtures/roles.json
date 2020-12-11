@@ -1,0 +1,130 @@
+[
+  {
+    "model": "users.role",
+    "pk": 1,
+    "fields": {
+      "long": "Air Traffic Manager",
+      "short": "ATM"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 2,
+    "fields": {
+      "long": "Deputy Air Traffic Manager",
+      "short": "DATM"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 3,
+    "fields": {
+      "long": "Training Administrator",
+      "short": "TA"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 4,
+    "fields": {
+      "long": "Assistant Training Administrator",
+      "short": "ATA"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 5,
+    "fields": {
+      "long": "Facility Engineer",
+      "short": "FE"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 6,
+    "fields": {
+      "long": "Assistant Facility Engineer",
+      "short": "AFE"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 7,
+    "fields": {
+      "long": "Events Coordinator",
+      "short": "EC"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 8,
+    "fields": {
+      "long": "Assistant Events Coordinator",
+      "short": "AEC"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 9,
+    "fields": {
+      "long": "Webmaster",
+      "short": "WM"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 10,
+    "fields": {
+      "long": "Assistant Webmaster",
+      "short": "AWM"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 11,
+    "fields": {
+      "long": "Instructor",
+      "short": "INS"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 12,
+    "fields": {
+      "long": "Mentor",
+      "short": "MTR"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 13,
+    "fields": {
+      "long": "Web Team",
+      "short": "WT"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 14,
+    "fields": {
+      "long": "Home Controller",
+      "short": "HC"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 15,
+    "fields": {
+      "long": "Visiting Controller",
+      "short": "VC"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 16,
+    "fields": {
+      "long": "MAVP Controller",
+      "short": "MC"
+    }
+  }
+]

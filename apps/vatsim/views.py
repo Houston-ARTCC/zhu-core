@@ -3,7 +3,7 @@ import requests
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 
-from .jwt_token import CustomRefreshToken
+from zhu_core.jwt import CustomRefreshToken
 from ..users.models import User
 
 
@@ -37,6 +37,7 @@ def process_oauth(request):
             email=data.get('personal').get('email'),
             first_name=data.get('personal').get('name_first'),
             last_name=data.get('personal').get('name_last'),
+            rating=data.get('vatsim').get('rating').get('short'),
         )
     else:
         user = user_query.first()

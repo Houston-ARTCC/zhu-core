@@ -62,7 +62,7 @@ class TrainingSession(models.Model):
 
 class TrainingRequest(models.Model):
     class Meta:
-        verbose_name_plural = 'Training Request'
+        verbose_name_plural = 'Training Requests'
 
     student = models.ForeignKey(User, models.CASCADE, related_name='training_requests')
     start = models.DateTimeField()
