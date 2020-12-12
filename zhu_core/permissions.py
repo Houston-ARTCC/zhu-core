@@ -44,9 +44,17 @@ class IsStaff(BasePermission):
         return request.user and request.user.is_staff
 
 
+class IsSeniorStaff(BasePermission):
+    """
+    Allows access to the ATM, DATM, and TA.
+    """
+    def has_permission(self, request, view):
+        return request.user and request.user.is_senior_staff
+
+
 class IsAdmin(BasePermission):
     """
-    Allows access to ARTCC administrators (ATM, DATM, WM).
+    Allows access to the ATM, DATM, and WM.
     """
     def has_permission(self, request, view):
         return request.user and request.user.is_admin

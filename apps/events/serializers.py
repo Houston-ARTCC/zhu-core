@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Event, EventPosition, EventPositionRequest
 
@@ -6,7 +7,14 @@ from .models import Event, EventPosition, EventPositionRequest
 class EventPositionRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventPositionRequest
-        fields = ['user']
+        fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=EventPositionRequest.objects.all(),
+                fields=['position', 'user'],
+                message='Position already requested.'
+            )
+        ]
 
 
 class EventPositionSerializer(serializers.ModelSerializer):

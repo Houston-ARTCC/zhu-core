@@ -16,6 +16,12 @@ class Rating(models.TextChoices):
     ADM = 'ADM', 'Administrator'
 
 
+class Status(models.IntegerChoices):
+    ACTIVE = 0
+    LOA = 1
+    INACTIVE = 2
+
+
 class Role(models.Model):
     long = models.CharField(max_length=32)
     short = models.CharField(max_length=8)
@@ -64,13 +70,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     rating = models.CharField(max_length=3, choices=Rating.choices)
     roles = models.ManyToManyField(Role, related_name='roles')
 
+    status = models.IntegerField(default=Status.ACTIVE, choices=Status.choices)
+
     @property
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
 
     @property
     def is_member(self):
-        return self.roles.filter(short__in=['HC', 'VC', 'HC']).exists()
+        return self.roles.filter(short__in=['HC', 'VC', 'HC']).exists() and self.status == Status.ACTIVE
 
     @property
     def is_training_staff(self):
@@ -79,6 +87,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.roles.filter(short__in=['ATM', 'DATM', 'TA', 'ATA', 'FE', 'AFE', 'EC', 'AEC', 'WM', 'AWM']).exists()
+
+    @property
+    def is_senior_staff(self):
+        return self.roles.filter(short__in=['ATM', 'DATM', 'TA']).exists()
 
     @property
     def is_admin(self):
