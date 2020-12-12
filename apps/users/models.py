@@ -54,7 +54,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
     USERNAME_FIELD = 'cid'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'rating']
-    is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
     # Personal Info
@@ -65,9 +64,25 @@ class User(AbstractBaseUser, PermissionsMixin):
     rating = models.CharField(max_length=3, choices=Rating.choices)
     roles = models.ManyToManyField(Role, related_name='roles')
 
-    def __str__(self):
-        return self.full_name
-
     @property
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
+
+    @property
+    def is_member(self):
+        return self.roles.filter(short__in=['HC', 'VC', 'HC']).exists()
+
+    @property
+    def is_training_staff(self):
+        return self.roles.filter(short__in=['INS', 'MTR']).exists()
+
+    @property
+    def is_staff(self):
+        return self.roles.filter(short__in=['ATM', 'DATM', 'TA', 'ATA', 'FE', 'AFE', 'EC', 'AEC', 'WM', 'AWM']).exists()
+
+    @property
+    def is_admin(self):
+        return self.roles.filter(short__in=['ATM', 'DATM', 'WM']).exists()
+
+    def __str__(self):
+        return self.full_name
