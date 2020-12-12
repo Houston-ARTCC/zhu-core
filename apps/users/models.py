@@ -3,18 +3,17 @@ from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
 
 
-RATINGS = (
-    ('OBS', 'Observer'),
-    ('S1', 'Student 1'),
-    ('S2', 'Student 2'),
-    ('S3', 'Student 3'),
-    ('C1', 'Controller'),
-    ('C3', 'Senior Controller'),
-    ('I1', 'Instructor'),
-    ('I3', 'Senior Instructor'),
-    ('SUP', 'Supervisor'),
-    ('ADM', 'Administrator'),
-)
+class Rating(models.TextChoices):
+    OBS = 'OBS', 'Observer'
+    S1 = 'S1', 'Student 1'
+    S2 = 'S2', 'Student 2'
+    S3 = 'S3', 'Student 3'
+    C1 = 'C1', 'Controller'
+    C3 = 'C3', 'Senior Controller'
+    I1 = 'I1', 'Instructor'
+    I3 = 'I3', 'Senior Instructor'
+    SUP = 'SUP', 'Supervisor'
+    ADM = 'ADM', 'Administrator'
 
 
 class Role(models.Model):
@@ -63,7 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField()
     first_name = models.CharField(max_length=16)
     last_name = models.CharField(max_length=16)
-    rating = models.CharField(max_length=3, choices=RATINGS)
+    rating = models.CharField(max_length=3, choices=Rating.choices)
     roles = models.ManyToManyField(Role, related_name='roles')
 
     def __str__(self):

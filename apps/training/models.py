@@ -3,34 +3,36 @@ from django.db import models
 from ..users.models import User
 
 
-TYPES = (
-    (0, 'Classroom'),
-    (1, 'Sweatbox'),
-    (2, 'Online'),
-    (3, 'OTS'),
-)
-LEVELS = (
-    (0, 'Minor Ground'),
-    (1, 'Major Ground'),
-    (2, 'Minor Tower'),
-    (3, 'Major Tower'),
-    (4, 'Minor Approach'),
-    (5, 'Major Approach'),
-    (6, 'Center'),
-    (7, 'Oceanic'),
-)
-STATUSES = (
-    (0, 'Scheduled'),
-    (1, 'Completed'),
-    (2, 'Cancelled'),
-    (3, 'No-Show'),
-)
-OTS_STATUSES = (
-    (0, 'Non-OTS'),
-    (1, 'Passed'),
-    (2, 'Failed'),
-    (3, 'Recommended'),
-)
+class Type(models.IntegerChoices):
+    CLASSROOM = 0, 'Classroom'
+    SWEATBOX = 1, 'Sweatbox'
+    ONLINE = 2, 'Online'
+    OTS = 3, 'OTS'
+
+
+class Level(models.IntegerChoices):
+    MINOR_GROUND = 0, 'Minor Ground'
+    MAJOR_GROUND = 1, 'Major Ground'
+    MINOR_TOWER = 2, 'Minor Tower'
+    MAJOR_TOWER = 3, 'Major Tower'
+    MINOR_APPROACH = 4, 'Minor Approach'
+    MAJOR_APPROACH = 5, 'Major Approach'
+    CENTER = 6, 'Center'
+    OCEANIC = 7, 'Oceanic'
+
+
+class Status(models.IntegerChoices):
+    SCHEDULED = 0, 'Scheduled'
+    COMPLETED = 1, 'Completed'
+    CANCELLED = 2, 'Cancelled'
+    NO_SHOW = 3, 'No-Show'
+
+
+class OTSStatus(models.IntegerChoices):
+    NON_OTS = 0, 'Non-OTS'
+    PASSED = 1, 'Passed'
+    FAILED = 2, 'Failed'
+    RECOMMENDED = 3, 'Recommended'
 
 
 class TrainingSession(models.Model):
@@ -44,10 +46,10 @@ class TrainingSession(models.Model):
     movements = models.IntegerField(default=0)
     progress = models.IntegerField(default=3)
     position = models.CharField(max_length=16)
-    type = models.IntegerField(choices=TYPES)
-    level = models.IntegerField(choices=LEVELS)
-    status = models.IntegerField(default=0, choices=STATUSES)
-    ots_status = models.IntegerField(default=0, choices=OTS_STATUSES)
+    type = models.IntegerField(choices=Type.choices)
+    level = models.IntegerField(choices=Level.choices)
+    status = models.IntegerField(default=0, choices=Status.choices)
+    ots_status = models.IntegerField(default=0, choices=OTSStatus.choices)
     ctrs_id = models.IntegerField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     solo_granted = models.BooleanField(default=False)
@@ -67,8 +69,8 @@ class TrainingRequest(models.Model):
     student = models.ForeignKey(User, models.CASCADE, related_name='training_requests')
     start = models.DateTimeField()
     end = models.DateTimeField()
-    type = models.IntegerField(choices=TYPES)
-    level = models.IntegerField(choices=LEVELS)
+    type = models.IntegerField(choices=Type.choices)
+    level = models.IntegerField(choices=Level.choices)
     remarks = models.TextField(null=True, blank=True)
 
     @property
