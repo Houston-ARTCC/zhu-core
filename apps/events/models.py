@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from apps.users.models import User
 
@@ -11,6 +12,10 @@ class Event(models.Model):
     host = models.CharField(max_length=32)
     description = models.TextField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
+    
+    @property
+    def is_archived(self):
+        return self.end < timezone.now()
 
     def __str__(self):
         return self.name

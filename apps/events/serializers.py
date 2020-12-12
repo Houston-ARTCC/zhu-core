@@ -26,6 +26,8 @@ class EventWithPositionsSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    archived = serializers.BooleanField(read_only=True, source='is_archived')
+
     class Meta:
         model = Event
-        fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden']
+        fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived']
