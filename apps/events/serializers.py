@@ -2,9 +2,12 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Event, EventPosition, EventPositionRequest
+from ..users.models import User
 
 
 class EventPositionRequestSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
+
     class Meta:
         model = EventPositionRequest
         fields = '__all__'

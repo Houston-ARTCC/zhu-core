@@ -4,5 +4,5 @@ from . import views
 
 urlpatterns = [
     path('', views.ResourceListView.as_view()),
-    path('<int:id>/', views.ResourceInstanceView.as_view()),
+    path('<int:resource_id>/', views.ResourceInstanceView.as_view()),
 ]

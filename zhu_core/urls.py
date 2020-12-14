@@ -6,7 +6,9 @@ urlpatterns = [
     path('api/events/', include('apps.events.urls')),
     path('api/feedback/', include('apps.feedback.urls')),
     path('api/resources/', include('apps.resources.urls')),
+    path('api/', include('apps.tmu.urls')),
     path('api/training/', include('apps.training.urls')),
     path('api/users/', include('apps.users.urls')),
+    path('api/visiting/', include('apps.visiting.urls')),
     path('admin/', admin.site.urls),
 ]

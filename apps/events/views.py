@@ -69,10 +69,7 @@ class RequestPositionView(APIView):
         Request event position.
         """
         event_position = get_object_or_404(EventPosition, id=position_id)
-        serializer = EventPositionRequestSerializer(data={
-            'position': event_position.id,
-            'user': request.user.cid,
-        })
+        serializer = EventPositionRequestSerializer(data={'position': event_position.id}, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

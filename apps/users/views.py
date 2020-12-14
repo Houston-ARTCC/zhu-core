@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -30,4 +31,19 @@ class UserListView(APIView):
         """
         users = User.objects.all()
         serializer = AuthenticatedUserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class UserInstanceView(APIView):
+    permission_classes = [ReadOnly]
+
+    def get(self, request, cid, format=None):
+        """
+        Get user.
+        """
+        user = get_object_or_404(User, cid=cid)
+        if request.user.is_authenticated and request.user.is_staff:
+            serializer = AuthenticatedUserSerializer(user)
+        else:
+            serializer = UserSerializer(user)
         return Response(serializer.data)

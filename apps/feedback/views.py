@@ -49,3 +49,5 @@ class FeedbackInstanceView(APIView):
         feedback = get_object_or_404(Feedback, id=feedback_id)
         feedback.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# TODO: Send email on reception/acception/rejection of feedback.

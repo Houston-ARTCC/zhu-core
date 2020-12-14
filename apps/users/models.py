@@ -98,5 +98,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_admin(self):
         return self.roles.filter(short__in=['ATM', 'DATM', 'WM']).exists()
 
+    def add_role(self, short):
+        self.groups.add(Role.objects.get(short=short))
+
     def __str__(self):
         return self.full_name
