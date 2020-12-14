@@ -14,7 +14,7 @@ class ActiveUserListView(APIView):
         Get list of all active users.
         """
         users = User.objects.filter(Status.ACTIVE)
-        if request.user and request.user.is_staff:
+        if request.user.is_authenticated and request.user.is_staff:
             serializer = AuthenticatedUserSerializer(users, many=True)
         else:
             serializer = UserSerializer(users, many=True)

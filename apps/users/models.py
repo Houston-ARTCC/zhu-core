@@ -47,7 +47,6 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, cid, email, first_name, last_name, password, rating, **extra_fields):
         user = self.create_user(cid, email, first_name, last_name, rating, **extra_fields)
-        user.is_staff = True
         user.is_superuser = True
         user.set_password(password)
         user.save()
@@ -67,8 +66,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField()
     first_name = models.CharField(max_length=16)
     last_name = models.CharField(max_length=16)
+
+    # VATSIM Details
     rating = models.CharField(max_length=3, choices=Rating.choices)
     roles = models.ManyToManyField(Role, related_name='roles')
+    home_facility = models.CharField(max_length=8)
 
     status = models.IntegerField(default=Status.ACTIVE, choices=Status.choices)
 

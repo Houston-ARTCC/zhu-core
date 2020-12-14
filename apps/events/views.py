@@ -3,7 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsStaff, IsMember, IsOwner, ReadOnly
+from zhu_core.permissions import IsStaff, IsMember, ReadOnly
 from .models import Event, EventPositionRequest, EventPosition
 from .serializers import EventSerializer, EventWithPositionsSerializer, EventPositionRequestSerializer
 
@@ -62,7 +62,7 @@ class EventInstanceView(APIView):
 
 
 class RequestPositionView(APIView):
-    permission_classes = [IsMember & IsOwner]
+    permission_classes = [IsMember]
 
     def post(self, request, event_id, position_id, format=None):
         """

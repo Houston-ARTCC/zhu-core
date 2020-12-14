@@ -66,6 +66,13 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
             'Accept': 'application/json',
         }).json().get('data')
 
+        # Get user's home division. If they are in VATUSA get their home facility.
+        division = 'VAT' + data.get('vatsim').get('division').get('id')
+        if division == 'VATUSA':
+            req = requests.get('https://api.vatusa.net/v2/user/' + data.get('cid'))
+            if req.status_code == 200:
+                division = req.json().get('facility')
+
         user_query = User.objects.filter(cid=data.get('cid'))
         if not user_query.exists():
             user = User.objects.create_user(
@@ -74,8 +81,11 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
                 first_name=data.get('personal').get('name_first'),
                 last_name=data.get('personal').get('name_last'),
                 rating=data.get('vatsim').get('rating').get('short'),
+                home_facility=division,
             )
         else:
             user = user_query.first()
+            user.home_facility = division
+            user.save()
 
         return user
