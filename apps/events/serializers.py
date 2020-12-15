@@ -25,7 +25,7 @@ class EventPositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EventPosition
-        fields = ['callsign', 'requests']
+        fields = ['event', 'user', 'callsign', 'requests']
 
 
 class EventWithPositionsSerializer(serializers.ModelSerializer):

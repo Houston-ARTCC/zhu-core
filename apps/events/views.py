@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 
 from zhu_core.permissions import IsStaff, IsMember, ReadOnly
 from .models import Event, EventPositionRequest, EventPosition
-from .serializers import EventSerializer, EventWithPositionsSerializer, EventPositionRequestSerializer
+from .serializers import EventSerializer, EventWithPositionsSerializer, EventPositionRequestSerializer, \
+    EventPositionSerializer
 
 
 class EventListView(APIView):
@@ -60,11 +61,46 @@ class EventInstanceView(APIView):
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def post(self, request, event_id, format=None):
+        """
+        Add event position.
+        """
+        event = get_object_or_404(Event, id=event_id)
+        request.data['event'] = event.id
+        serializer = EventPositionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PositionInstanceView(APIView):
+    permission_classes = [IsStaff]
+
+    def put(self, request, position_id, format=None):
+        """
+        Assign event position.
+        """
+        event_position = get_object_or_404(EventPosition, id=position_id)
+        serializer = EventPositionRequestSerializer(event_position, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, position_id, format=None):
+        """
+        Delete event position.
+        """
+        event_position_request = get_object_or_404(EventPosition, position=position_id)
+        event_position_request.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class RequestPositionView(APIView):
     permission_classes = [IsMember]
 
-    def post(self, request, event_id, position_id, format=None):
+    def post(self, request, position_id, format=None):
         """
         Request event position.
         """
@@ -75,10 +111,35 @@ class RequestPositionView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, event_id, position_id, format=None):
+    def delete(self, request, position_id, format=None):
         """
         Unrequest event position.
         """
         event_position_request = get_object_or_404(EventPositionRequest, position=position_id, user=request.user)
         event_position_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PositionRequestInstanceView(APIView):
+    permission_classes = [IsStaff]
+
+    def put(self, request, request_id, format=None):
+        """
+        Accept event position request.
+        Deletes all other requests by user.
+        """
+        position_request = get_object_or_404(EventPositionRequest, id=request_id)
+        position_request.accept_request()
+        position_request.user.event_position_requests.filter(position__event=position_request.position.event).delete()
+
+    def delete(self, request, request_id, format=None):
+        """
+        Reject event position request.
+        """
+        event_position_request = get_object_or_404(EventPositionRequest, id=request_id)
+        event_position_request.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# TODO: Return Response() on position request PUT.
+# TODO: Send email on position assignment.

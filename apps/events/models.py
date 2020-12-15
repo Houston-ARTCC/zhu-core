@@ -40,5 +40,9 @@ class EventPositionRequest(models.Model):
     position = models.ForeignKey(EventPosition, models.CASCADE, related_name='requests')
     user = models.ForeignKey(User, models.CASCADE, related_name='event_position_requests')
 
+    def accept_request(self):
+        self.position.user = self.position
+        self.position.save()
+
     def __str__(self):
         return f'{self.user.full_name} for {self.position}'

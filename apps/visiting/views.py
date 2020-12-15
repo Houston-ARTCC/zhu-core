@@ -15,8 +15,8 @@ class VisitingListView(APIView):
         """
         Get list of all visiting applications.
         """
-        feedback = VisitingApplication.objects.all()
-        serializer = VisitingApplicationSerializer(feedback, many=True)
+        applications = VisitingApplication.objects.all()
+        serializer = VisitingApplicationSerializer(applications, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -37,16 +37,18 @@ class VisitingInstanceView(APIView):
         """
         Approve visiting application.
         """
-        feedback = get_object_or_404(VisitingApplication, id=application_id)
-        feedback.user.set_membership('VC')
-        feedback.delete()
+        application = get_object_or_404(VisitingApplication, id=application_id)
+        application.user.set_membership('VC')
+        application.delete()
 
     def delete(self, request, application_id, format=None):
         """
         Reject visiting application.
         """
-        feedback = get_object_or_404(VisitingApplication, id=application_id)
-        feedback.delete()
+        application = get_object_or_404(VisitingApplication, id=application_id)
+        application.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+# TODO: Return Response() on visiting request PUT.
 # TODO: Send email on reception/acception/rejection of application.
