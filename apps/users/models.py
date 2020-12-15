@@ -2,6 +2,8 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
 
+from zhu_core.utils import base26decode, base26encode
+
 
 class Rating(models.TextChoices):
     OBS = 'OBS', 'Observer'
@@ -19,7 +21,14 @@ class Rating(models.TextChoices):
 class Status(models.IntegerChoices):
     ACTIVE = 0
     LOA = 1
-    INACTIVE = 2
+    NON_MEMBER = 2
+
+
+class Certification(models.IntegerChoices):
+    NONE = 0, 'No Certification'
+    MINOR = 1, 'Minor Certification'
+    MAJOR = 2, 'Major Certification'
+    SOLO = 3, 'Solo Certification'
 
 
 class Role(models.Model):
@@ -69,10 +78,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # VATSIM Details
     rating = models.CharField(max_length=3, choices=Rating.choices)
-    roles = models.ManyToManyField(Role, related_name='roles')
     home_facility = models.CharField(max_length=8)
 
-    status = models.IntegerField(default=Status.ACTIVE, choices=Status.choices)
+    # ARTCC Details
+    roles = models.ManyToManyField(Role, related_name='roles')
+    status = models.IntegerField(default=Status.NON_MEMBER, choices=Status.choices)
+    initials = models.CharField(max_length=2, null=True, blank=True)
+
+    # Certifications
+    del_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
+    gnd_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
+    twr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
+    app_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
+    ctr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
+    ocn_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
 
     @property
     def full_name(self):
@@ -80,7 +99,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_member(self):
-        return self.roles.filter(short__in=['HC', 'VC', 'HC']).exists() and self.status == Status.ACTIVE
+        return self.status != Status.NON_MEMBER
 
     @property
     def is_training_staff(self):
@@ -98,8 +117,41 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_admin(self):
         return self.roles.filter(short__in=['ATM', 'DATM', 'WM']).exists()
 
+    def assign_initials(self):
+        """
+        Assigns operating initials to the user. If the user's initials are taken
+        the letters are cycled through until an available one is found.
+        """
+        initials = (self.first_name[0] + self.last_name[0]).upper()
+        users = User.objects.exclude(status=Status.NON_MEMBER).exclude(cid=self.cid)
+        while users.filter(initials=initials).exists():
+            new_initials = base26decode(initials) + 1
+            initials = base26encode(new_initials if new_initials <= 675 else 0)
+        self.initials = initials.rjust(2, 'A')
+        self.save()
+
+    def set_membership(self, short):
+        """
+        Sets the user to home, visiting, MAVP, or non-member.
+        Automatically removes any other "membership" roles.
+        Automatically assigns initials if new member.
+        """
+        assert short in ['HC', 'VC', 'MC', None]
+        self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
+        if short is None:
+            self.status = Status.NON_MEMBER
+        else:
+            if self.status == Status.NON_MEMBER:
+                self.assign_initials()
+            self.status = Status.ACTIVE
+            self.add_role('short')
+        self.save()
+
     def add_role(self, short):
-        self.groups.add(Role.objects.get(short=short))
+        self.roles.add(Role.objects.get(short=short))
+
+    def remove_role(self, short):
+        self.roles.remove(*self.roles.filter(short=short))
 
     def __str__(self):
         return self.full_name

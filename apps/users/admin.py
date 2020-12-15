@@ -12,8 +12,10 @@ class UserAdmin(UserAdmin):
     list_filter = list_display
     ordering = ('cid',)
     fieldsets = (
-        ('Personal Information', {'fields': ('cid', 'first_name', 'last_name', 'email', 'password', 'rating')}),
-        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'roles', 'user_permissions')}),
+        ('Personal Information', {'fields': ('cid', 'first_name', 'last_name', 'email', 'password')}),
+        ('VATSIM Details', {'fields': ('rating', 'home_facility', 'roles', 'status', 'initials')}),
+        ('Certifications', {'fields': ('del_cert', 'gnd_cert', 'twr_cert', 'app_cert', 'ctr_cert', 'ocn_cert')}),
+        ('Permissions', {'fields': ('is_superuser', 'user_permissions')}),
     )
 
 

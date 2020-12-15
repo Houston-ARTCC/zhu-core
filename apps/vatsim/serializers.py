@@ -88,4 +88,9 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
             user.home_facility = division
             user.save()
 
+        if division == os.getenv('FACILITY_IATA'):
+            user.set_membership('HC')
+        elif division in os.getenv('MAVP_FACILTIY_IATA').split(','):
+            user.set_membership('MC')
+
         return user

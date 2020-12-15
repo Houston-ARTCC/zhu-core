@@ -38,7 +38,7 @@ class VisitingInstanceView(APIView):
         Approve visiting application.
         """
         feedback = get_object_or_404(VisitingApplication, id=application_id)
-        feedback.user.add_role('VC')
+        feedback.user.set_membership('VC')
         feedback.delete()
 
     def delete(self, request, application_id, format=None):
