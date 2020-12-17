@@ -144,7 +144,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             if self.status == Status.NON_MEMBER:
                 self.assign_initials()
             self.status = Status.ACTIVE
-            self.add_role('short')
+            self.add_role(short)
         self.save()
 
     def add_role(self, short):
