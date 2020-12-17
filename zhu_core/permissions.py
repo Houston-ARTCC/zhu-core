@@ -11,13 +11,21 @@ class ReadOnly(BasePermission):
 
 class IsOwner(BasePermission):
     """
-    Allows access to users who match the 'user' field on the object.
+    Allows access to users who match the 'user' field.
     """
     def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return True
-
         return request.user and obj.user == request.user
+
+
+class IsStudent(BasePermission):
+    """
+    Allows access to users who match the 'student' field via SAFE_METHDOS only.
+    """
+    def has_object_permission(self, request, view, obj):
+        if request.method not in SAFE_METHODS:
+            return False
+
+        return request.user and obj.student == request.user
 
 
 class IsMember(BasePermission):
@@ -58,3 +66,11 @@ class IsAdmin(BasePermission):
     """
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.is_admin
+
+
+class IsPut(BasePermission):
+    """
+    Allows access to PUT requests.
+    """
+    def has_permission(self, request, view):
+        return request.method == 'PUT'

@@ -10,4 +10,4 @@ class TrainingSessionAdmin(admin.ModelAdmin):
 
 @admin.register(TrainingRequest)
 class TrainingRequestAdmin(admin.ModelAdmin):
-    list_display = ('id', 'student', 'type', 'level')
+    list_display = ('id', 'user', 'type', 'level')

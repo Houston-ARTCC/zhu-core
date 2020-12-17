@@ -66,7 +66,7 @@ class TrainingRequest(models.Model):
     class Meta:
         verbose_name_plural = 'Training Requests'
 
-    student = models.ForeignKey(User, models.CASCADE, related_name='training_requests')
+    user = models.ForeignKey(User, models.CASCADE, related_name='training_requests')
     start = models.DateTimeField()
     end = models.DateTimeField()
     type = models.IntegerField(choices=Type.choices)
