@@ -1,10 +1,11 @@
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsStaff, IsMember, ReadOnly
-from .models import Event, EventPositionRequest, EventPosition
+from .models import Event, EventPositionRequest, EventPosition, SupportRequest
 from .serializers import EventSerializer, EventWithPositionsSerializer, EventPositionRequestSerializer, \
     EventPositionSerializer
 
@@ -141,5 +142,41 @@ class PositionRequestInstanceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class RequestSupportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        """
+        Request support for event.
+        """
+        serializer = EventPositionRequestSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SupportRequestInstanceView(APIView):
+    permission_classes = [IsStaff]
+
+    def put(self, request, request_id, format=None):
+        """
+        Approve support request.
+        """
+        event_position = get_object_or_404(SupportRequest, id=request_id)
+        event_position.convert_to_event()
+        event_position.delete()
+
+    def delete(self, request, request_id, format=None):
+        """
+        Reject support request.
+        """
+        event_position_request = get_object_or_404(SupportRequest, position=request_id)
+        event_position_request.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # TODO: Return Response() on position request PUT.
+# TODO: Return Response() on support request PUT.
 # TODO: Send email on position assignment.
+# TODO: Send email on support request received/approved/rejected.

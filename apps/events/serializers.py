@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from .models import Event, EventPosition, EventPositionRequest
+from .models import Event, EventPosition, EventPositionRequest, SupportRequest
 from ..users.models import User
 
 
@@ -42,3 +42,11 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived']
+
+
+class SupportRequestSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = SupportRequest
+        fields = ['user', 'name', 'banner', 'start', 'end', 'host', 'description']

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Event, EventPosition, EventPositionRequest
+from .models import Event, EventPosition, EventPositionRequest, SupportRequest
 
 
 @admin.register(Event)
@@ -16,3 +16,8 @@ class EventPositionAdmin(admin.ModelAdmin):
 @admin.register(EventPositionRequest)
 class EventPositionRequestAdmin(admin.ModelAdmin):
     list_display = ('position', 'user')
+
+
+@admin.register(SupportRequest)
+class SupportRequestAdmin(admin.ModelAdmin):
+    list_display = ('name', 'host', 'start', 'end')

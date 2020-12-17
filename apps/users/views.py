@@ -8,8 +8,6 @@ from .serializers import UserSerializer, AuthenticatedUserSerializer
 
 
 class ActiveUserListView(APIView):
-    permission_classes = [ReadOnly]
-
     def get(self, request, format=None):
         """
         Get list of all active users.
