@@ -3,10 +3,14 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Event, EventPosition, EventPositionRequest, SupportRequest
 from ..users.models import User
+from ..users.serializers import BasicUserSerializer
 
 
-class EventPositionRequestSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
+class BasePositionRequestSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault()
+    )
 
     class Meta:
         model = EventPositionRequest
@@ -20,16 +24,25 @@ class EventPositionRequestSerializer(serializers.ModelSerializer):
         ]
 
 
-class EventPositionSerializer(serializers.ModelSerializer):
-    requests = EventPositionRequestSerializer(many=True, read_only=True)
+class PositionRequestSerializer(BasePositionRequestSerializer):
+    user = BasicUserSerializer()
+
+
+class BasePositionSerializer(serializers.ModelSerializer):
+    requests = PositionRequestSerializer(many=True, read_only=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
 
     class Meta:
         model = EventPosition
-        fields = ['event', 'user', 'callsign', 'requests']
+        fields = '__all__'
+
+
+class PositionSerializer(BasePositionSerializer):
+    user = BasicUserSerializer()
 
 
 class EventWithPositionsSerializer(serializers.ModelSerializer):
-    positions = EventPositionSerializer(many=True, read_only=True)
+    positions = PositionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
@@ -44,9 +57,9 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived']
 
 
-class SupportRequestSerializer(serializers.ModelSerializer):
+class SupportSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
 
     class Meta:
         model = SupportRequest
-        fields = ['user', 'name', 'banner', 'start', 'end', 'host', 'description']
+        fields = '__all__'

@@ -37,3 +37,9 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
             'short': obj.rating,
             'long': obj.get_rating_display()
         }
+
+
+class BasicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['cid', 'first_name', 'last_name']

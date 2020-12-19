@@ -5,9 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsStaff, IsMember, ReadOnly
-from .models import Event, EventPositionRequest, EventPosition, SupportRequest
-from .serializers import EventSerializer, EventWithPositionsSerializer, EventPositionRequestSerializer, \
-    EventPositionSerializer
+from .serializers import *
 
 
 class EventListView(APIView):
@@ -68,7 +66,7 @@ class EventInstanceView(APIView):
         """
         event = get_object_or_404(Event, id=event_id)
         request.data['event'] = event.id
-        serializer = EventPositionSerializer(data=request.data)
+        serializer = PositionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -78,14 +76,17 @@ class EventInstanceView(APIView):
 class PositionInstanceView(APIView):
     permission_classes = [IsStaff]
 
-    def put(self, request, position_id, format=None):
+    def patch(self, request, position_id, format=None):
         """
         Assign event position.
+        Deletes all other requests by user.
         """
         event_position = get_object_or_404(EventPosition, id=position_id)
-        serializer = EventPositionRequestSerializer(event_position, data=request.data)
+        serializer = BasePositionSerializer(event_position, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            if event_position.user is not None:
+                event_position.user.event_position_requests.filter(position__event=event_position.event).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -93,8 +94,8 @@ class PositionInstanceView(APIView):
         """
         Delete event position.
         """
-        event_position_request = get_object_or_404(EventPosition, position=position_id)
-        event_position_request.delete()
+        event_position = get_object_or_404(EventPosition, id=position_id)
+        event_position.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -106,7 +107,7 @@ class RequestPositionView(APIView):
         Request event position.
         """
         event_position = get_object_or_404(EventPosition, id=position_id)
-        serializer = EventPositionRequestSerializer(data={'position': event_position.id}, context={'request': request})
+        serializer = BasePositionRequestSerializer(data={'position': event_position.id}, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -121,27 +122,6 @@ class RequestPositionView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class PositionRequestInstanceView(APIView):
-    permission_classes = [IsStaff]
-
-    def put(self, request, request_id, format=None):
-        """
-        Accept event position request.
-        Deletes all other requests by user.
-        """
-        position_request = get_object_or_404(EventPositionRequest, id=request_id)
-        position_request.accept_request()
-        position_request.user.event_position_requests.filter(position__event=position_request.position.event).delete()
-
-    def delete(self, request, request_id, format=None):
-        """
-        Reject event position request.
-        """
-        event_position_request = get_object_or_404(EventPositionRequest, id=request_id)
-        event_position_request.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class RequestSupportView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -149,7 +129,7 @@ class RequestSupportView(APIView):
         """
         Request support for event.
         """
-        serializer = EventPositionRequestSerializer(data=request.data, context={'request': request})
+        serializer = PositionRequestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -176,7 +156,7 @@ class SupportRequestInstanceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# TODO: Return Response() on position request PUT.
+# TODO: Clean up views by using generic views.
 # TODO: Return Response() on support request PUT.
 # TODO: Send email on position assignment.
 # TODO: Send email on support request received/approved/rejected.
