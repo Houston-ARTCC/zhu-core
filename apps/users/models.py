@@ -155,3 +155,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
+
+
+# TODO: Initial staff role on createsuperuser.

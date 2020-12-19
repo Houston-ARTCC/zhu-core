@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -12,7 +13,7 @@ class ActiveUserListView(APIView):
         """
         Get list of all active users.
         """
-        users = User.objects.filter(Status.ACTIVE)
+        users = User.objects.filter(status=Status.ACTIVE)
         if request.user.is_authenticated and request.user.is_staff:
             serializer = AuthenticatedUserSerializer(users, many=True)
         else:
@@ -33,7 +34,7 @@ class UserListView(APIView):
 
 
 class UserInstanceView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [ReadOnly | IsStaff]
 
     def get(self, request, cid, format=None):
         """
@@ -45,3 +46,14 @@ class UserInstanceView(APIView):
         else:
             serializer = UserSerializer(user)
         return Response(serializer.data)
+
+    def put(self, request, cid, format=None):
+        """
+        Modify user.
+        """
+        user = get_object_or_404(User, cid=cid)
+        serializer = AuthenticatedUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

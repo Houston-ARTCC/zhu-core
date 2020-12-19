@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['cid', 'first_name', 'last_name', 'rating', 'roles']
+        exclude = ['email', 'password']
 
     def get_rating(self, obj):
         return {
@@ -30,7 +30,7 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['cid', 'email', 'first_name', 'last_name', 'rating', 'roles']
+        exclude = ['password']
 
     def get_rating(self, obj):
         return {

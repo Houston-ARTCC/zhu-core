@@ -7,7 +7,7 @@ from apps.users.models import Role, User
 @admin.register(User)
 class UserAdmin(UserAdmin):
     model = User
-    list_display = ('cid', 'email', 'first_name', 'last_name', 'rating')
+    list_display = ('cid', 'email', 'first_name', 'last_name', 'rating', 'status')
     search_fields = list_display
     list_filter = list_display
     ordering = ('cid',)
