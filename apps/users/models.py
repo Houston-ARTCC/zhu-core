@@ -54,20 +54,11 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, cid, email, first_name, last_name, password, rating, **extra_fields):
-        user = self.create_user(cid, email, first_name, last_name, rating, **extra_fields)
-        user.is_superuser = True
-        user.set_password(password)
-        user.save()
-
-        return user
-
 
 class User(AbstractBaseUser, PermissionsMixin):
     # Django Auth Fields
     objects = UserManager()
     USERNAME_FIELD = 'cid'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'rating']
     is_superuser = models.BooleanField(default=False)
 
     # Personal Info
@@ -157,6 +148,3 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
-
-
-# TODO: Initial staff role on createsuperuser.

@@ -56,8 +56,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
             'code': code,
         })
 
-        if resp.status_code != 200:
-            return
+        assert resp.status_code == 200, 'Error authenticating user.'
 
         auth = resp.json()
 
