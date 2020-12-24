@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'apps.connections',
     'apps.events',
     'apps.feedback',
     'apps.resources',
@@ -69,7 +70,7 @@ INSTALLED_APPS = [
     'apps.training',
     'apps.users',
     'apps.vatsim',
-    'apps.visiting'
+    'apps.visiting',
 ]
 
 MIDDLEWARE = [
