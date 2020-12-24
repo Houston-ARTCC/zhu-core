@@ -1,3 +1,7 @@
+import os
+import requests
+
+
 def base26encode(int_n):
     """
     Returns the base 26 integer representation of a string.
@@ -18,3 +22,22 @@ def base26decode(str_n):
     for pos, char in enumerate(str_n):
         int_n += (ord(char) - 65) * (26 ** (len(str_n) - pos - 1))
     return int_n
+
+
+def get_vatsim_data():
+    resp = requests.get('https://data.vatsim.net/v3/vatsim-data.json')
+
+    assert resp.status_code == 200, 'Error pulling VATSIM data.'
+
+    return resp.json()
+
+
+def get_vatusa_roster():
+    resp = requests.get(
+        f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster',
+        params={'apikey': os.getenv('VATUSA_API_TOKEN')},
+    )
+
+    assert resp.status_code == 200, 'Error pulling VATUSA roster.'
+
+    return resp.json()

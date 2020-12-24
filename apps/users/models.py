@@ -143,6 +143,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             if self.status == Status.NON_MEMBER:
                 self.assign_initials()
+            if short == 'HC':
+                self.home_facility = 'ZHU'
             self.status = Status.ACTIVE
             self.add_role(short)
         self.save()
