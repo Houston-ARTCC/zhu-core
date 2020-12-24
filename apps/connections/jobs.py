@@ -18,7 +18,7 @@ def update_online_controllers():
 
     # Updates all controllers currently online.
     for online in OnlineController.objects.all():
-        if online.callsign in connections and connections.get(online.callsign).cid == online.user.cid:
+        if online.callsign in connections and connections.get(online.callsign).get('cid') == online.user.cid:
             online.save()
         else:
             online.convert_to_session()
@@ -27,7 +27,7 @@ def update_online_controllers():
     # Checks for new connections.
     for callsign, connection in connections.items():
         user = User.objects.filter(cid=connection.get('cid'))
-        if user.exists() and not OnlineController.objects.filter(callsign=callsign, user=user).exists():
+        if user.exists() and not OnlineController.objects.filter(callsign=callsign, user=user.first()).exists():
             if callsign.split('_')[0] in position_prefixes and callsign.split('_')[-1] not in ['SUP', 'OBS']:
                 OnlineController(
                     user=user.first(),

@@ -9,7 +9,7 @@ class UserAdmin(UserAdmin):
     model = User
     list_display = ('cid', 'email', 'first_name', 'last_name', 'rating', 'status')
     search_fields = list_display
-    list_filter = list_display
+    list_filter = ('rating', 'status', 'roles')
     ordering = ('cid',)
     fieldsets = (
         ('Personal Information', {'fields': ('cid', 'first_name', 'last_name', 'email', 'password')}),
