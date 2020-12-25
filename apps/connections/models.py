@@ -41,5 +41,13 @@ class ControllerSession(models.Model):
     def end(self):
         return self.start + self.duration
 
+    @property
+    def facility(self):
+        return self.callsign.split('_')[0]
+
+    @property
+    def level(self):
+        return self.callsign.split('_')[-1]
+
     def __str__(self):
         return f'{self.start} | {self.user.full_name} on {self.callsign}'
