@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from .models import OnlineController, ControllerSession
 from ..users.models import User
+from ..users.serializers import BasicUserSerializer
 
 
 class ControllerSessionSerializer(serializers.ModelSerializer):
@@ -11,6 +12,8 @@ class ControllerSessionSerializer(serializers.ModelSerializer):
 
 
 class OnlineControllerSerializer(serializers.ModelSerializer):
+    user = BasicUserSerializer()
+
     class Meta:
         model = OnlineController
         fields = '__all__'

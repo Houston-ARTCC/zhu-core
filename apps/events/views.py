@@ -15,7 +15,11 @@ class EventListView(APIView):
         """
         Get list of all events.
         """
-        events = Event.objects.all()
+        events = Event.objects.all().order_by('start')
+
+        if not (request.user.is_authenticated and request.user.is_staff):
+            events.exclude(hidden=True)
+
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
 

@@ -78,4 +78,4 @@ class TrainingRequest(models.Model):
         return self.end - self.start
 
     def __str__(self):
-        return f'{self.student.full_name} {self.get_level_display()} {self.get_type_display()}'
+        return f'{self.user.full_name} {self.get_level_display()} {self.get_type_display()}'
