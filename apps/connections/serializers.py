@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from zhu_core.utils import CustomDurationField
 from .models import OnlineController, ControllerSession
 from ..users.models import User
 from ..users.serializers import BasicUserSerializer
@@ -20,9 +21,9 @@ class OnlineControllerSerializer(serializers.ModelSerializer):
 
 
 class StatisticsSerializer(serializers.ModelSerializer):
-    curr_hours = serializers.DurationField()
-    prev_hours = serializers.DurationField()
-    prev_prev_hours = serializers.DurationField()
+    curr_hours = CustomDurationField()
+    prev_hours = CustomDurationField()
+    prev_prev_hours = CustomDurationField()
 
     class Meta:
         model = User
@@ -30,7 +31,7 @@ class StatisticsSerializer(serializers.ModelSerializer):
 
 
 class TopControllersSerializer(serializers.ModelSerializer):
-    hours = serializers.DurationField()
+    hours = CustomDurationField()
 
     class Meta:
         model = User
@@ -39,4 +40,4 @@ class TopControllersSerializer(serializers.ModelSerializer):
 
 class TopPositionsSerializer(serializers.Serializer):
     position = serializers.CharField()
-    hours = serializers.DurationField()
+    hours = CustomDurationField()

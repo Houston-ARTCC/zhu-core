@@ -1,5 +1,7 @@
 import os
 import requests
+from rest_framework import serializers
+from rest_framework.fields import DurationField
 
 
 def base26encode(int_n):
@@ -41,3 +43,13 @@ def get_vatusa_roster():
     assert resp.status_code == 200, 'Error pulling VATUSA roster.'
 
     return resp.json()
+
+
+class CustomDurationField(DurationField):
+    def to_representation(self, value):
+        minutes, seconds = divmod(value.total_seconds(), 60)
+        hours, minutes = divmod(minutes, 60)
+
+        string = f'{int(hours):02}:{int(minutes):02}:{int(seconds):02}'
+
+        return string
