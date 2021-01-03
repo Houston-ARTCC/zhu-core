@@ -18,7 +18,7 @@ class EventListView(APIView):
         events = Event.objects.all().order_by('start')
 
         if not (request.user.is_authenticated and request.user.is_staff):
-            events.exclude(hidden=True)
+            events = events.exclude(hidden=True)
 
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
@@ -42,7 +42,7 @@ class EventInstanceView(APIView):
         Get event details.
         """
         event = get_object_or_404(Event, id=event_id)
-        serializer = EventWithPositionsSerializer(event)
+        serializer = EventSerializer(event)
         return Response(serializer.data)
 
     def put(self, request, event_id, format=None):
@@ -50,7 +50,7 @@ class EventInstanceView(APIView):
         Modify event details.
         """
         event = get_object_or_404(Event, id=event_id)
-        serializer = EventWithPositionsSerializer(event, data=request.data)
+        serializer = EventSerializer(event, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

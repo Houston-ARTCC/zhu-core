@@ -41,20 +41,13 @@ class PositionSerializer(BasePositionSerializer):
     user = BasicUserSerializer()
 
 
-class EventWithPositionsSerializer(serializers.ModelSerializer):
+class EventSerializer(serializers.ModelSerializer):
+    archived = serializers.BooleanField(read_only=True, source='is_archived')
     positions = PositionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
-        fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'positions']
-
-
-class EventSerializer(serializers.ModelSerializer):
-    archived = serializers.BooleanField(read_only=True, source='is_archived')
-
-    class Meta:
-        model = Event
-        fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived']
+        fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived', 'positions']
 
 
 class SupportSerializer(serializers.ModelSerializer):
