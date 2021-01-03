@@ -11,9 +11,9 @@ def get_user_hours():
 
     CURR_MONTH = (Q(controller_sessions__start__month=MONTH_NOW)
                   & Q(controller_sessions__start__year=YEAR_NOW))
-    PREV_MONTH = (Q(controller_sessions__start__year=MONTH_NOW - 1 if MONTH_NOW > 1 else 12)
+    PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12)
                   & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1))
-    PREV_PREV_MONTH = (Q(controller_sessions__start__year=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11)
+    PREV_PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11)
                        & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1))
 
     users = User.objects.exclude(status=Status.NON_MEMBER)
