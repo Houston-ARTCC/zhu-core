@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'apps.announcements',
     'apps.connections',
     'apps.events',
     'apps.feedback',
@@ -160,3 +161,12 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Miscellaneous
+
+BLEACH_ALLOWED_TAGS = [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'p', 'a', 'u', 's', 'em', 'br', 'ul', 'ol',
+    'pre', 'span', 'img', 'strong', 'blockquote',
+]
