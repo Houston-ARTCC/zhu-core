@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
+from django.utils import timezone
 
 from zhu_core.utils import base26decode, base26encode
 
@@ -75,6 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     roles = models.ManyToManyField(Role, related_name='roles')
     status = models.IntegerField(default=Status.NON_MEMBER, choices=Status.choices)
     initials = models.CharField(max_length=2, null=True, blank=True)
+    joined = models.DateTimeField(null=True, blank=True)
 
     # Certifications
     del_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
@@ -124,8 +126,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def set_membership(self, short):
         """
         Sets the user to home, visiting, MAVP, or non-member.
-        Automatically removes any other "membership" roles.
-        Automatically assigns initials if new member.
+        Automatically removes any other membership roles.
+        Automatically assigns initials and sets join date if new member.
         """
         assert short in ['HC', 'VC', 'MC', None]
         self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
@@ -134,6 +136,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             if self.status == Status.NON_MEMBER:
                 self.assign_initials()
+                self.joined = timezone.now()
             if short == 'HC':
                 self.home_facility = 'ZHU'
             self.status = Status.ACTIVE

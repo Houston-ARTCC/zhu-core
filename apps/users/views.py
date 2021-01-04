@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import ReadOnly, IsStaff
-from .models import User, Status
-from .serializers import UserSerializer, AuthenticatedUserSerializer
+from .models import Status
+from .serializers import *
 
 
 class ActiveUserListView(APIView):
@@ -18,6 +18,16 @@ class ActiveUserListView(APIView):
             serializer = AuthenticatedUserSerializer(users, many=True)
         else:
             serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class NewestUserListView(APIView):
+    def get(self, request, format=None):
+        """
+        Get list of 3 newest controllers.
+        """
+        users = User.objects.all().order_by('-joined')[:3]
+        serializer = BasicUserSerializer(users, many=True)
         return Response(serializer.data)
 
 
