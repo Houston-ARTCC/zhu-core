@@ -1,7 +1,8 @@
 import os
 import requests
-from rest_framework import serializers
 from rest_framework.fields import DurationField
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 
 def base26encode(int_n):
@@ -53,3 +54,10 @@ class CustomDurationField(DurationField):
         string = f'{int(hours):02}:{int(minutes):02}:{int(seconds):02}'
 
         return string
+
+
+class OverwriteStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        if self.exists(name):
+            os.remove(settings.MEDIA_ROOT / name)
+        return name

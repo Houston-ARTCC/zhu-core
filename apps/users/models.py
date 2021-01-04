@@ -1,9 +1,12 @@
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
+from django.core.files import File
 from django.db import models
 from django.utils import timezone
 
-from zhu_core.utils import base26decode, base26encode
+from zhu_core.utils import base26decode, base26encode, OverwriteStorage
 
 
 class Rating(models.TextChoices):
@@ -67,6 +70,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField()
     first_name = models.CharField(max_length=16)
     last_name = models.CharField(max_length=16)
+    profile = models.ImageField(upload_to='profile/', null=True, blank=True, storage=OverwriteStorage())
 
     # VATSIM Details
     rating = models.CharField(max_length=3, choices=Rating.choices)
@@ -136,6 +140,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             if self.status == Status.NON_MEMBER:
                 self.assign_initials()
+                self.generate_profile()
                 self.joined = timezone.now()
             if short == 'HC':
                 self.home_facility = 'ZHU'
@@ -148,6 +153,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def remove_role(self, short):
         self.roles.remove(*self.roles.filter(short=short))
+
+    def generate_profile(self):
+        """
+        Generates a profile picture with the user's
+        initials and saves it to database.
+        """
+        profile = Image.new('RGB', (500, 500), color=(194, 207, 224))
+        font = ImageFont.truetype('C:/Users/miker/Documents/Web Fonts/CeraPro/CeraPro-Medium.ttf', 225)
+
+        text_layer = ImageDraw.Draw(profile)
+        text_width, text_height = text_layer.textsize(self.initials, font=font)
+        text_layer.text(((500 - text_width) / 2, (500 - text_height) / 2), self.initials, font=font, fill=(51, 77, 110))
+
+        profile_io = BytesIO()
+        profile.save(profile_io, 'PNG')
+
+        self.profile = File(profile_io, name=str(self.cid) + '.png')
+        self.save()
 
     def __str__(self):
         return self.full_name
