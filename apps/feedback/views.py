@@ -5,8 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import ReadOnly, IsSeniorStaff
-from .models import Feedback
-from .serializers import FeedbackSerializer
+from .serializers import *
 
 
 class FeedbackListView(APIView):

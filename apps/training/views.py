@@ -5,9 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.training.models import TrainingRequest, TrainingSession
-from apps.training.serializers import TrainingRequestSerializer, TrainingSessionSerializer
 from zhu_core.permissions import IsMember, IsTrainingStaff, ReadOnly, IsOwner, IsPut, IsStudent
+from .serializers import *
 
 
 class SessionListView(APIView):

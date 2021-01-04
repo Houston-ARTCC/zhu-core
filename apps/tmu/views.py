@@ -6,8 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import ReadOnly
-from .models import ATIS, TMUNotice
-from .serializers import ATISSerializer, TMUNoticeSerializer
+from .serializers import *
 
 
 class ATISListView(APIView):

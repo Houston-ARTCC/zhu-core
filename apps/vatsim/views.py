@@ -1,6 +1,6 @@
 from rest_framework_simplejwt.views import TokenViewBase
 
-from .serializers import MyTokenObtainPairSerializer
+from .serializers import *
 
 
 class MyTokenObtainPairView(TokenViewBase):
