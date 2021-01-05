@@ -33,19 +33,6 @@ class OnlineControllersView(APIView):
         return Response(serializer.data)
 
 
-class StatisticsView(APIView):
-    permission_classes = [ReadOnly]
-
-    def get(self, request, format=None):
-        """
-        Get list of all controllers along with hours for
-        current, previous, and penultimate months.
-        """
-        hours = get_user_hours()
-        serializer = StatisticsSerializer(hours, many=True)
-        return Response(serializer.data)
-
-
 class TopControllersView(APIView):
     permission_classes = [ReadOnly]
 
@@ -69,4 +56,40 @@ class TopPositionsView(APIView):
         """
         positions = get_top_positions()
         serializer = TopPositionsSerializer(positions, many=True)
+        return Response(serializer.data)
+
+
+class StatisticsView(APIView):
+    permission_classes = [ReadOnly]
+
+    def get(self, request, format=None):
+        """
+        Get list of all controllers along with hours for
+        current, previous, and penultimate months.
+        """
+        hours = get_user_hours()
+        serializer = StatisticsSerializer(hours, many=True)
+        return Response(serializer.data)
+
+
+class DailyStatisticsView(APIView):
+    def get(self, request, year, format=None):
+        """
+        Get list of controlling hours for
+        every day of the given year.
+        """
+        connections = get_daily_statistics(year)
+        serializer = DailyConnectionsSerializer(connections, many=True)
+        return Response(serializer.data)
+
+
+class UserDailyStatisticsView(APIView):
+    def get(self, request, year, cid, format=None):
+        """
+        Get list of controlling hours for every
+        day of the given year for the given user.
+        """
+        user = get_object_or_404(User, cid=cid)
+        connections = get_daily_statistics(year, user)
+        serializer = DailyConnectionsSerializer(connections, many=True)
         return Response(serializer.data)

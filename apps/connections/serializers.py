@@ -1,3 +1,5 @@
+import math
+
 from rest_framework import serializers
 
 from zhu_core.utils import CustomDurationField
@@ -41,3 +43,11 @@ class TopControllersSerializer(serializers.ModelSerializer):
 class TopPositionsSerializer(serializers.Serializer):
     position = serializers.CharField()
     hours = CustomDurationField()
+
+
+class DailyConnectionsSerializer(serializers.Serializer):
+    day = serializers.DateField()
+    value = serializers.SerializerMethodField()
+
+    def get_value(self, obj):
+        return obj.get('value').total_seconds() / 3600

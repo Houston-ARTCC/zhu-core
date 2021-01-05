@@ -1,4 +1,4 @@
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Count
 from django.utils import timezone
 
 from .models import ControllerSession
@@ -6,6 +6,11 @@ from ..users.models import User, Status
 
 
 def get_user_hours():
+    """
+    Returns query set of active users annotated with controlling
+    hours for the current (curr_hours), previous (prev_hours),
+    and penultimate (prev_prev_hours) months.
+    """
     MONTH_NOW = timezone.now().month
     YEAR_NOW = timezone.now().year
 
@@ -27,10 +32,15 @@ def get_user_hours():
 
 
 def get_top_controllers():
+    """
+    Returns query set of active users annotated with controlling
+    hour sums for the current month (hours) sorted by most
+    controlling hours (controllers with no hours are not included).
+    """
     SAME_MONTH = Q(controller_sessions__start__month=timezone.now().month)
     SAME_YEAR = Q(controller_sessions__start__year=timezone.now().year)
 
-    users = User.objects.filter(status=Status.ACTIVE)
+    users = User.objects.exclude(status=Status.NON_MEMBER)
     users = users.annotate(hours=Sum('controller_sessions__duration', filter=SAME_MONTH & SAME_YEAR))
 
     return users.exclude(hours__isnull=True).order_by('-hours')
@@ -53,3 +63,14 @@ def get_top_positions():
     sorted_positions = sorted(position_durations, key=position_durations.get, reverse=True)
     return [{'position': position, 'hours': position_durations[position]} for position in sorted_positions]
 
+
+def get_daily_statistics(year, user=None):
+    """
+    Returns a query dictionary of every day of the
+    given year annotated with the controlling hours
+    for that day.
+    """
+    sessions = ControllerSession.objects.filter(start__year=year)
+    if user:
+        sessions = sessions.filter(user=user)
+    return sessions.extra({'day': 'date(start)'}).values('day').annotate(value=Sum('duration'))
