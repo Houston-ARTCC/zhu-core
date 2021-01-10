@@ -11,13 +11,24 @@ from .serializers import *
 class ActiveUserListView(APIView):
     def get(self, request, format=None):
         """
-        Get list of all active users.
+        Get list of all active users sorted by first name.
         """
-        users = User.objects.filter(status=Status.ACTIVE)
+        users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
         if request.user.is_authenticated and request.user.is_staff:
             serializer = AuthenticatedUserSerializer(users, many=True)
         else:
             serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class SimplifiedActiveUserListView(APIView):
+    def get(self, request, format=None):
+        """
+        Get list of all active users sorted by first name.
+        Only includes basic information (CID, name, initials, profile).
+        """
+        users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
+        serializer = BasicUserSerializer(users, many=True)
         return Response(serializer.data)
 
 
@@ -28,18 +39,6 @@ class NewestUserListView(APIView):
         """
         users = User.objects.all().order_by('-joined')[:3]
         serializer = BasicUserSerializer(users, many=True)
-        return Response(serializer.data)
-
-
-class UserListView(APIView):
-    permission_classes = [IsStaff]
-
-    def get(self, request, format=None):
-        """
-        Get list of all users.
-        """
-        users = User.objects.all()
-        serializer = AuthenticatedUserSerializer(users, many=True)
         return Response(serializer.data)
 
 

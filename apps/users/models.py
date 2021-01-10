@@ -9,6 +9,10 @@ from django.utils import timezone
 from zhu_core.utils import base26decode, base26encode, OverwriteStorage
 
 
+def create_profile_path(instance, filename):
+    return f'profile/{instance.cid}.png'
+
+
 class Rating(models.TextChoices):
     OBS = 'OBS', 'Observer'
     S1 = 'S1', 'Student 1'
@@ -70,7 +74,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField()
     first_name = models.CharField(max_length=16)
     last_name = models.CharField(max_length=16)
-    profile = models.ImageField(upload_to='profile/', null=True, blank=True, storage=OverwriteStorage())
+    profile = models.ImageField(upload_to=create_profile_path, null=True, blank=True, storage=OverwriteStorage())
+    biography = models.TextField(null=True, blank=True)
 
     # VATSIM Details
     rating = models.CharField(max_length=3, choices=Rating.choices)

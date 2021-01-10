@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -42,6 +43,10 @@ class EventInstanceView(APIView):
         Get event details.
         """
         event = get_object_or_404(Event, id=event_id)
+
+        if event.hidden and not request.user.is_staff:
+            raise PermissionDenied('You do not have permission to view this event.')
+
         serializer = EventSerializer(event)
         return Response(serializer.data)
 
@@ -111,6 +116,10 @@ class RequestPositionView(APIView):
         Request event position.
         """
         event_position = get_object_or_404(EventPosition, id=position_id)
+
+        if event_position.event.hidden and not request.user.is_staff:
+            raise PermissionDenied('You do not have permission to interact with this event.')
+
         serializer = BasePositionRequestSerializer(data={'position': event_position.id}, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -122,6 +131,10 @@ class RequestPositionView(APIView):
         Unrequest event position.
         """
         event_position_request = get_object_or_404(EventPositionRequest, position=position_id, user=request.user)
+
+        if event_position_request.position.event.hidden and not request.user.is_staff:
+            raise PermissionDenied('You do not have permission to interact with this event.')
+
         event_position_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
