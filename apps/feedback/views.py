@@ -23,7 +23,7 @@ class FeedbackListView(APIView):
         """
         Add a new feedback.
         """
-        serializer = FeedbackSerializer(data=request.data)
+        serializer = FeedbackSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
