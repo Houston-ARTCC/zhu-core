@@ -28,7 +28,15 @@ def start_scheduler():
     scheduler.add_job(
         tmu.delete_inactive_atis,
         trigger=CronTrigger(minute=0),  # Top of every hour
-        id='sync_vatusa_roster',
+        id='delete_inactive_atis',
+        max_instances=1,
+        replace_existing=True,
+    )
+
+    scheduler.add_job(
+        tmu.fetch_metars,
+        trigger=CronTrigger(minute=0),  # Top of every hour
+        id='fetch_metars',
         max_instances=1,
         replace_existing=True,
     )

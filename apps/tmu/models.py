@@ -20,3 +20,16 @@ class TMUNotice(models.Model):
     info = models.TextField()
     time_issued = models.DateTimeField(auto_now_add=True)
     time_expires = models.DateTimeField()
+
+
+class METAR(models.Model):
+    class Meta:
+        verbose_name_plural = 'METARs'
+
+    station = models.CharField(max_length=4)
+    raw = models.TextField()
+    flight_rules = models.CharField(max_length=4)
+    timestamp = models.DateTimeField()
+
+    def __str__(self):
+        return f'{self.station} @ {self.timestamp}'

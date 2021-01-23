@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import ATIS, TMUNotice
+from .models import ATIS, TMUNotice, METAR
 
 
 class ATISSerializer(serializers.ModelSerializer):
@@ -10,6 +10,12 @@ class ATISSerializer(serializers.ModelSerializer):
 
 
 class TMUNoticeSerializer(serializers.ModelSerializer):
-    class TMUNotice:
+    class Meta:
         model = TMUNotice
         fields = '__all__'
+
+
+class METARSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = METAR
+        exclude = ['id']
