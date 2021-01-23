@@ -39,7 +39,7 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
         }
 
 
-class BasicUserSerializer(serializers.ModelSerializer):
+class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['cid', 'first_name', 'last_name', 'initials', 'profile']

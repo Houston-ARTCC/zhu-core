@@ -37,6 +37,12 @@ class ResourceInstanceView(APIView):
         Modify resource details.
         """
         resource = get_object_or_404(Resource, id=resource_id)
+
+        # File is optional, if none is provided just use existing file
+        if 'path' in request.POST:
+            request.POST._mutable = True
+            request.POST['path'] = resource.path
+
         serializer = ResourceSerializer(resource, data=request.data)
         if serializer.is_valid():
             serializer.save()

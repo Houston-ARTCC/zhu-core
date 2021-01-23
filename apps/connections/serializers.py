@@ -5,7 +5,7 @@ from rest_framework import serializers
 from zhu_core.utils import CustomDurationField
 from .models import OnlineController, ControllerSession
 from ..users.models import User
-from ..users.serializers import BasicUserSerializer
+from ..users.serializers import BaseUserSerializer
 
 
 class ControllerSessionSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class ControllerSessionSerializer(serializers.ModelSerializer):
 
 
 class OnlineControllerSerializer(serializers.ModelSerializer):
-    user = BasicUserSerializer()
+    user = BaseUserSerializer()
 
     class Meta:
         model = OnlineController

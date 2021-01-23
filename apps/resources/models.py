@@ -1,3 +1,4 @@
+import os
 from django.db import models
 
 
@@ -17,6 +18,15 @@ class Resource(models.Model):
     category = models.CharField(max_length=16, choices=Category.choices)
     path = models.FileField(upload_to='resources/')
     updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def extension(self):
+        name, extension = os.path.splitext(self.path.name)
+        return extension
+
+    @property
+    def size(self):
+        return os.path.getsize(self.path.path)
 
     def __str__(self):
         return self.name

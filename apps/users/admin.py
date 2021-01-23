@@ -21,6 +21,6 @@ class UserAdmin(UserAdmin):
 
 
 @admin.register(Role)
-class UserAdmin(admin.ModelAdmin):
+class RoleAdmin(admin.ModelAdmin):
     model = Role
     list_display = ('long', 'short')

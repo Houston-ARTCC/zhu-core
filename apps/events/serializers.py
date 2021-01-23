@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Event, EventPosition, EventPositionRequest, SupportRequest
 from ..users.models import User
-from ..users.serializers import BasicUserSerializer
+from ..users.serializers import BaseUserSerializer
 
 
 class BasePositionRequestSerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class BasePositionRequestSerializer(serializers.ModelSerializer):
 
 
 class PositionRequestSerializer(BasePositionRequestSerializer):
-    user = BasicUserSerializer()
+    user = BaseUserSerializer()
 
 
 class BasePositionSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class BasePositionSerializer(serializers.ModelSerializer):
 
 
 class PositionSerializer(BasePositionSerializer):
-    user = BasicUserSerializer()
+    user = BaseUserSerializer()
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -51,7 +51,10 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class SupportSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault()
+    )
 
     class Meta:
         model = SupportRequest

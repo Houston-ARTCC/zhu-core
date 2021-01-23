@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import Announcement
 from ..users.models import User
-from ..users.serializers import BasicUserSerializer
+from ..users.serializers import BaseUserSerializer
 
 
 class BaseAnnouncementSerializer(serializers.ModelSerializer):
@@ -17,4 +17,4 @@ class BaseAnnouncementSerializer(serializers.ModelSerializer):
 
 
 class AnnouncementSerializer(BaseAnnouncementSerializer):
-    author = BasicUserSerializer()
+    author = BaseUserSerializer()
