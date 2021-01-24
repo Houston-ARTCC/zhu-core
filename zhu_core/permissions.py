@@ -17,6 +17,17 @@ class IsOwner(BasePermission):
         return request.user and obj.user == request.user
 
 
+class IsController(BasePermission):
+    """
+    Allows access to users who match the 'cid' param via SAFE_METHDOS only.
+    """
+    def has_permission(self, request, view):
+        if request.method not in SAFE_METHODS:
+            return False
+
+        return request.user and request.parser_context.get('kwargs').get('cid') == request.user.cid
+
+
 class IsStudent(BasePermission):
     """
     Allows access to users who match the 'student' field via SAFE_METHDOS only.

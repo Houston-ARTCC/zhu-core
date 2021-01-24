@@ -4,18 +4,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly, IsSeniorStaff
+from zhu_core.permissions import IsSeniorStaff, ReadOnly
 from .serializers import *
 
 
 class FeedbackListView(APIView):
-    permission_classes = [ReadOnly | IsAuthenticated]
+    permission_classes = [(ReadOnly & IsSeniorStaff) | (~ReadOnly & IsAuthenticated)]
 
     def get(self, request, format=None):
         """
-        Get list of all feedback.
+        Get list of unapproved feedback.
         """
-        feedback = Feedback.objects.all()
+        feedback = Feedback.objects.filter(approved=False)
         serializer = FeedbackSerializer(feedback, many=True)
         return Response(serializer.data)
 
