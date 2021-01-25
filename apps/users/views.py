@@ -121,4 +121,5 @@ class StaffListView(APIView):
             },
             'ins': BaseUserSerializer(User.objects.filter(roles__short='INS'), many=True).data,
             'mtr': BaseUserSerializer(User.objects.filter(roles__short='MTR'), many=True).data,
+            'web': BaseUserSerializer(User.objects.filter(roles__short='WEB'), many=True).data,
         })
