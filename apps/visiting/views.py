@@ -11,7 +11,7 @@ from .serializers import *
 class VisitingListView(APIView):
     permission_classes = [(ReadOnly & IsAdmin) | (~ReadOnly & ~IsMember & IsAuthenticated)]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all visiting applications.
         """
@@ -19,7 +19,7 @@ class VisitingListView(APIView):
         serializer = VisitingApplicationSerializer(applications, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Submit visiting application.
         """
@@ -33,7 +33,7 @@ class VisitingListView(APIView):
 class VisitingInstanceView(APIView):
     permission_classes = [IsAdmin]
 
-    def put(self, request, application_id, format=None):
+    def put(self, request, application_id):
         """
         Approve visiting application.
         """
@@ -41,7 +41,7 @@ class VisitingInstanceView(APIView):
         application.user.set_membership('VC')
         application.delete()
 
-    def delete(self, request, application_id, format=None):
+    def delete(self, request, application_id):
         """
         Reject visiting application.
         """

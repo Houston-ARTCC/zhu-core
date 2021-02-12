@@ -11,7 +11,7 @@ from .serializers import *
 class FeedbackListView(APIView):
     permission_classes = [(ReadOnly & IsSeniorStaff) | (~ReadOnly & IsAuthenticated)]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of unapproved feedback.
         """
@@ -19,7 +19,7 @@ class FeedbackListView(APIView):
         serializer = FeedbackSerializer(feedback, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Add a new feedback.
         """
@@ -33,7 +33,7 @@ class FeedbackListView(APIView):
 class FeedbackInstanceView(APIView):
     permission_classes = [IsSeniorStaff]
 
-    def put(self, request, feedback_id, format=None):
+    def put(self, request, feedback_id):
         """
         Approve feedback.
         """
@@ -41,7 +41,7 @@ class FeedbackInstanceView(APIView):
         feedback.approved = True
         feedback.save()
 
-    def delete(self, request, feedback_id, format=None):
+    def delete(self, request, feedback_id):
         """
         Reject feedback.
         """

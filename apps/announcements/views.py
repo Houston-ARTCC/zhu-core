@@ -11,7 +11,7 @@ from .serializers import *
 class AnnouncementListView(APIView):
     permission_classes = [ReadOnly | IsStaff]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all announcements.
         """
@@ -19,7 +19,7 @@ class AnnouncementListView(APIView):
         serializer = AnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Post a new announcement.
         """

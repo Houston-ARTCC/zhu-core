@@ -1,44 +1,73 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from .models import Event, EventPosition, EventPositionRequest, SupportRequest
+from .models import Event, EventPosition, PositionShift, ShiftRequest, SupportRequest
 from ..users.models import User
 from ..users.serializers import BaseUserSerializer
 
 
-class BasePositionRequestSerializer(serializers.ModelSerializer):
+class BaseShiftRequestSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()
     )
 
     class Meta:
-        model = EventPositionRequest
+        model = ShiftRequest
         fields = '__all__'
         validators = [
             UniqueTogetherValidator(
-                queryset=EventPositionRequest.objects.all(),
-                fields=['position', 'user'],
-                message='Position already requested.'
+                queryset=ShiftRequest.objects.all(),
+                fields=['shift', 'user'],
+                message='Shift already requested.'
             )
         ]
 
 
-class PositionRequestSerializer(BasePositionRequestSerializer):
+class ShiftRequestSerializer(serializers.ModelSerializer):
     user = BaseUserSerializer()
 
+    class Meta:
+        model = ShiftRequest
+        exclude = ['shift']
 
-class BasePositionSerializer(serializers.ModelSerializer):
-    requests = PositionRequestSerializer(many=True, read_only=True)
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
+
+class BaseShiftSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True, required=False)
 
     class Meta:
-        model = EventPosition
+        model = PositionShift
         fields = '__all__'
 
 
-class PositionSerializer(BasePositionSerializer):
+class ShiftSerializer(serializers.ModelSerializer):
+    requests = ShiftRequestSerializer(many=True, read_only=True)
     user = BaseUserSerializer()
+
+    class Meta:
+        model = PositionShift
+        exclude = ['position']
+
+
+class BasePositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventPosition
+        fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=EventPosition.objects.all(),
+                fields=['event', 'callsign'],
+                message='Position with this name already exists.'
+            )
+        ]
+
+
+class PositionSerializer(serializers.ModelSerializer):
+    shifts = ShiftSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = EventPosition
+        exclude = ['event']
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -50,7 +79,7 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived', 'positions']
 
 
-class SupportSerializer(serializers.ModelSerializer):
+class SupportRequestSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()

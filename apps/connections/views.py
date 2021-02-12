@@ -11,7 +11,7 @@ from ..users.models import User
 class ControllerSessionsView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, cid, format=None):
+    def get(self, request, cid):
         """
         Get list of all controller's sessions.
         """
@@ -24,7 +24,7 @@ class ControllerSessionsView(APIView):
 class OnlineControllersView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all online controllers.
         """
@@ -36,7 +36,7 @@ class OnlineControllersView(APIView):
 class TopControllersView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of controllers sorted by most
         hours for the current month.
@@ -49,7 +49,7 @@ class TopControllersView(APIView):
 class TopPositionsView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of positions sorted by most
         hours for the current month.
@@ -62,7 +62,7 @@ class TopPositionsView(APIView):
 class StatisticsView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all controllers along with hours for
         current, previous, and penultimate months.
@@ -73,7 +73,7 @@ class StatisticsView(APIView):
 
 
 class DailyStatisticsView(APIView):
-    def get(self, request, year, format=None):
+    def get(self, request, year):
         """
         Get list of controlling hours for
         every day of the given year.
@@ -84,7 +84,7 @@ class DailyStatisticsView(APIView):
 
 
 class UserDailyStatisticsView(APIView):
-    def get(self, request, year, cid, format=None):
+    def get(self, request, year, cid):
         """
         Get list of controlling hours for every
         day of the given year for the given user.

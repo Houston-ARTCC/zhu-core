@@ -82,7 +82,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     home_facility = models.CharField(max_length=8)
 
     # ARTCC Details
-    roles = models.ManyToManyField(Role, related_name='roles')
+    roles = models.ManyToManyField(Role, related_name='roles', blank=True)
     status = models.IntegerField(default=Status.NON_MEMBER, choices=Status.choices)
     initials = models.CharField(max_length=2, null=True, blank=True)
     joined = models.DateTimeField(null=True, blank=True)

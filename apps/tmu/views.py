@@ -13,7 +13,7 @@ from .serializers import *
 class ATISListView(APIView):
     permission_classes = []
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all ATIS.
         """
@@ -21,7 +21,7 @@ class ATISListView(APIView):
         serializer = ATISSerializer(atis, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Create new ATIS (from vATIS).
         """
@@ -37,7 +37,7 @@ class TMUListView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [ReadOnly | IsAuthenticated]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all TMU notices.
         """
@@ -45,7 +45,7 @@ class TMUListView(APIView):
         serializer = TMUNoticeSerializer(notices, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Add a new TMU notice.
         """
@@ -60,7 +60,7 @@ class TMUInstanceView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, notice_id, format=None):
+    def delete(self, request, notice_id):
         """
         Delete TMU notice.
         """
@@ -72,7 +72,7 @@ class TMUInstanceView(APIView):
 class METARListView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all METARs.
         """
@@ -84,7 +84,7 @@ class METARListView(APIView):
 class METARInstanceView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, facility, format=None):
+    def get(self, request, facility):
         """
         Get METAR for facility.
         """

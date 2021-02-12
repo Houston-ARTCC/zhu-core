@@ -6,7 +6,8 @@ urlpatterns = [
     path('', views.EventListView.as_view()),
     path('<int:event_id>/', views.EventInstanceView.as_view()),
     path('position/<int:position_id>/', views.PositionInstanceView.as_view()),
-    path('request/<int:position_id>/', views.RequestPositionView.as_view()),
-    path('support/', views.RequestSupportView.as_view()),
+    path('request/<int:shift_id>/', views.ShiftRequestView.as_view()),
+    path('shift/<int:shift_id>/', views.ShiftInstanceView.as_view()),
+    path('support/', views.SupportRequestView.as_view()),
     path('support/<int:request_id>/', views.SupportRequestInstanceView.as_view()),
 ]

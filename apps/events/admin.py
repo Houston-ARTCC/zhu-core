@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Event, EventPosition, EventPositionRequest, SupportRequest
+from .models import Event, EventPosition, PositionShift, ShiftRequest, SupportRequest
 
 
 @admin.register(Event)
@@ -10,12 +10,17 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(EventPosition)
 class EventPositionAdmin(admin.ModelAdmin):
-    list_display = ('callsign', 'event', 'user')
+    list_display = ('callsign', 'event')
 
 
-@admin.register(EventPositionRequest)
-class EventPositionRequestAdmin(admin.ModelAdmin):
-    list_display = ('position', 'user')
+@admin.register(PositionShift)
+class PositionShiftAdmin(admin.ModelAdmin):
+    list_display = ('position', 'user', 'start', 'end')
+
+
+@admin.register(ShiftRequest)
+class ShiftRequestAdmin(admin.ModelAdmin):
+    list_display = ('shift', 'user')
 
 
 @admin.register(SupportRequest)

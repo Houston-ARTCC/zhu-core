@@ -10,7 +10,7 @@ from .serializers import *
 class ResourceListView(APIView):
     permission_classes = [ReadOnly | IsStaff]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all resources.
         """
@@ -18,7 +18,7 @@ class ResourceListView(APIView):
         serializer = ResourceGroupedSerializer(resources)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Add a new resource.
         """
@@ -32,7 +32,7 @@ class ResourceListView(APIView):
 class ResourceInstanceView(APIView):
     permission_classes = [IsStaff]
 
-    def put(self, request, resource_id, format=None):
+    def put(self, request, resource_id):
         """
         Modify resource details.
         """
@@ -49,7 +49,7 @@ class ResourceInstanceView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, resource_id, format=None):
+    def delete(self, request, resource_id):
         """
         Delete resource.
         """

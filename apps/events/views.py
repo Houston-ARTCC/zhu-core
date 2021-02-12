@@ -12,7 +12,7 @@ from .serializers import *
 class EventListView(APIView):
     permission_classes = [ReadOnly | IsStaff]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all events.
         """
@@ -24,7 +24,7 @@ class EventListView(APIView):
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Add a new event.
         """
@@ -38,7 +38,7 @@ class EventListView(APIView):
 class EventInstanceView(APIView):
     permission_classes = [ReadOnly | IsStaff]
 
-    def get(self, request, event_id, format=None):
+    def get(self, request, event_id):
         """
         Get event details.
         """
@@ -50,7 +50,7 @@ class EventInstanceView(APIView):
         serializer = EventSerializer(event)
         return Response(serializer.data)
 
-    def put(self, request, event_id, format=None):
+    def put(self, request, event_id):
         """
         Modify event details.
         """
@@ -61,7 +61,7 @@ class EventInstanceView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, event_id, format=None):
+    def delete(self, request, event_id):
         """
         Delete event.
         """
@@ -69,13 +69,15 @@ class EventInstanceView(APIView):
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def post(self, request, event_id, format=None):
+    def post(self, request, event_id):
         """
         Add event position.
         """
         event = get_object_or_404(Event, id=event_id)
-        request.data['event'] = event.id
-        serializer = PositionSerializer(data=request.data)
+        serializer = BasePositionSerializer(data={
+            'event': event.id,
+            'callsign': request.POST.get('callsign'),
+        })
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -85,21 +87,22 @@ class EventInstanceView(APIView):
 class PositionInstanceView(APIView):
     permission_classes = [IsStaff]
 
-    def patch(self, request, position_id, format=None):
+    def post(self, request, position_id):
         """
-        Assign event position.
-        Deletes all other requests by user.
+        Add event shift.
         """
-        event_position = get_object_or_404(EventPosition, id=position_id)
-        serializer = BasePositionSerializer(event_position, data=request.data, partial=True)
+        position = get_object_or_404(EventPosition, id=position_id)
+        serializer = BaseShiftSerializer(data={
+            'position': position.id,
+            'start': request.POST.get('start'),
+            'end': request.POST.get('end'),
+        })
         if serializer.is_valid():
             serializer.save()
-            if event_position.user is not None:
-                event_position.user.event_position_requests.filter(position__event=event_position.event).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, position_id, format=None):
+    def delete(self, request, position_id):
         """
         Delete event position.
         """
@@ -108,45 +111,68 @@ class PositionInstanceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RequestPositionView(APIView):
+class ShiftRequestView(APIView):
     permission_classes = [IsMember]
 
-    def post(self, request, position_id, format=None):
+    def post(self, request, shift_id):
         """
-        Request event position.
+        Request event shift.
         """
-        event_position = get_object_or_404(EventPosition, id=position_id)
+        shift = get_object_or_404(PositionShift, id=shift_id)
 
-        if event_position.event.hidden and not request.user.is_staff:
+        if shift.position.event.hidden and not request.user.is_staff:
             raise PermissionDenied('You do not have permission to interact with this event.')
 
-        serializer = BasePositionRequestSerializer(data={'position': event_position.id}, context={'request': request})
+        serializer = BaseShiftRequestSerializer(data={'shift': shift.id}, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, position_id, format=None):
+    def delete(self, request, shift_id):
         """
-        Unrequest event position.
+        Unrequest event shift.
         """
-        event_position_request = get_object_or_404(EventPositionRequest, position=position_id, user=request.user)
+        shift_request = get_object_or_404(ShiftRequest, shift=shift_id, user=request.user)
 
-        if event_position_request.position.event.hidden and not request.user.is_staff:
+        if shift_request.shift.position.event.hidden and not request.user.is_staff:
             raise PermissionDenied('You do not have permission to interact with this event.')
 
-        event_position_request.delete()
+        shift_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RequestSupportView(APIView):
+class ShiftInstanceView(APIView):
+    permission_classes = [IsStaff]
+
+    def patch(self, request, shift_id):
+        """
+        Assign shift.
+        """
+        shift = get_object_or_404(PositionShift, id=shift_id)
+        serializer = BaseShiftSerializer(shift, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, shift_id):
+        """
+        Delete shift.
+        """
+        event_position = get_object_or_404(PositionShift, id=shift_id)
+        event_position.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SupportRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Request support for event.
         """
-        serializer = PositionRequestSerializer(data=request.data, context={'request': request})
+        serializer = SupportRequestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -156,24 +182,23 @@ class RequestSupportView(APIView):
 class SupportRequestInstanceView(APIView):
     permission_classes = [IsStaff]
 
-    def put(self, request, request_id, format=None):
+    def put(self, request, request_id):
         """
         Approve support request.
         """
-        event_position = get_object_or_404(SupportRequest, id=request_id)
-        event_position.convert_to_event()
-        event_position.delete()
+        support_request = get_object_or_404(SupportRequest, id=request_id)
+        support_request.convert_to_event()
+        support_request.delete()
+        return Response(status=status.HTTP_201_CREATED)
 
-    def delete(self, request, request_id, format=None):
+    def delete(self, request, request_id):
         """
         Reject support request.
         """
-        event_position_request = get_object_or_404(SupportRequest, position=request_id)
+        event_position_request = get_object_or_404(SupportRequest, id=request_id)
         event_position_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# TODO: Clean up views by using generic views.
-# TODO: Return Response() on support request PUT.
 # TODO: Send email on position assignment.
 # TODO: Send email on support request received/approved/rejected.

@@ -12,7 +12,7 @@ from .serializers import *
 class SessionListView(APIView):
     permission_classes = [(ReadOnly & IsAuthenticated) | IsTrainingStaff]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of training sessions.
         Non-training staff users only see their own sessions.
@@ -24,7 +24,7 @@ class SessionListView(APIView):
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Create training session.
         """
@@ -38,7 +38,7 @@ class SessionListView(APIView):
 class SessionInstanceView(APIView):
     permission_classes = [IsTrainingStaff | IsStudent]
 
-    def get(self, request, session_id, format=None):
+    def get(self, request, session_id):
         """
         Get training session details.
         """
@@ -46,7 +46,7 @@ class SessionInstanceView(APIView):
         serializer = TrainingSessionSerializer(session)
         return Response(serializer.data)
 
-    def put(self, request, session_id, format=None):
+    def put(self, request, session_id):
         """
         Modify training session details.
         """
@@ -61,7 +61,7 @@ class SessionInstanceView(APIView):
 class TrainingRequestListView(APIView):
     permission_classes = [(ReadOnly & IsTrainingStaff) | IsMember]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all active training requests.
         """
@@ -69,7 +69,7 @@ class TrainingRequestListView(APIView):
         serializer = TrainingRequestSerializer(requests, many=True)
         return Response(data=serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request):
         """
         Submit a new training request.
         """
@@ -83,14 +83,14 @@ class TrainingRequestListView(APIView):
 class TrainingRequestInstanceView(APIView):
     permission_classes = [(IsPut & IsTrainingStaff) | IsOwner]
 
-    def put(self, request, request_id, format=None):
+    def put(self, request, request_id):
         """
         Accept training request.
         """
         training_request = get_object_or_404(TrainingRequest, id=request_id)
         training_request.delete()
 
-    def delete(self, request, request_id, format=None):
+    def delete(self, request, request_id):
         """
         Cancel training request.
         """

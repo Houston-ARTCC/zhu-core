@@ -12,7 +12,7 @@ from ..feedback.serializers import FeedbackSerializer
 
 
 class ActiveUserListView(APIView):
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all active users sorted by first name.
         """
@@ -25,7 +25,7 @@ class ActiveUserListView(APIView):
 
 
 class SimplifiedActiveUserListView(APIView):
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of all active users sorted by first name.
         Only includes basic information (CID, name, initials, profile).
@@ -36,7 +36,7 @@ class SimplifiedActiveUserListView(APIView):
 
 
 class NewestUserListView(APIView):
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of 3 newest controllers.
         """
@@ -48,7 +48,7 @@ class NewestUserListView(APIView):
 class UserInstanceView(APIView):
     permission_classes = [ReadOnly | IsStaff]
 
-    def get(self, request, cid, format=None):
+    def get(self, request, cid):
         """
         Get user.
         """
@@ -59,7 +59,7 @@ class UserInstanceView(APIView):
             serializer = UserSerializer(user)
         return Response(serializer.data)
 
-    def put(self, request, cid, format=None):
+    def put(self, request, cid):
         """
         Modify user.
         """
@@ -74,7 +74,7 @@ class UserInstanceView(APIView):
 class UserFeedbackView(APIView):
     permission_classes = [IsAuthenticated & (IsController | IsStaff | IsTrainingStaff)]
 
-    def get(self, request, cid, format=None):
+    def get(self, request, cid):
         """
         Get list of all feedback for user.
         """
@@ -86,7 +86,7 @@ class UserFeedbackView(APIView):
 class StaffListView(APIView):
     permission_classes = [ReadOnly]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get list of ARTCC staff.
         """
