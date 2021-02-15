@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ['email', 'password']
+        exclude = ['email', 'password', 'groups', 'user_permissions']
 
     def get_rating(self, obj):
         return {

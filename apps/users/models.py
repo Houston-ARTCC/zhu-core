@@ -95,6 +95,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     ctr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
     ocn_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
 
+    # Flags
+    prevent_event_signup = models.BooleanField(default=False)
+    cic_endorsed = models.BooleanField(default=False)
+
     @property
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
