@@ -59,7 +59,7 @@ class UserInstanceView(APIView):
             serializer = UserSerializer(user)
         return Response(serializer.data)
 
-    def put(self, request, cid):
+    def patch(self, request, cid):
         """
         Modify user.
         """
@@ -123,3 +123,13 @@ class StaffListView(APIView):
             'mtr': BaseUserSerializer(User.objects.filter(roles__short='MTR'), many=True).data,
             'web': BaseUserSerializer(User.objects.filter(roles__short='WEB'), many=True).data,
         })
+
+
+class RoleListView(APIView):
+    def get(self, request):
+        """
+        Get list of all roles.
+        """
+        roles = Role.objects.all()
+        serializer = RoleSerializer(roles, many=True)
+        return Response(serializer.data)
