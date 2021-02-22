@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -50,12 +52,12 @@ class EventInstanceView(APIView):
         serializer = EventSerializer(event)
         return Response(serializer.data)
 
-    def put(self, request, event_id):
+    def patch(self, request, event_id):
         """
         Modify event details.
         """
         event = get_object_or_404(Event, id=event_id)
-        serializer = EventSerializer(event, data=request.data)
+        serializer = EventSerializer(event, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -76,10 +78,11 @@ class EventInstanceView(APIView):
         event = get_object_or_404(Event, id=event_id)
         serializer = BasePositionSerializer(data={
             'event': event.id,
-            'callsign': request.POST.get('callsign'),
+            'callsign': request.data.get('callsign'),
         })
         if serializer.is_valid():
             serializer.save()
+            serializer.instance.add_shift(int(request.data.get('shifts')))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -94,13 +97,21 @@ class PositionInstanceView(APIView):
         position = get_object_or_404(EventPosition, id=position_id)
         serializer = BaseShiftSerializer(data={
             'position': position.id,
-            'start': request.POST.get('start'),
-            'end': request.POST.get('end'),
+            'start': request.data.get('start'),
+            'end': request.data.get('end'),
         })
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, position_id):
+        """
+        Add additional shift to position.
+        """
+        position = get_object_or_404(EventPosition, id=position_id)
+        position.add_shift()
+        return Response(status=status.HTTP_200_OK)
 
     def delete(self, request, position_id):
         """
@@ -160,8 +171,10 @@ class ShiftInstanceView(APIView):
         """
         Delete shift.
         """
-        event_position = get_object_or_404(PositionShift, id=shift_id)
-        event_position.delete()
+        shift = get_object_or_404(PositionShift, id=shift_id)
+        position = shift.position
+        shift.delete()
+        position.adjust_shift_times()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.utils import timezone
 
@@ -12,6 +14,10 @@ class Event(models.Model):
     host = models.CharField(max_length=32)
     description = models.TextField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
+
+    @property
+    def duration(self):
+        return self.end - self.start
     
     @property
     def is_archived(self):
@@ -27,6 +33,30 @@ class EventPosition(models.Model):
 
     event = models.ForeignKey(Event, models.CASCADE, related_name='positions')
     callsign = models.CharField(max_length=16)
+
+    def add_shift(self, count=1):
+        """
+        Adds a shift to the position and calls self.adjust_shift_times.
+        """
+        for _ in range(count):
+            PositionShift(
+                position=self,
+                start=self.event.end,
+                end=self.event.end,
+            ).save()
+        self.adjust_shift_times()
+
+    def adjust_shift_times(self):
+        """
+        Makes all shifts equal duration.
+        """
+        shift_duration = timedelta(seconds=self.event.duration.total_seconds() / self.shifts.count())
+        time = self.event.start
+        for shift in self.shifts.order_by('start'):
+            shift.start = time
+            time += shift_duration
+            shift.end = time
+            shift.save()
 
     def __str__(self):
         return f'{self.event} | {self.callsign}'
