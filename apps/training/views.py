@@ -10,29 +10,25 @@ from .serializers import *
 
 
 class SessionListView(APIView):
-    permission_classes = [(ReadOnly & IsAuthenticated) | IsTrainingStaff]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """
-        Get list of training sessions.
-        Non-training staff users only see their own sessions.
+        Get list of own training sessions.
         """
-        if request.user.is_training_staff:
-            sessions = TrainingSession.objects.all()
-        else:
-            sessions = TrainingSession.objects.filter(student=request.user)
+        sessions = TrainingSession.objects.filter(student=request.user)
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
-    def post(self, request):
-        """
-        Create training session.
-        """
-        serializer = TrainingSessionSerializer(request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self, request):
+    #     """
+    #     Create training session.
+    #     """
+    #     serializer = TrainingSessionSerializer(request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SessionInstanceView(APIView):

@@ -2,9 +2,12 @@ from rest_framework import serializers
 
 from .models import TrainingSession, TrainingRequest
 from ..users.models import User
+from ..users.serializers import BaseUserSerializer
 
 
 class TrainingSessionSerializer(serializers.ModelSerializer):
+    instructor = BaseUserSerializer()
+
     class Meta:
         model = TrainingSession
         fields = '__all__'

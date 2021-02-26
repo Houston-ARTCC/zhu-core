@@ -23,9 +23,7 @@ class AnnouncementListView(APIView):
         """
         Post a new announcement.
         """
-        request.data._mutable = True
         request.data['body'] = bleach.clean(request.data['body'], tags=settings.BLEACH_ALLOWED_TAGS)
-        request.data._mutable = False
         serializer = BaseAnnouncementSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
