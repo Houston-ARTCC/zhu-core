@@ -1,5 +1,6 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core.files import File
@@ -169,7 +170,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         initials and saves it to database.
         """
         profile = Image.new('RGB', (500, 500), color=(194, 207, 224))
-        font = ImageFont.truetype('../../static/fonts/CeraPro-Medium.ttf', 225)
+        font = ImageFont.truetype(str(settings.STATIC_ROOT) + '/fonts/CeraPro-Medium.ttf', 225)
 
         text_layer = ImageDraw.Draw(profile)
         text_width, text_height = text_layer.textsize(self.initials, font=font)
