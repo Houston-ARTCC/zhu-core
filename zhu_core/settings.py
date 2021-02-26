@@ -29,9 +29,17 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY', 'evrf9qiqh6dnaad+i10r!vcaz2dx1@37779vp0sh5x1147f%pg')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEV_ENV', '') == 'True'
 
-ALLOWED_HOSTS = ['api.zhuartcc.devel']
+SECURE_HSTS_SECONDS = os.getenv('DEV_ENV', '') == 'False'
+
+SECURE_SSL_REDIRECT = os.getenv('DEV_ENV', '') == 'False'
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('DEV_ENV', '') == 'False'
+
+SECURE_HSTS_PRELOAD = os.getenv('DEV_ENV', '') == 'False'
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 
 # Application definition
