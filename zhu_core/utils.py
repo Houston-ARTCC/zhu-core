@@ -59,5 +59,5 @@ class CustomDurationField(DurationField):
 class OverwriteStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
         if self.exists(name):
-            os.remove(settings.MEDIA_ROOT / name)
+            os.remove(str(settings.MEDIA_ROOT) + '/' + name)
         return name
