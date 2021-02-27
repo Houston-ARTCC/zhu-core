@@ -14,12 +14,23 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Loads environment variables from .env file
 load_dotenv(BASE_DIR / '.env')
+
+# Initialize Sentry.io SDK for error handling
+if os.getenv('DEV_ENV', '') == 'False' and os.getenv('SENTRY_DSN'):
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DSN'),
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=0.75,
+        send_default_pii=True,
+    )
 
 
 # Quick-start development settings - unsuitable for production
