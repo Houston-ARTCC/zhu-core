@@ -1,5 +1,4 @@
-from datetime import timedelta
-
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -11,19 +10,19 @@ from zhu_core.permissions import IsStaff, IsMember, ReadOnly
 from .serializers import *
 
 
-class EventListView(APIView):
+class EventsListView(APIView):
     permission_classes = [ReadOnly | IsStaff]
 
     def get(self, request):
         """
         Get list of all events.
         """
-        events = Event.objects.all().order_by('start')
+        events = Event.objects.filter(end__gt=timezone.now()).order_by('start')
 
         if not (request.user.is_authenticated and request.user.is_staff):
             events = events.exclude(hidden=True)
 
-        serializer = EventSerializer(events, many=True)
+        serializer = BasicEventSerializer(events, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -35,6 +34,22 @@ class EventListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ArchivedEventsListView(APIView):
+    permission_classes = [ReadOnly]
+
+    def get(self, request):
+        """
+        Get list of all archived events.
+        """
+        events = Event.objects.filter(end__lt=timezone.now()).order_by('-start')
+
+        if not (request.user.is_authenticated and request.user.is_staff):
+            events = events.exclude(hidden=True)
+
+        serializer = BasicEventSerializer(events, many=True)
+        return Response(serializer.data)
 
 
 class EventInstanceView(APIView):

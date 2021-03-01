@@ -52,7 +52,7 @@ class EventPosition(models.Model):
         """
         shift_duration = timedelta(seconds=self.event.duration.total_seconds() / self.shifts.count())
         time = self.event.start
-        for shift in self.shifts.order_by('start'):
+        for shift in self.shifts.order_by('-start'):
             shift.start = time
             time += shift_duration
             shift.end = time
