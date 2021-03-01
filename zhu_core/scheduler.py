@@ -26,6 +26,14 @@ def start_scheduler():
     )
 
     scheduler.add_job(
+        users.update_user_ratings,
+        trigger=CronTrigger(minute=0),  # Top of every hour
+        id='update_user_ratings',
+        max_instances=1,
+        replace_existing=True,
+    )
+
+    scheduler.add_job(
         tmu.delete_inactive_atis,
         trigger=CronTrigger(minute=0),  # Top of every hour
         id='delete_inactive_atis',

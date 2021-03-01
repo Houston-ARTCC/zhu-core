@@ -92,6 +92,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
         else:
             user = user_query.first()
             user.home_facility = division
+            user.rating = data.get('vatsim').get('rating').get('short')
             user.save()
 
         if division == os.getenv('FACILITY_IATA'):

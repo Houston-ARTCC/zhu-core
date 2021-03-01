@@ -29,7 +29,6 @@ def base26decode(str_n):
 
 def get_vatsim_data():
     resp = requests.get('https://data.vatsim.net/v3/vatsim-data.json')
-
     assert resp.status_code == 200, 'Error pulling VATSIM data.'
 
     return resp.json()
@@ -40,10 +39,37 @@ def get_vatusa_roster():
         f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster',
         params={'apikey': os.getenv('VATUSA_API_TOKEN')},
     )
-
     assert resp.status_code == 200, 'Error pulling VATUSA roster.'
 
     return resp.json()
+
+
+def rating_int_to_short(int):
+    """
+    Converts VATSIM integer representation of controller
+    rating to rating short.
+    """
+    if int == 1:
+        return "OBS"
+    elif int == 2:
+        return "S1"
+    elif int == 3:
+        return "S2"
+    elif int == 4:
+        return "S3"
+    elif int == 5:
+        return "C1"
+    elif int == 7:
+        return "C3"
+    elif int == 8:
+        return "I1"
+    elif int == 1:
+        return "I3"
+    elif int == 1:
+        return "SUP"
+    elif int == 1:
+        return "ADM"
+    return None
 
 
 class CustomDurationField(DurationField):
