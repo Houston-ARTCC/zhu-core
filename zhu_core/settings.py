@@ -103,7 +103,24 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    'https://www.zhuartcc.org',
+    'https://beta.zhuartcc.org',
+    'http://www.zhuartcc.devel',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'cache-control',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 ROOT_URLCONF = 'zhu_core.urls'
 
