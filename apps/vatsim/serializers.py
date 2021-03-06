@@ -77,7 +77,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
         if division == 'VATUSA':
             req = requests.get('https://api.vatusa.net/v2/user/' + data.get('cid'))
             if req.status_code == 200:
-                division = req.json().get('facility')
+                division = req.json().get('data').get('facility')
 
         user_query = User.objects.filter(cid=data.get('cid'))
         if not user_query.exists():

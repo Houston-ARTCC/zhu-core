@@ -9,14 +9,12 @@ def sync_vatusa_roster():
     This job pulls all the facility roster from VATUSA
     and syncs with the local roster.
     """
-    vatusa_roster = {user.get('cid'): user for user in get_vatusa_roster().values() if type(user) == dict}
-
     # Checks for users that do not exist on local roster.
-    for cid, user in vatusa_roster.items():
-        query = User.objects.filter(cid=cid)
+    for user in get_vatusa_roster():
+        query = User.objects.filter(cid=user.get('cid'))
         if not query.exists():
             User.objects.create_user(
-                cid=cid,
+                cid=user.get('cid'),
                 email=user.get('email'),
                 first_name=user.get('fname'),
                 last_name=user.get('lname'),
@@ -29,8 +27,9 @@ def sync_vatusa_roster():
             user_obj.save()
 
     # Checks for users that were removed from VATUSA roster.
+    cids = [user.get('cid') for user in get_vatusa_roster()]
     for user in User.objects.filter(roles__short='HC'):
-        if user.cid not in vatusa_roster:
+        if user.cid not in cids:
             user.set_membership(None)
 
 

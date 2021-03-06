@@ -41,7 +41,7 @@ def get_vatusa_roster():
     )
     assert resp.status_code == 200, 'Error pulling VATUSA roster.'
 
-    return resp.json()
+    return resp.json().get('data')
 
 
 def rating_int_to_short(int):
