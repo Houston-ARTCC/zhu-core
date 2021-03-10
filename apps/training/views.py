@@ -9,8 +9,8 @@ from zhu_core.permissions import IsMember, IsTrainingStaff, ReadOnly, IsOwner, I
 from .serializers import *
 
 
-class SessionListView(APIView):
-    permission_classes = [IsAuthenticated]
+class StudentSessionListView(APIView):
+    permission_classes = [IsMember]
 
     def get(self, request):
         """
@@ -20,15 +20,17 @@ class SessionListView(APIView):
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
-    # def post(self, request):
-    #     """
-    #     Create training session.
-    #     """
-    #     serializer = TrainingSessionSerializer(request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SessionListView(APIView):
+    permission_classes = [IsTrainingStaff]
+
+    def get(self, request):
+        """
+        Get list of all training sessions.
+        """
+        sessions = TrainingSession.objects.all()
+        serializer = TrainingSessionSerializer(sessions, many=True)
+        return Response(serializer.data)
 
 
 class SessionInstanceView(APIView):
@@ -69,7 +71,7 @@ class TrainingRequestListView(APIView):
         """
         Submit a new training request.
         """
-        serializer = TrainingRequestSerializer(data=request.data, context={'request': request.data})
+        serializer = TrainingRequestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
