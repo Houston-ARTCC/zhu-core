@@ -19,7 +19,7 @@ def start_scheduler():
 
     scheduler.add_job(
         users.sync_vatusa_roster,
-        trigger=CronTrigger(minute=0),  # Top of every hour
+        trigger=CronTrigger(minute=1),  # Top of every hour + 1
         id='sync_vatusa_roster',
         max_instances=1,
         replace_existing=True,
@@ -27,24 +27,24 @@ def start_scheduler():
 
     scheduler.add_job(
         users.update_user_ratings,
-        trigger=CronTrigger(minute=0),  # Top of every hour
+        trigger=CronTrigger(minute=2),  # Top of every hour + 2
         id='update_user_ratings',
         max_instances=1,
         replace_existing=True,
     )
 
     scheduler.add_job(
-        tmu.delete_inactive_atis,
-        trigger=CronTrigger(minute=0),  # Top of every hour
-        id='delete_inactive_atis',
+        tmu.fetch_metars,
+        trigger=CronTrigger(minute=3),  # Top of every hour + 3
+        id='fetch_metars',
         max_instances=1,
         replace_existing=True,
     )
 
     scheduler.add_job(
-        tmu.fetch_metars,
-        trigger=CronTrigger(minute=0),  # Top of every hour
-        id='fetch_metars',
+        tmu.delete_inactive_atis,
+        trigger=CronTrigger(minute=4),  # Top of every hour + 4
+        id='delete_inactive_atis',
         max_instances=1,
         replace_existing=True,
     )

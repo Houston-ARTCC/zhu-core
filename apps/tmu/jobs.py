@@ -32,14 +32,14 @@ def fetch_metars():
     for airport in airports_icao:
         url = 'https://avwx.rest/api/metar/' + airport + '?format=json&onfail=cache'
         resp = requests.get(url, headers=headers)
-
         data = resp.json()
 
-        METAR.objects.update_or_create(
-            station=data.get('station'),
-            defaults={
-                'raw': data.get('sanitized'),
-                'flight_rules': data.get('flight_rules'),
-                'timestamp': pytz.utc.localize(datetime.fromisoformat(data.get('time').get('dt')[:-1])),
-            }
-        )
+        query = METAR.objects.filter(station=airport)
+        if query.exists():
+            query.delete()
+
+        METAR(
+            raw=data.get('sanitized'),
+            flight_rules=data.get('flight_rules'),
+            timestamp=pytz.utc.localize(datetime.fromisoformat(data.get('time').get('dt')[:-1])),
+        ).save()
