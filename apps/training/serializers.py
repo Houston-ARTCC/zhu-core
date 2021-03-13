@@ -18,4 +18,4 @@ class TrainingRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrainingRequest
-        fields = ['user', 'start', 'end', 'type', 'level', 'remarks']
+        fields = ['id', 'user', 'start', 'end', 'type', 'level', 'remarks']

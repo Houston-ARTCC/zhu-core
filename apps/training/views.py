@@ -78,6 +78,18 @@ class TrainingRequestListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class PendingTrainingRequestListView(APIView):
+    permission_classes = [IsMember]
+
+    def get(self, request):
+        """
+        Get list of own pending training requests.
+        """
+        requests = TrainingRequest.objects.filter(user=request.user, end__gt=timezone.now())
+        serializer = TrainingRequestSerializer(requests, many=True)
+        return Response(data=serializer.data)
+
+
 class TrainingRequestInstanceView(APIView):
     permission_classes = [(IsPut & IsTrainingStaff) | IsOwner]
 
