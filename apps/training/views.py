@@ -1,34 +1,34 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsMember, IsTrainingStaff, ReadOnly, IsOwner, IsPut, IsStudent
+from zhu_core.permissions import IsMember, IsTrainingStaff, IsOwner, IsPut, IsStudent
+from .models import Status
 from .serializers import *
 
 
-class StudentSessionListView(APIView):
-    permission_classes = [IsMember]
+class ScheduledSessionListView(APIView):
+    permission_classes = [IsTrainingStaff]
 
     def get(self, request):
         """
-        Get list of own training sessions.
+        Get list of scheduled training sessions.
         """
-        sessions = TrainingSession.objects.filter(student=request.user)
+        sessions = TrainingSession.objects.filter(status=Status.SCHEDULED)
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
 
 class SessionListView(APIView):
-    permission_classes = [IsTrainingStaff]
+    permission_classes = [IsTrainingStaff | IsStudent]
 
-    def get(self, request):
+    def get(self, request, cid):
         """
-        Get list of all training sessions.
+        Get list of user's training sessions.
         """
-        sessions = TrainingSession.objects.all()
+        sessions = TrainingSession.objects.filter(student__cid=cid)
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
@@ -57,13 +57,13 @@ class SessionInstanceView(APIView):
 
 
 class TrainingRequestListView(APIView):
-    permission_classes = [(ReadOnly & IsTrainingStaff) | IsMember]
+    permission_classes = [IsMember]
 
     def get(self, request):
         """
-        Get list of all active training requests.
+        Get list of own pending training requests.
         """
-        requests = TrainingRequest.objects.filter(end__gt=timezone.now())
+        requests = TrainingRequest.objects.filter(user=request.user, end__gt=timezone.now())
         serializer = TrainingRequestSerializer(requests, many=True)
         return Response(data=serializer.data)
 
@@ -79,13 +79,13 @@ class TrainingRequestListView(APIView):
 
 
 class PendingTrainingRequestListView(APIView):
-    permission_classes = [IsMember]
+    permission_classes = [IsTrainingStaff]
 
     def get(self, request):
         """
-        Get list of own pending training requests.
+        Get list of all pending training requests.
         """
-        requests = TrainingRequest.objects.filter(user=request.user, end__gt=timezone.now())
+        requests = TrainingRequest.objects.filter(end__gt=timezone.now())
         serializer = TrainingRequestSerializer(requests, many=True)
         return Response(data=serializer.data)
 

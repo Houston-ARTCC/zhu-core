@@ -49,15 +49,15 @@ class IsMember(BasePermission):
 
 class IsTrainingStaff(BasePermission):
     """
-    Allows access to all ARTCC training staff.
+    Allows access to ARTCC training staff.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (request.user.is_training_staff or request.user.is_staff)
+        return request.user.is_authenticated and request.user.is_training_staff
 
 
 class IsStaff(BasePermission):
     """
-    Allows access to all ARTCC staff and their assistants.
+    Allows access to ARTCC staff and their assistants.
     """
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.is_staff
