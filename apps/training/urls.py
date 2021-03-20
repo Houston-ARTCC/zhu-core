@@ -9,4 +9,5 @@ urlpatterns = [
     path('request/', views.TrainingRequestListView.as_view()),
     path('request/pending/', views.PendingTrainingRequestListView.as_view()),
     path('request/<int:request_id>/', views.TrainingRequestInstanceView.as_view()),
+    path('mentor/<int:cid>/', views.MentorHistoryListView.as_view()),
 ]

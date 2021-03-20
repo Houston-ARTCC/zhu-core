@@ -45,7 +45,7 @@ class TrainingSession(models.Model):
     end = models.DateTimeField()
     movements = models.IntegerField(default=0)
     progress = models.IntegerField(default=3)
-    position = models.CharField(max_length=16)
+    position = models.CharField(max_length=16, null=True, blank=True)
     type = models.IntegerField(choices=Type.choices)
     level = models.IntegerField(choices=Level.choices)
     status = models.IntegerField(default=0, choices=Status.choices)

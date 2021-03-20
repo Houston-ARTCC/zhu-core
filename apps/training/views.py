@@ -86,7 +86,7 @@ class PendingTrainingRequestListView(APIView):
         Get list of all pending training requests.
         """
         requests = TrainingRequest.objects.filter(end__gt=timezone.now())
-        serializer = TrainingRequestSerializer(requests, many=True)
+        serializer = BaseTrainingRequestSerializer(requests, many=True)
         return Response(data=serializer.data)
 
 
@@ -98,7 +98,15 @@ class TrainingRequestInstanceView(APIView):
         Accept training request.
         """
         training_request = get_object_or_404(TrainingRequest, id=request_id)
-        training_request.delete()
+        serializer = BaseTrainingSessionSerializer(
+            data={'student': training_request.user.cid, **request.data},
+            context={'request': request}
+        )
+        if serializer.is_valid():
+            training_request.delete()
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, request_id):
         """
@@ -108,6 +116,18 @@ class TrainingRequestInstanceView(APIView):
         self.check_object_permissions(self.request, training_request)
         training_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MentorHistoryListView(APIView):
+    permission_classes = [IsTrainingStaff]
+
+    def get(self, request, cid):
+        """
+        Get list of mentor's training sessions.
+        """
+        sessions = TrainingSession.objects.filter(instructor__cid=cid)
+        serializer = TrainingSessionSerializer(sessions, many=True)
+        return Response(serializer.data)
 
 
 # TODO: Send email on request received/accepted.
