@@ -91,7 +91,7 @@ INSTALLED_APPS = [
     'apps.training',
     'apps.users',
     'apps.vatsim',
-    'apps.visiting',
+    'apps.visit',
 ]
 
 MIDDLEWARE = [

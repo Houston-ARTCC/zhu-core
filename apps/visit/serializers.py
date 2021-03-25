@@ -3,9 +3,10 @@ from rest_framework.validators import UniqueValidator
 
 from .models import VisitingApplication
 from ..users.models import User
+from ..users.serializers import AuthenticatedUserSerializer
 
 
-class VisitingApplicationSerializer(serializers.ModelSerializer):
+class BaseVisitingApplicationSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault(),
@@ -19,6 +20,10 @@ class VisitingApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VisitingApplication
-        fields = ['user', 'reason']
+        fields = ['id', 'user', 'reason']
+
+
+class VisitingApplicationSerializer(BaseVisitingApplicationSerializer):
+    user = AuthenticatedUserSerializer()
 
 # TODO: UniqueValidator on user field not running and an IntegrityError is raised.

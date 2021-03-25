@@ -14,7 +14,7 @@ urlpatterns = [
     path('api/tmu/', include('apps.tmu.urls')),
     path('api/training/', include('apps.training.urls')),
     path('api/users/', include('apps.users.urls')),
-    path('api/visiting/', include('apps.visiting.urls')),
+    path('api/visit/', include('apps.visit.urls')),
     path('admin/', admin.site.urls),
 ]
 
