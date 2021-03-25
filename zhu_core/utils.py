@@ -63,11 +63,11 @@ def rating_int_to_short(int):
         return "C3"
     elif int == 8:
         return "I1"
-    elif int == 1:
+    elif int == 10:
         return "I3"
-    elif int == 1:
+    elif int == 11:
         return "SUP"
-    elif int == 1:
+    elif int == 12:
         return "ADM"
     return None
 

@@ -193,14 +193,22 @@ class ShiftInstanceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SupportRequestView(APIView):
-    permission_classes = [IsAuthenticated]
+class SupportRequestListView(APIView):
+    permission_classes = [(ReadOnly & IsStaff) | (~ReadOnly & IsAuthenticated)]
+
+    def get(self, request):
+        """
+        Get list of all pending event support requests.
+        """
+        requests = SupportRequest.objects.all()
+        serializer = SupportRequestSerializer(requests, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
         """
         Request support for event.
         """
-        serializer = SupportRequestSerializer(data=request.data, context={'request': request})
+        serializer = BaseSupportRequestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

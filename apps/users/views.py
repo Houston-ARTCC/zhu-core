@@ -1,3 +1,4 @@
+import requests
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -5,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import ReadOnly, IsStaff, IsController, IsTrainingStaff
+from zhu_core.utils import rating_int_to_short
 from .models import Status
 from .serializers import *
 from ..feedback.models import Feedback
@@ -21,27 +23,6 @@ class ActiveUserListView(APIView):
             serializer = AuthenticatedUserSerializer(users, many=True)
         else:
             serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-
-
-class SimplifiedActiveUserListView(APIView):
-    def get(self, request):
-        """
-        Get list of all active users sorted by first name.
-        Only includes basic information (CID, name, initials, profile).
-        """
-        users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
-        serializer = BaseUserSerializer(users, many=True)
-        return Response(serializer.data)
-
-
-class NewestUserListView(APIView):
-    def get(self, request):
-        """
-        Get list of 3 newest controllers.
-        """
-        users = User.objects.all().order_by('-joined')[:3]
-        serializer = BaseUserSerializer(users, many=True)
         return Response(serializer.data)
 
 
@@ -80,6 +61,39 @@ class UserFeedbackView(APIView):
         """
         feedback = Feedback.objects.filter(controller__cid=cid).filter(approved=True)
         serializer = FeedbackSerializer(feedback, many=True)
+        return Response(serializer.data)
+
+
+class SimplifiedActiveUserListView(APIView):
+    def get(self, request):
+        """
+        Get list of all active users sorted by first name.
+        Only includes basic information (CID, name, initials, profile).
+        """
+        users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
+        serializer = BaseUserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class AllUserListView(APIView):
+    permission_classes = [IsStaff]
+
+    def get(self, request):
+        """
+        Get list of all users sorted by first name.
+        """
+        users = User.objects.order_by('first_name')
+        serializer = AuthenticatedUserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class NewestUserListView(APIView):
+    def get(self, request):
+        """
+        Get list of 3 newest controllers.
+        """
+        users = User.objects.all().order_by('-joined')[:3]
+        serializer = BaseUserSerializer(users, many=True)
         return Response(serializer.data)
 
 

@@ -23,7 +23,7 @@ class FeedbackListView(APIView):
         """
         Add a new feedback.
         """
-        serializer = FeedbackSerializer(data=request.data, context={'request': request})
+        serializer = BaseFeedbackSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -40,6 +40,7 @@ class FeedbackInstanceView(APIView):
         feedback = get_object_or_404(Feedback, id=feedback_id)
         feedback.approved = True
         feedback.save()
+        return Response(status=status.HTTP_200_OK)
 
     def delete(self, request, feedback_id):
         """

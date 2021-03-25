@@ -13,9 +13,9 @@ class AnnouncementListView(APIView):
 
     def get(self, request):
         """
-        Get list of 3 newest announcements.
+        Get list of all announcements.
         """
-        announcements = Announcement.objects.all().order_by('-posted')[:3]
+        announcements = Announcement.objects.all().order_by('-posted')
         serializer = AnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)
 
@@ -29,3 +29,15 @@ class AnnouncementListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RecentAnnouncementListView(APIView):
+    permission_classes = [ReadOnly]
+
+    def get(self, request):
+        """
+        Get list of 3 newest announcements.
+        """
+        announcements = Announcement.objects.all().order_by('-posted')[:3]
+        serializer = AnnouncementSerializer(announcements, many=True)
+        return Response(serializer.data)

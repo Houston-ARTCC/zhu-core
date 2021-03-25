@@ -50,3 +50,9 @@ class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['cid', 'first_name', 'last_name', 'initials', 'profile']
+
+
+class AuthenticatedBaseUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['cid', 'first_name', 'last_name', 'initials', 'profile', 'email']

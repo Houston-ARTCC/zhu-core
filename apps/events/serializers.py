@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Event, EventPosition, PositionShift, ShiftRequest, SupportRequest
 from ..users.models import User
-from ..users.serializers import BaseUserSerializer
+from ..users.serializers import BaseUserSerializer, AuthenticatedBaseUserSerializer
 
 
 class BaseShiftRequestSerializer(serializers.ModelSerializer):
@@ -91,7 +91,7 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived', 'positions']
 
 
-class SupportRequestSerializer(serializers.ModelSerializer):
+class BaseSupportRequestSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()
@@ -100,3 +100,7 @@ class SupportRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportRequest
         fields = '__all__'
+
+
+class SupportRequestSerializer(BaseSupportRequestSerializer):
+    user = AuthenticatedBaseUserSerializer()
