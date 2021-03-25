@@ -35,7 +35,7 @@ class VisitingInstanceView(APIView):
 
     def put(self, request, application_id):
         """
-        Approve visit application.
+        Approve visiting application.
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
         application.user.set_membership('VC')
@@ -44,12 +44,11 @@ class VisitingInstanceView(APIView):
 
     def delete(self, request, application_id):
         """
-        Reject visit application.
+        Reject visiting application.
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
         application.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# TODO: Return Response() on visit request PUT.
 # TODO: Send email on reception/acception/rejection of application.
