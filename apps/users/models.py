@@ -8,7 +8,7 @@ from django.core.files import File
 from django.db import models
 from django.utils import timezone
 
-from zhu_core.utils import base26decode, base26encode, OverwriteStorage, Interval
+from zhu_core.utils import base26decode, base26encode, OverwriteStorage
 
 
 def create_profile_path(instance, filename):
