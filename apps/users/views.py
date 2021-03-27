@@ -17,13 +17,18 @@ class ActiveUserListView(APIView):
     def get(self, request):
         """
         Get list of all active users sorted by first name.
+        Sorted into home, visiting, and mavp controllers.
         """
         users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
         if request.user.is_authenticated and request.user.is_staff:
-            serializer = AuthenticatedUserSerializer(users, many=True)
+            serializer = AuthenticatedUserSerializer
         else:
-            serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+            serializer = UserSerializer
+        return Response({
+            'home': serializer(users.filter(roles__short='HC'), many=True).data,
+            'visiting': serializer(users.filter(roles__short='VC'), many=True).data,
+            'mavp': serializer(users.filter(roles__short='MC'), many=True).data,
+        })
 
 
 class UserInstanceView(APIView):
@@ -31,7 +36,7 @@ class UserInstanceView(APIView):
 
     def get(self, request, cid):
         """
-        Get user.
+        Get user details.
         """
         user = get_object_or_404(User, cid=cid)
         if request.user.is_authenticated and request.user.is_staff:
@@ -42,7 +47,7 @@ class UserInstanceView(APIView):
 
     def patch(self, request, cid):
         """
-        Modify user.
+        Modify user details.
         """
         user = get_object_or_404(User, cid=cid)
         serializer = AuthenticatedUserSerializer(user, data=request.data, partial=True)
@@ -69,10 +74,14 @@ class SimplifiedActiveUserListView(APIView):
         """
         Get list of all active users sorted by first name.
         Only includes basic information (CID, name, initials, profile).
+        Sorted into home, visiting, and mavp controllers.
         """
         users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
-        serializer = BaseUserSerializer(users, many=True)
-        return Response(serializer.data)
+        return Response({
+            'home': BaseUserSerializer(users.filter(roles__short='HC'), many=True).data,
+            'visiting': BaseUserSerializer(users.filter(roles__short='VC'), many=True).data,
+            'mavp': BaseUserSerializer(users.filter(roles__short='MC'), many=True).data,
+        })
 
 
 class EventScoreActiveUserListView(APIView):
@@ -82,10 +91,14 @@ class EventScoreActiveUserListView(APIView):
         """
         Get list of all active users sorted by first name.
         Includes basic information and event score.
+        Sorted into home, visiting, and mavp controllers.
         """
         users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
-        serializer = EventScoreUserSerializer(users, many=True)
-        return Response(serializer.data)
+        return Response({
+            'home': EventScoreUserSerializer(users.filter(roles__short='HC'), many=True).data,
+            'visiting': EventScoreUserSerializer(users.filter(roles__short='VC'), many=True).data,
+            'mavp': EventScoreUserSerializer(users.filter(roles__short='MC'), many=True).data,
+        })
 
 
 class AllUserListView(APIView):
