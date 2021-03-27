@@ -39,6 +39,7 @@ def fetch_metars():
             query.delete()
 
         METAR(
+            station=airport,
             raw=data.get('sanitized'),
             flight_rules=data.get('flight_rules'),
             timestamp=pytz.utc.localize(datetime.fromisoformat(data.get('time').get('dt')[:-1])),
