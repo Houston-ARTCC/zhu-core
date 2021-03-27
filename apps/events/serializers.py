@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Event, EventPosition, PositionShift, ShiftRequest, SupportRequest
 from ..users.models import User
-from ..users.serializers import BaseUserSerializer, AuthenticatedBaseUserSerializer
+from ..users.serializers import BaseUserSerializer, AuthenticatedBaseUserSerializer, EventScoreUserSerializer
 
 
 class BaseShiftRequestSerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class BaseShiftRequestSerializer(serializers.ModelSerializer):
 
 
 class ShiftRequestSerializer(serializers.ModelSerializer):
-    user = BaseUserSerializer()
+    user = EventScoreUserSerializer()
 
     class Meta:
         model = ShiftRequest

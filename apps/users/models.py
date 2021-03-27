@@ -1,5 +1,6 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
@@ -7,7 +8,7 @@ from django.core.files import File
 from django.db import models
 from django.utils import timezone
 
-from zhu_core.utils import base26decode, base26encode, OverwriteStorage
+from zhu_core.utils import base26decode, base26encode, OverwriteStorage, Interval
 
 
 def create_profile_path(instance, filename):
@@ -105,6 +106,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'{self.first_name} {self.last_name}'
 
     @property
+    def membership(self):
+        return self.roles.filter(short__in=['HC', 'VC', 'MC']).first()
+
+    @property
     def is_member(self):
         return self.status != Status.NON_MEMBER
 
@@ -130,10 +135,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         the letters are cycled through until an available one is found.
         """
         initials = (self.first_name[0] + self.last_name[0]).upper()
+
         users = User.objects.exclude(status=Status.NON_MEMBER).exclude(cid=self.cid)
         while users.filter(initials=initials).exists():
             new_initials = base26decode(initials) + 1
             initials = base26encode(new_initials if new_initials <= 675 else 0)
+
         self.initials = initials.rjust(2, 'A')
         self.save()
 
@@ -144,7 +151,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         Automatically assigns initials and sets join date if new member.
         """
         assert short in ['HC', 'VC', 'MC', None]
+
         self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
+
         if short is None:
             self.status = Status.NON_MEMBER
         else:
@@ -152,8 +161,10 @@ class User(AbstractBaseUser, PermissionsMixin):
                 self.assign_initials()
                 self.generate_profile()
                 self.joined = timezone.now()
+
             if short == 'HC':
                 self.home_facility = 'ZHU'
+
             self.status = Status.ACTIVE
             self.add_role(short)
         self.save()
@@ -181,6 +192,40 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         self.profile = File(profile_io, name=str(self.cid) + '.png')
         self.save()
+
+    @property
+    def event_score(self):
+        """
+        Calculates an averaged percentage to represent the user's
+        actual vs anticipated participation in all events.
+        """
+        from apps.events.models import Event
+        from apps.feedback.models import Feedback
+
+        individual_scores = [100 if self.membership.short == 'HC' else 85]
+
+        events = Event.objects.filter(positions__shifts__user=self).distinct()
+        for event in events:
+            # Get target controlling duration for event
+            shifts = self.event_shifts.filter(position__event=event)
+            target_duration = sum([(shift.end - shift.start).total_seconds() for shift in shifts])
+
+            # Get actual controlling duration for event
+            sessions = [session for session in self.controller_sessions.filter(
+                start__gt=event.start - timedelta(hours=1),
+                start__lt=event.end
+            )]
+            actual_duration = sum([session.duration.total_seconds() for session in sessions])
+
+            # Calculate feedback adjustment
+            adjustment = 1
+            for feedback in Feedback.objects.filter(controller=self, event=event):
+                adjustment += (feedback.rating - 3) * 0.05
+
+            # Calculate final score for event and append to list
+            individual_scores.append(actual_duration * 100 * adjustment / target_duration)
+
+        return round(sum(individual_scores) / len(individual_scores))
 
     def __str__(self):
         return self.full_name

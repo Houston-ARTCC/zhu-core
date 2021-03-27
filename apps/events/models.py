@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 from django.db import models
 from django.utils import timezone
 
@@ -50,13 +49,14 @@ class EventPosition(models.Model):
         """
         Makes all shifts equal duration.
         """
-        shift_duration = timedelta(seconds=self.event.duration.total_seconds() / self.shifts.count())
-        time = self.event.start
-        for shift in self.shifts.order_by('-start'):
-            shift.start = time
-            time += shift_duration
-            shift.end = time
-            shift.save()
+        if self.shifts.count() > 0:
+            shift_duration = timedelta(seconds=self.event.duration.total_seconds() / self.shifts.count())
+            time = self.event.start
+            for shift in self.shifts.order_by('-start'):
+                shift.start = time
+                time += shift_duration
+                shift.end = time
+                shift.save()
 
     def __str__(self):
         return f'{self.event} | {self.callsign}'
@@ -66,7 +66,7 @@ class PositionShift(models.Model):
     class Meta:
         verbose_name_plural = 'Position Shifts'
 
-    user = models.ForeignKey(User, models.CASCADE, null=True, blank=True, related_name='event_positions')
+    user = models.ForeignKey(User, models.CASCADE, null=True, blank=True, related_name='event_shifts')
     position = models.ForeignKey(EventPosition, models.CASCADE, related_name='shifts')
     start = models.DateTimeField()
     end = models.DateTimeField()

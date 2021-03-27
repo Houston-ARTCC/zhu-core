@@ -75,6 +75,19 @@ class SimplifiedActiveUserListView(APIView):
         return Response(serializer.data)
 
 
+class EventScoreActiveUserListView(APIView):
+    permission_classes = [IsStaff]
+
+    def get(self, request):
+        """
+        Get list of all active users sorted by first name.
+        Includes basic information and event score.
+        """
+        users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
+        serializer = EventScoreUserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
 class AllUserListView(APIView):
     permission_classes = [IsStaff]
 
