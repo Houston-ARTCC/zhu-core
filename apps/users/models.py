@@ -204,7 +204,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         individual_scores = [100 if self.membership.short == 'HC' else 85]
 
-        events = Event.objects.filter(positions__shifts__user=self).distinct()
+        events = Event.objects.filter(end__lt=timezone.now(), positions__shifts__user=self).distinct()
         for event in events:
             # Get target controlling duration for event
             shifts = self.event_shifts.filter(position__event=event)
