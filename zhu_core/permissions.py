@@ -73,7 +73,7 @@ class IsSeniorStaff(BasePermission):
 
 class IsAdmin(BasePermission):
     """
-    Allows access to the ATM, DATM, and WM.
+    Allows access to the ATM and DATM.
     """
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.is_admin
@@ -85,3 +85,11 @@ class IsPut(BasePermission):
     """
     def has_permission(self, request, view):
         return request.method == 'PUT'
+
+
+class IsDelete(BasePermission):
+    """
+    Allows access to DELETE requests.
+    """
+    def has_permission(self, request, view):
+        return request.method == 'DELETE'

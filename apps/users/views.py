@@ -1,12 +1,10 @@
-import requests
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly, IsStaff, IsController, IsTrainingStaff
-from zhu_core.utils import rating_int_to_short
+from zhu_core.permissions import ReadOnly, IsStaff, IsController, IsTrainingStaff, IsDelete, IsAdmin
 from .models import Status
 from .serializers import *
 from ..feedback.models import Feedback
@@ -32,7 +30,7 @@ class ActiveUserListView(APIView):
 
 
 class UserInstanceView(APIView):
-    permission_classes = [ReadOnly | IsStaff]
+    permission_classes = [(IsDelete & IsAdmin) | (~IsDelete & (ReadOnly | IsStaff))]
 
     def get(self, request, cid):
         """
@@ -55,6 +53,15 @@ class UserInstanceView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, cid):
+        """
+        Remove user from roster.
+        Does NOT automatically remove from VATUSA roster.
+        """
+        user = get_object_or_404(User, cid=cid)
+        user.set_membership(None)
+        return Response(status.HTTP_200_OK)
 
 
 class UserFeedbackView(APIView):
