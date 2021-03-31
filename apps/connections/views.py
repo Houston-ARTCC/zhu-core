@@ -66,10 +66,14 @@ class StatisticsView(APIView):
         """
         Get list of all controllers along with hours for
         current, previous, and penultimate months.
+        Sorted into home, visiting, and mavp controllers.
         """
         hours = get_user_hours()
-        serializer = StatisticsSerializer(hours, many=True)
-        return Response(serializer.data)
+        return Response({
+            'home': StatisticsSerializer(hours.filter(roles__short='HC'), many=True).data,
+            'visiting': StatisticsSerializer(hours.filter(roles__short='VC'), many=True).data,
+            'mavp': StatisticsSerializer(hours.filter(roles__short='MC'), many=True).data,
+        })
 
 
 class DailyStatisticsView(APIView):

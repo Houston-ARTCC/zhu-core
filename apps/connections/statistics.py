@@ -1,8 +1,30 @@
-from django.db.models import Sum, Q, Count
+from django.db.models import Sum, Q
 from django.utils import timezone
 
 from .models import ControllerSession
 from ..users.models import User, Status
+
+
+def annotate_hours(query):
+    """
+    Annotates given QuerySet with controlling hours for the
+    current (curr_hours), previous (prev_hours), and
+    penultimate (prev_prev_hours) months.
+    """
+    MONTH_NOW = timezone.now().month
+    YEAR_NOW = timezone.now().year
+    CURR_MONTH = (Q(controller_sessions__start__month=MONTH_NOW)
+                  & Q(controller_sessions__start__year=YEAR_NOW))
+    PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12)
+                  & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1))
+    PREV_PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11)
+                       & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1))
+
+    return query.annotate(
+        curr_hours=Sum('controller_sessions__duration', filter=CURR_MONTH),
+        prev_hours=Sum('controller_sessions__duration', filter=PREV_MONTH),
+        prev_prev_hours=Sum('controller_sessions__duration', filter=PREV_PREV_MONTH),
+    )
 
 
 def get_user_hours():
@@ -11,24 +33,7 @@ def get_user_hours():
     hours for the current (curr_hours), previous (prev_hours),
     and penultimate (prev_prev_hours) months.
     """
-    MONTH_NOW = timezone.now().month
-    YEAR_NOW = timezone.now().year
-
-    CURR_MONTH = (Q(controller_sessions__start__month=MONTH_NOW)
-                  & Q(controller_sessions__start__year=YEAR_NOW))
-    PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12)
-                  & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1))
-    PREV_PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11)
-                       & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1))
-
-    users = User.objects.exclude(status=Status.NON_MEMBER)
-    users = users.annotate(
-        curr_hours=Sum('controller_sessions__duration', filter=CURR_MONTH),
-        prev_hours=Sum('controller_sessions__duration', filter=PREV_MONTH),
-        prev_prev_hours=Sum('controller_sessions__duration', filter=PREV_PREV_MONTH),
-    )
-
-    return users
+    return annotate_hours(User.objects.exclude(status=Status.NON_MEMBER))
 
 
 def get_top_controllers():

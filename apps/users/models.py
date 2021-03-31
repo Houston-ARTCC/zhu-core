@@ -107,7 +107,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def membership(self):
-        return self.roles.filter(short__in=['HC', 'VC', 'MC']).first()
+        return self.roles.filter(short__in=['HC', 'VC', 'MC']).first().short
 
     @property
     def is_member(self):
@@ -127,7 +127,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_admin(self):
-        return self.roles.filter(short__in=['ATM', 'DATM', 'WM']).exists()
+        return self.roles.filter(short__in=['ATM', 'DATM']).exists()
+    
+    @property
+    def activity_requirement(self):
+        if self.del_cert == Certification.NONE:
+            return timedelta(hours=0)
+        elif self.is_staff:
+            return timedelta(hours=5)
+        elif self.membership == 'HC':
+            return timedelta(hours=2)
+        else:
+            return timedelta(hours=1)
 
     def assign_initials(self):
         """
@@ -202,7 +213,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         from apps.events.models import Event
         from apps.feedback.models import Feedback
 
-        individual_scores = [100 if self.membership.short == 'HC' else 85]
+        individual_scores = [100 if self.membership == 'HC' else 85]
 
         events = Event.objects.filter(end__lt=timezone.now(), positions__shifts__user=self).distinct()
         for event in events:
