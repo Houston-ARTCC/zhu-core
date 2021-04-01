@@ -21,3 +21,11 @@ class FeedbackSerializer(BaseFeedbackSerializer):
     controller = AuthenticatedBaseUserSerializer()
     pilot = AuthenticatedBaseUserSerializer()
     event = BasicEventSerializer()
+
+
+class SimplifiedFeedbackSerializer(serializers.ModelSerializer):
+    event = BasicEventSerializer()
+
+    class Meta:
+        model = Feedback
+        fields = ['id', 'controller_callsign', 'pilot_callsign', 'rating', 'comments', 'event', 'created']

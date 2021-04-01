@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -8,7 +7,7 @@ from zhu_core.permissions import ReadOnly, IsStaff, IsController, IsTrainingStaf
 from .models import Status
 from .serializers import *
 from ..feedback.models import Feedback
-from ..feedback.serializers import FeedbackSerializer
+from ..feedback.serializers import SimplifiedFeedbackSerializer
 
 
 class ActiveUserListView(APIView):
@@ -65,14 +64,14 @@ class UserInstanceView(APIView):
 
 
 class UserFeedbackView(APIView):
-    permission_classes = [IsAuthenticated & (IsController | IsStaff | IsTrainingStaff)]
+    permission_classes = [IsController | IsStaff | IsTrainingStaff]
 
     def get(self, request, cid):
         """
-        Get list of all feedback for user.
+        Get list of all approved feedback for user.
         """
         feedback = Feedback.objects.filter(controller__cid=cid).filter(approved=True)
-        serializer = FeedbackSerializer(feedback, many=True)
+        serializer = SimplifiedFeedbackSerializer(feedback, many=True)
         return Response(serializer.data)
 
 
