@@ -209,6 +209,6 @@ MEDIA_ROOT = os.getenv('MEDIA_ROOT', BASE_DIR / 'media')
 
 BLEACH_ALLOWED_TAGS = [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'p', 'a', 'u', 's', 'em', 'br', 'ul', 'ol',
     'pre', 'span', 'img', 'strong', 'blockquote',
+    'p', 'a', 'u', 's', 'em', 'br', 'ul', 'ol', 'li',
 ]
