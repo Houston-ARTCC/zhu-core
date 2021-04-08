@@ -1,3 +1,4 @@
+import requests
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from datetime import timedelta
@@ -16,6 +17,7 @@ def create_profile_path(instance, filename):
 
 
 class Rating(models.TextChoices):
+    UNK = '', 'Unknown'
     OBS = 'OBS', 'Observer'
     S1 = 'S1', 'Student 1'
     S2 = 'S2', 'Student 2'
@@ -237,6 +239,28 @@ class User(AbstractBaseUser, PermissionsMixin):
             individual_scores.append(actual_duration * 100 * adjustment / target_duration)
 
         return round(sum(individual_scores) / len(individual_scores))
+    
+    @property
+    def visiting_eligibility(self):
+        """
+        Check if authenticated user is eligible to apply as a visiting controller.
+        """
+        rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
+
+        rating_time_check = True
+
+        rating_hours = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/rating_times/').json()
+        rating_hours_check = rating_hours.get(self.rating.lower()) > 50
+
+        membership_check = not self.is_member
+
+        return {
+            'rating_check': rating_check,
+            'rating_time_check': rating_time_check,
+            'rating_hours_check': rating_hours_check,
+            'membership_check': membership_check,
+            'is_eligible': rating_check and rating_time_check and rating_hours_check and membership_check,
+        }
 
     def __str__(self):
         return self.full_name

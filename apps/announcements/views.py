@@ -24,6 +24,7 @@ class AnnouncementListView(APIView):
         Post a new announcement.
         """
         request.data['body'] = bleach.clean(request.data['body'], tags=settings.BLEACH_ALLOWED_TAGS)
+        request.data['body'] = request.data['body'].replace('<p><br></p>', '')
         serializer = BaseAnnouncementSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()

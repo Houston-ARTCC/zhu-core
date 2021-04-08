@@ -6,12 +6,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsAdmin, IsMember, ReadOnly
+from zhu_core.permissions import IsAdmin, ReadOnly, CanVisit
 from .serializers import *
 
 
 class VisitingListView(APIView):
-    permission_classes = [(ReadOnly & IsAdmin) | (~ReadOnly & ~IsMember & IsAuthenticated)]
+    permission_classes = [(ReadOnly & IsAdmin) | (~ReadOnly & IsAuthenticated & CanVisit)]
 
     def get(self, request):
         """
@@ -55,6 +55,16 @@ class VisitingInstanceView(APIView):
         application = get_object_or_404(VisitingApplication, id=application_id)
         application.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EligibilityView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Check if authenticated user is eligible to apply as a visiting controller.
+        """
+        return Response(request.user.visiting_eligibility)
 
 
 # TODO: Send email on reception/acception/rejection of application.

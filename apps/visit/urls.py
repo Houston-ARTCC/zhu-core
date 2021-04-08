@@ -5,4 +5,5 @@ from . import views
 urlpatterns = [
     path('', views.VisitingListView.as_view()),
     path('<int:application_id>/', views.VisitingInstanceView.as_view()),
+    path('eligible/', views.EligibilityView.as_view()),
 ]

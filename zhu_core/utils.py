@@ -50,26 +50,26 @@ def rating_int_to_short(int):
     rating to rating short.
     """
     if int == 1:
-        return "OBS"
+        return 'OBS'
     elif int == 2:
-        return "S1"
+        return 'S1'
     elif int == 3:
-        return "S2"
+        return 'S2'
     elif int == 4:
-        return "S3"
+        return 'S3'
     elif int == 5:
-        return "C1"
+        return 'C1'
     elif int == 7:
-        return "C3"
+        return 'C3'
     elif int == 8:
-        return "I1"
+        return 'I1'
     elif int == 10:
-        return "I3"
+        return 'I3'
     elif int == 11:
-        return "SUP"
+        return 'SUP'
     elif int == 12:
-        return "ADM"
-    return None
+        return 'ADM'
+    return ''
 
 
 class CustomDurationField(DurationField):
