@@ -93,6 +93,11 @@ class PendingTrainingRequestListView(APIView):
 class TrainingRequestInstanceView(APIView):
     permission_classes = [(IsPut & IsTrainingStaff) | IsOwner]
 
+    def get_object(self, request_id):
+        obj = get_object_or_404(TrainingRequest, id=request_id)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
     def put(self, request, request_id):
         """
         Accept training request.
@@ -112,8 +117,7 @@ class TrainingRequestInstanceView(APIView):
         """
         Cancel training request.
         """
-        training_request = get_object_or_404(TrainingRequest, id=request_id)
-        self.check_object_permissions(self.request, training_request)
+        training_request = self.get_object(request_id)
         training_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -5,6 +5,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('api/announcements/', include('apps.announcements.urls')),
+    path('api/booking/', include('apps.booking.urls')),
     path('api/calendar/', include('apps.calendar.urls')),
     path('api/connections/', include('apps.connections.urls')),
     path('auth/', include('apps.vatsim.urls')),
