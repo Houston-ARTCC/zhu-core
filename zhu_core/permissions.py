@@ -100,4 +100,4 @@ class CanVisit(BasePermission):
     Allows access to users who are eligible to visit the ARTCC.
     """
     def has_permission(self, request, view):
-        return request.user and request.user.visiting_eligibility.is_eligible
+        return request.user and request.user.visiting_eligibility.get('is_eligible')

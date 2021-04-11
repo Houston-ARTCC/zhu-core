@@ -6,7 +6,7 @@ from .models import User, Role
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
-        fields = '__all__'
+        fields = ['short', 'long']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,7 +15,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ['email', 'password', 'groups', 'user_permissions']
+        exclude = [
+            'email', 'password', 'groups', 'user_permissions', 'is_superuser'
+            'last_login', 'prevent_event_signup', 'cic_endorsed',
+        ]
 
     def get_rating(self, obj):
         return {
@@ -31,7 +34,10 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ['password']
+        exclude = [
+            'password', 'groups', 'user_permissions', 'is_superuser',
+            'last_login', 'prevent_event_signup', 'cic_endorsed',
+        ]
 
     def get_rating(self, obj):
         return {

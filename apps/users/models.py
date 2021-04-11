@@ -1,7 +1,8 @@
+import pytz
 import requests
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
@@ -247,7 +248,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
 
-        rating_time_check = True
+        rating_time = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/').json()
+        last_rating_change = pytz.utc.localize(
+            datetime.strptime(rating_time.get('lastratingchange'), '%Y-%m-%dT%H:%M:%S')
+        )
+        rating_time_check = timezone.now() - last_rating_change >= timedelta(days=90)
 
         rating_hours = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/rating_times/').json()
         rating_hours_check = rating_hours.get(self.rating.lower()) > 50
