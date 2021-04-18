@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'apps.administration',
     'apps.announcements',
     'apps.booking',
     'apps.calendar',

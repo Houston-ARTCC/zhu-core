@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    path('api/administration/', include('apps.administration.urls')),
     path('api/announcements/', include('apps.announcements.urls')),
     path('api/booking/', include('apps.booking.urls')),
     path('api/calendar/', include('apps.calendar.urls')),
