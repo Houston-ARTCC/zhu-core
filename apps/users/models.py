@@ -1,3 +1,4 @@
+import os
 import pytz
 import requests
 from io import BytesIO
@@ -7,7 +8,9 @@ from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core.files import File
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 from zhu_core.utils import base26decode, base26encode, OverwriteStorage
@@ -131,7 +134,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_admin(self):
         return self.roles.filter(short__in=['ATM', 'DATM']).exists()
-    
+
     @property
     def activity_requirement(self):
         if self.del_cert == Certification.NONE:
@@ -143,69 +146,37 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             return timedelta(hours=1)
 
-    def assign_initials(self):
+    @property
+    def visiting_eligibility(self):
         """
-        Assigns operating initials to the user. If the user's initials are taken
-        the letters are cycled through until an available one is found.
+        Check if authenticated user is eligible to apply as a visiting controller.
         """
-        initials = (self.first_name[0] + self.last_name[0]).upper()
+        from ..visit.models import VisitingApplication
 
-        users = User.objects.exclude(status=Status.NON_MEMBER).exclude(cid=self.cid)
-        while users.filter(initials=initials).exists():
-            new_initials = base26decode(initials) + 1
-            initials = base26encode(new_initials if new_initials <= 675 else 0)
+        rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
 
-        self.initials = initials.rjust(2, 'A')
-        self.save()
+        rating_time = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/').json()
+        last_rating_change = pytz.utc.localize(
+            datetime.strptime(rating_time.get('lastratingchange'), '%Y-%m-%dT%H:%M:%S')
+        )
+        rating_time_check = timezone.now() - last_rating_change >= timedelta(days=90)
 
-    def set_membership(self, short):
-        """
-        Sets the user to home, visiting, MAVP, or non-member.
-        Automatically removes any other membership roles.
-        Automatically assigns initials and sets join date if new member.
-        """
-        assert short in ['HC', 'VC', 'MC', None]
+        rating_hours = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/rating_times/').json()
+        rating_hours_check = rating_hours.get(self.rating.lower()) > 50
 
-        self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
+        membership_check = not self.is_member
 
-        if short is None:
-            self.status = Status.NON_MEMBER
-        else:
-            if self.status == Status.NON_MEMBER:
-                self.assign_initials()
-                self.generate_profile()
-                self.joined = timezone.now()
+        pending_application_check = not VisitingApplication.objects.filter(user=self).exists()
 
-            if short == 'HC':
-                self.home_facility = 'ZHU'
-
-            self.status = Status.ACTIVE
-            self.add_role(short)
-        self.save()
-
-    def add_role(self, short):
-        self.roles.add(Role.objects.get(short=short))
-
-    def remove_role(self, short):
-        self.roles.remove(*self.roles.filter(short=short))
-
-    def generate_profile(self):
-        """
-        Generates a profile picture with the user's
-        initials and saves it to database.
-        """
-        profile = Image.new('RGB', (500, 500), color=(194, 207, 224))
-        font = ImageFont.truetype(str(settings.STATIC_ROOT) + '/fonts/CeraPro-Medium.ttf', 225)
-
-        text_layer = ImageDraw.Draw(profile)
-        text_width, text_height = text_layer.textsize(self.initials, font=font)
-        text_layer.text(((500 - text_width) / 2, (500 - text_height) / 2), self.initials, font=font, fill=(51, 77, 110))
-
-        profile_io = BytesIO()
-        profile.save(profile_io, 'PNG')
-
-        self.profile = File(profile_io, name=str(self.cid) + '.png')
-        self.save()
+        return {
+            'rating_check': rating_check,
+            'rating_time_check': rating_time_check,
+            'rating_hours_check': rating_hours_check,
+            'membership_check': membership_check,
+            'pending_application_check': pending_application_check,
+            'is_eligible': rating_check and rating_time_check and rating_hours_check and
+                           membership_check and pending_application_check,
+        }
 
     @property
     def event_score(self):
@@ -240,32 +211,81 @@ class User(AbstractBaseUser, PermissionsMixin):
             individual_scores.append(actual_duration * 100 * adjustment / target_duration)
 
         return round(sum(individual_scores) / len(individual_scores))
-    
-    @property
-    def visiting_eligibility(self):
+
+    def assign_initials(self):
         """
-        Check if authenticated user is eligible to apply as a visiting controller.
+        Assigns operating initials to the user. If the user's initials are taken
+        the letters are cycled through until an available one is found.
         """
-        rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
+        initials = (self.first_name[0] + self.last_name[0]).upper()
 
-        rating_time = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/').json()
-        last_rating_change = pytz.utc.localize(
-            datetime.strptime(rating_time.get('lastratingchange'), '%Y-%m-%dT%H:%M:%S')
-        )
-        rating_time_check = timezone.now() - last_rating_change >= timedelta(days=90)
+        users = User.objects.exclude(status=Status.NON_MEMBER).exclude(cid=self.cid)
+        while users.filter(initials=initials).exists():
+            new_initials = base26decode(initials) + 1
+            initials = base26encode(new_initials if new_initials <= 675 else 0)
 
-        rating_hours = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/rating_times/').json()
-        rating_hours_check = rating_hours.get(self.rating.lower()) > 50
+        self.initials = initials.rjust(2, 'A')
+        self.save()
 
-        membership_check = not self.is_member
+    def generate_profile(self):
+        """
+        Generates a profile picture with the user's
+        initials and saves it to database.
+        """
+        profile = Image.new('RGB', (500, 500), color=(194, 207, 224))
+        font = ImageFont.truetype(str(settings.STATIC_ROOT) + '/fonts/CeraPro-Medium.ttf', 225)
 
-        return {
-            'rating_check': rating_check,
-            'rating_time_check': rating_time_check,
-            'rating_hours_check': rating_hours_check,
-            'membership_check': membership_check,
-            'is_eligible': rating_check and rating_time_check and rating_hours_check and membership_check,
-        }
+        text_layer = ImageDraw.Draw(profile)
+        text_width, text_height = text_layer.textsize(self.initials, font=font)
+        text_layer.text(((500 - text_width) / 2, (500 - text_height) / 2), self.initials, font=font, fill=(51, 77, 110))
+
+        profile_io = BytesIO()
+        profile.save(profile_io, 'PNG')
+
+        self.profile = File(profile_io, name=str(self.cid) + '.png')
+        self.save()
+
+    def set_membership(self, short):
+        """
+        Sets the user to home, visiting, MAVP, or non-member.
+        Automatically removes any other membership roles.
+        Automatically assigns initials and sets join date if new member.
+        """
+        assert short in ['HC', 'VC', 'MC', None]
+
+        self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
+
+        if short is None:
+            self.status = Status.NON_MEMBER
+        else:
+            if self.status == Status.NON_MEMBER:
+                self.assign_initials()
+                self.generate_profile()
+                # self.send_welcome_mail()
+                self.joined = timezone.now()
+
+            if short == 'HC':
+                self.home_facility = 'ZHU'
+
+            self.status = Status.ACTIVE
+            self.add_role(short)
+        self.save()
+
+    def send_welcome_mail(self):
+        context = {'user': self}
+        EmailMultiAlternatives(
+            subject=f'Welcome to {os.getenv("FACILITY_NAME")}!',
+            to=[self.email],
+            from_email=os.getenv('EMAIL_ADDRESS'),
+            body=render_to_string('welcome_email.txt', context=context),
+            alternatives=[(render_to_string('welcome_email.html', context=context), 'text/html')],
+        ).send()
+
+    def add_role(self, short):
+        self.roles.add(Role.objects.get(short=short))
+
+    def remove_role(self, short):
+        self.roles.remove(*self.roles.filter(short=short))
 
     def __str__(self):
         return self.full_name

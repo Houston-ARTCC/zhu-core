@@ -1,0 +1,44 @@
+Hello {{ user.first_name }},
+
+Let me be the first to welcome you to the Virtual Houston ARTCC! We are delighted to have you here as a controller and are excited to be able to share the joys of this wonderful hobby with you.
+
+However, first it is important for us to get a few housekeeping tasks out of the way. Please read this email in its entirety as it contains very important information.
+
+
+Discord
+We use Discord as our primary text communications platform. All ARTCC announcements are made on our Discord server and this is also where you can chat with other controllers. You can download Discord at https://discord.com.
+
+Please join our Discord server by clicking this link or using the invite code Ag2cdZz. If you would like to have your controller rating automatically synced, you must configure VATSIM Sync at https://vatsimsync.com.
+
+
+TeamSpeak
+TeamSpeak is our primary voice communications platform. While on the network, all controllers must be in a TeamSpeak channel for coordination. TeamSpeak 3 can be download at https://www.teamspeak.com/en.
+
+You can connect to our server by using the IP ts.zhuartcc.org. Use your full name as your nickname when you connect. Please do not share the server IP with anybody outside of the Houston ARTCC.
+
+
+Website
+Upon receiving this email, you should be able to sign in on https://zhuartcc.org using VATSIM Connect. Here you can access controlling files and facility documents, the training center, event shift bookings, and see controlling statistics.
+
+
+Getting Trained
+The training center, located at https://zhuartcc.org/training, is the one-stop shop for all of your training needs. Here you can request training, view booked training sessions, and see past training notes. Instructions on how to schedule a session can be found in the Training Center.
+
+
+On behalf of the entire Houston ARTCC staff team, welcome! If you ever have any questions, don't hesitate to reach out to datm@zhuartcc.org.
+
+
+Marcus Miller
+atm@zhuartcc.org
+Air Traffic Manager
+
+Joshua Seagrave
+datm@zhuartcc.org
+Deputy Air Traffic Manager
+
+Ryan Drozd
+ta@zhuartcc.org
+Training Administrator
+
+
+If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
