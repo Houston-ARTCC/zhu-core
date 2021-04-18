@@ -9,9 +9,9 @@
         <p>One of your training requests has been picked up and a training session has been scheduled! Below are the details of the session:</p>
         <ul>
             <li style="color:#777"><strong style="color:#333">Instructor:</strong> {{ session.instructor.full_name }}</li>
-            <li style="color:#777"><strong style="color:#333">Date:</strong> {{ session.start.date|date:'N j, Y' }}</li>
-            <li style="color:#777"><strong style="color:#333">Start:</strong> {{ session.start.date|date:'H:i' }}z</li>
-            <li style="color:#777"><strong style="color:#333">End:</strong> {{ session.end.date|date:'H:i' }}z</li>
+            <li style="color:#777"><strong style="color:#333">Date:</strong> {{ session.start|date:'N j, Y' }}</li>
+            <li style="color:#777"><strong style="color:#333">Start:</strong> {{ session.start|date:'H:i' }}z</li>
+            <li style="color:#777"><strong style="color:#333">End:</strong> {{ session.end|date:'H:i' }}z</li>
             <li style="color:#777"><strong style="color:#333">Position:</strong> {{ session.position }}</li>
             <li style="color:#777"><strong style="color:#333">Type:</strong> {{ session.get_type_display }}</li>
             <li style="color:#777"><strong style="color:#333">Level:</strong> {{ session.get_level_display }}</li>
