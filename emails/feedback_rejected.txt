@@ -1,6 +1,6 @@
 Hello {{ user.first_name }},
 
-Thank you for submitting feedback for {{ feedback.controller.first_name }} {{ feedback.controller.last_name }}. Unfortunately, the feedback was deemed inappropriate by senior staff for the following reason:
+Thank you for submitting feedback for {{ feedback.controller.full_name }}. Unfortunately, the feedback was deemed inappropriate by senior staff for the following reason:
 
 {{ reason }}
 

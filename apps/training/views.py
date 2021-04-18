@@ -1,4 +1,7 @@
+import os
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
@@ -110,6 +113,16 @@ class TrainingRequestInstanceView(APIView):
         if serializer.is_valid():
             training_request.delete()
             serializer.save()
+
+            context = {'user': request.user, 'session': serializer.instance}
+            EmailMultiAlternatives(
+                subject='Training session scheduled!',
+                to=[request.user.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('training_scheduled.txt', context=context),
+                alternatives=[(render_to_string('training_scheduled.html', context=context), 'text/html')],
+            ).send()
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -146,5 +159,6 @@ class NotificationView(APIView):
         })
 
 
-# TODO: Send email on request received/accepted.
+# TODO: Add training note submit.
+# TODO: Send email on training note submit.
 # TODO: Add VATUSA CTRS integration to session PUT.

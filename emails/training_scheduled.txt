@@ -1,0 +1,21 @@
+Hello {{ user.first_name }},
+
+One of your training requests has been picked up and a training session has been scheduled! Below are the details of the session:
+
+    - Instructor: {{ session.instructor.full_name }}
+    - Date: {{ session.start.date|date:'N j, Y' }}
+    - Start: {{ session.start.date|date:'H:i' }}z
+    - End: {{ session.end.date|date:'H:i' }}z
+    - Position: {{ session.position }}
+    - Type: {{ session.get_type_display }}
+    - Level: {{ session.get_level_display }}
+
+
+If you have any questions, don't hesitate to reach out to ta@zhuartcc.org.
+
+
+{{ session.instructor.full_name }}
+{{ session.instructor.training_staff_role.long }}
+
+
+If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

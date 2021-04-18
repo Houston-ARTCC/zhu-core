@@ -136,6 +136,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.roles.filter(short__in=['ATM', 'DATM']).exists()
 
     @property
+    def training_staff_role(self):
+        return self.roles.filter(short__in=['INS', 'MTR']).first()
+
+    @property
+    def staff_role(self):
+        return self.roles.filter(short__in=['ATM', 'DATM', 'TA', 'ATA', 'FE', 'AFE', 'EC', 'AEC', 'WM', 'AWM']).first()
+
+    @property
     def activity_requirement(self):
         if self.del_cert == Certification.NONE:
             return timedelta(hours=0)
