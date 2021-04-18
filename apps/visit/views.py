@@ -71,8 +71,8 @@ class VisitingInstanceView(APIView):
             subject='An update on your visiting request.',
             to=[application.user.email],
             from_email=os.getenv('EMAIL_ADDRESS'),
-            body=render_to_string('visiting_request_received.txt', context=context),
-            alternatives=[(render_to_string('visiting_request_received.html', context=context), 'text/html')],
+            body=render_to_string('visiting_request_rejected.txt', context=context),
+            alternatives=[(render_to_string('visiting_request_rejected.html', context=context), 'text/html')],
         ).send()
 
         application.delete()

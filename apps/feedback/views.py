@@ -1,4 +1,7 @@
+import os
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -26,6 +29,16 @@ class FeedbackListView(APIView):
         serializer = BaseFeedbackSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
+
+            context = {'user': request.user, 'feedback': serializer.instance}
+            EmailMultiAlternatives(
+                subject='We have received your feedback!',
+                to=[request.user.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('feedback_received.txt', context=context),
+                alternatives=[(render_to_string('feedback_received.html', context=context), 'text/html')],
+            ).send()
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -40,6 +53,16 @@ class FeedbackInstanceView(APIView):
         feedback = get_object_or_404(Feedback, id=feedback_id)
         feedback.approved = True
         feedback.save()
+
+        context = {'user': request.user, 'feedback': feedback}
+        EmailMultiAlternatives(
+            subject='Your feedback has been approved!',
+            to=[request.user.email],
+            from_email=os.getenv('EMAIL_ADDRESS'),
+            body=render_to_string('feedback_approved.txt', context=context),
+            alternatives=[(render_to_string('feedback_approved.html', context=context), 'text/html')],
+        ).send()
+
         return Response(status=status.HTTP_200_OK)
 
     def delete(self, request, feedback_id):
@@ -48,6 +71,16 @@ class FeedbackInstanceView(APIView):
         """
         feedback = get_object_or_404(Feedback, id=feedback_id)
         feedback.delete()
+
+        context = {'user': request.user, 'feedback': feedback, 'reason': request.data.get('reason')}
+        EmailMultiAlternatives(
+            subject='An update on your feedback.',
+            to=[request.user.email],
+            from_email=os.getenv('EMAIL_ADDRESS'),
+            body=render_to_string('feedback_rejected.txt', context=context),
+            alternatives=[(render_to_string('feedback_rejected.html', context=context), 'text/html')],
+        ).send()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 # TODO: Send email on reception/acception/rejection of feedback.

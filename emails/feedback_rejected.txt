@@ -1,0 +1,24 @@
+Hello {{ user.first_name }},
+
+Thank you for submitting feedback for {{ feedback.controller.first_name }} {{ feedback.controller.last_name }}. Unfortunately, the feedback was deemed inappropriate by senior staff for the following reason:
+
+{{ reason }}
+
+
+If you have any questions, don't hesitate to reach out to datm@zhuartcc.org.
+
+
+Marcus Miller
+atm@zhuartcc.org
+Air Traffic Manager
+
+Joshua Seagrave
+datm@zhuartcc.org
+Deputy Air Traffic Manager
+
+Ryan Drozd
+ta@zhuartcc.org
+Training Administrator
+
+
+If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

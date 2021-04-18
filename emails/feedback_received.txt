@@ -1,0 +1,22 @@
+Hello {{ user.first_name }},
+
+We have received your feedback for {{ feedback.controller.first_name }} {{ feedback.controller.last_name }}! Please hold tight while our senior staff reviews the feedback to ensure that it is valid. You will be notified once a decision is made.
+
+
+If you have any questions, don't hesitate to reach out to datm@zhuartcc.org.
+
+
+Marcus Miller
+atm@zhuartcc.org
+Air Traffic Manager
+
+Joshua Seagrave
+datm@zhuartcc.org
+Deputy Air Traffic Manager
+
+Ryan Drozd
+ta@zhuartcc.org
+Training Administrator
+
+
+If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
