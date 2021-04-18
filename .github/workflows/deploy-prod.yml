@@ -1,0 +1,27 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Upload
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          use_insecure_cipher: true
+          script: |
+            cd api.zhuartcc.org/zhu-core
+            source ../venv/bin/activate
+            git pull
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+            python manage.py migrate
+            touch ../tmp/restart.txt
