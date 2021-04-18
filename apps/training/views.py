@@ -134,5 +134,17 @@ class MentorHistoryListView(APIView):
         return Response(serializer.data)
 
 
+class NotificationView(APIView):
+    permission_classes = [IsTrainingStaff]
+
+    def get(self, request):
+        """
+        Returns notification counts for training center categories.
+        """
+        return Response({
+            'training_requests': TrainingRequest.objects.filter(end__gt=timezone.now()).count(),
+        })
+
+
 # TODO: Send email on request received/accepted.
 # TODO: Add VATUSA CTRS integration to session PUT.

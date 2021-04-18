@@ -4,9 +4,12 @@ from rest_framework.views import APIView
 from apps.events.models import SupportRequest
 from apps.feedback.models import Feedback
 from apps.visit.models import VisitingApplication
+from zhu_core.permissions import IsStaff
 
 
-class NotificationListView(APIView):
+class NotificationView(APIView):
+    permission_classes = [IsStaff]
+
     def get(self, request):
         """
         Returns notification counts for admin panel categories.
