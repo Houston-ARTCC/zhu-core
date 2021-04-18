@@ -1,0 +1,15 @@
+Hello {{ user.first_name }},
+
+We have received your request to visit the Virtual Houston ARTCC! Please hold tight while our administration reviews your visiting request. You will be notified once a decision is made.
+
+
+Marcus Miller
+atm@zhuartcc.org
+Air Traffic Manager
+
+Joshua Seagrave
+datm@zhuartcc.org
+Deputy Air Traffic Manager
+
+
+If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

@@ -1,6 +1,8 @@
 import os
 import requests
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -28,6 +30,16 @@ class VisitingListView(APIView):
         serializer = BaseVisitingApplicationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
+
+            context = {'user': request.user}
+            EmailMultiAlternatives(
+                subject='We have received your visiting request!',
+                to=[request.user.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('visiting_request_received.txt', context=context),
+                alternatives=[(render_to_string('visiting_request_received.html', context=context), 'text/html')],
+            ).send()
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -53,7 +65,18 @@ class VisitingInstanceView(APIView):
         Reject visiting application.
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
+
+        context = {'user': application.user, 'reason': request.data.get('reason')}
+        EmailMultiAlternatives(
+            subject='An update on your visiting request.',
+            to=[application.user.email],
+            from_email=os.getenv('EMAIL_ADDRESS'),
+            body=render_to_string('visiting_request_received.txt', context=context),
+            alternatives=[(render_to_string('visiting_request_received.html', context=context), 'text/html')],
+        ).send()
+
         application.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

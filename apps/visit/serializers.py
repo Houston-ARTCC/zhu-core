@@ -25,5 +25,3 @@ class BaseVisitingApplicationSerializer(serializers.ModelSerializer):
 
 class VisitingApplicationSerializer(BaseVisitingApplicationSerializer):
     user = AuthenticatedUserSerializer()
-
-# TODO: UniqueValidator on user field not running and an IntegrityError is raised.
