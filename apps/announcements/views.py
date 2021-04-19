@@ -4,12 +4,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly, IsStaff
+from zhu_core.permissions import IsGet, IsStaff
 from .serializers import *
 
 
 class AnnouncementListView(APIView):
-    permission_classes = [ReadOnly | IsStaff]
+    permission_classes = [IsGet | IsStaff]
 
     def get(self, request):
         """
@@ -33,7 +33,7 @@ class AnnouncementListView(APIView):
 
 
 class RecentAnnouncementListView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """

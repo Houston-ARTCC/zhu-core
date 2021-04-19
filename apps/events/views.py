@@ -6,12 +6,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsStaff, IsMember, ReadOnly
+from zhu_core.permissions import IsStaff, IsMember, IsGet
 from .serializers import *
 
 
 class EventsListView(APIView):
-    permission_classes = [ReadOnly | IsStaff]
+    permission_classes = [IsGet | IsStaff]
 
     def get(self, request):
         """
@@ -37,7 +37,7 @@ class EventsListView(APIView):
 
 
 class ArchivedEventsListView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """
@@ -53,7 +53,7 @@ class ArchivedEventsListView(APIView):
 
 
 class EventInstanceView(APIView):
-    permission_classes = [ReadOnly | IsStaff]
+    permission_classes = [IsGet | IsStaff]
 
     def get(self, request, event_id):
         """
@@ -194,7 +194,7 @@ class ShiftInstanceView(APIView):
 
 
 class SupportRequestListView(APIView):
-    permission_classes = [(ReadOnly & IsStaff) | (~ReadOnly & IsAuthenticated)]
+    permission_classes = [(IsGet & IsStaff) | (~IsGet & IsAuthenticated)]
 
     def get(self, request):
         """

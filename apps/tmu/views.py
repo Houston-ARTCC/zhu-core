@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly
+from zhu_core.permissions import IsGet
 from .models import METAR
 from .serializers import *
 
@@ -35,7 +35,7 @@ class ATISListView(APIView):
 
 class TMUListView(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [ReadOnly | IsAuthenticated]
+    permission_classes = [IsGet | IsAuthenticated]
 
     def get(self, request):
         """
@@ -70,7 +70,7 @@ class TMUInstanceView(APIView):
 
 
 class METARListView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """
@@ -82,7 +82,7 @@ class METARListView(APIView):
 
 
 class METARInstanceView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request, facility):
         """

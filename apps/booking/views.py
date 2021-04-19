@@ -4,13 +4,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly, IsMember, IsOwner
+from zhu_core.permissions import IsGet, IsMember, IsOwner
 from .models import Booking
 from .serializers import BookingSerializer, BaseBookingSerializer
 
 
 class BookingListView(APIView):
-    permission_classes = [ReadOnly | IsMember]
+    permission_classes = [IsGet | IsMember]
 
     def get(self, request):
         """

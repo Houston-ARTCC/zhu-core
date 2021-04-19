@@ -2,14 +2,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly
+from zhu_core.permissions import IsGet
 from .serializers import *
 from .statistics import *
 from ..users.models import User
 
 
 class ControllerSessionsView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request, cid):
         """
@@ -22,7 +22,7 @@ class ControllerSessionsView(APIView):
 
 
 class OnlineControllersView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """
@@ -34,7 +34,7 @@ class OnlineControllersView(APIView):
 
 
 class TopControllersView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """
@@ -47,7 +47,7 @@ class TopControllersView(APIView):
 
 
 class TopPositionsView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """
@@ -60,7 +60,7 @@ class TopPositionsView(APIView):
 
 
 class StatisticsView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """

@@ -7,12 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsSeniorStaff, ReadOnly
+from zhu_core.permissions import IsSeniorStaff, IsGet
 from .serializers import *
 
 
 class FeedbackListView(APIView):
-    permission_classes = [(ReadOnly & IsSeniorStaff) | (~ReadOnly & IsAuthenticated)]
+    permission_classes = [(IsGet & IsSeniorStaff) | (~IsGet & IsAuthenticated)]
 
     def get(self, request):
         """

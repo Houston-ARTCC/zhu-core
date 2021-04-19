@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly, IsStaff, IsController, IsTrainingStaff, IsDelete, IsAdmin
+from zhu_core.permissions import IsGet, IsStaff, IsController, IsTrainingStaff, IsDelete, IsAdmin
 from .models import Status
 from .serializers import *
 from ..feedback.models import Feedback
@@ -29,7 +29,7 @@ class ActiveUserListView(APIView):
 
 
 class UserInstanceView(APIView):
-    permission_classes = [(IsDelete & IsAdmin) | (~IsDelete & (ReadOnly | IsStaff))]
+    permission_classes = [(IsDelete & IsAdmin) | (~IsDelete & (IsGet | IsStaff))]
 
     def get(self, request, cid):
         """
@@ -130,7 +130,7 @@ class NewestUserListView(APIView):
 
 
 class StaffListView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request):
         """

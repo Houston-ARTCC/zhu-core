@@ -1,14 +1,6 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
-class ReadOnly(BasePermission):
-    """
-    Allows access only via SAFE_METHODS.
-    """
-    def has_permission(self, request, view):
-        return request.method in SAFE_METHODS
-
-
 class IsOwner(BasePermission):
     """
     Allows access to users who match the 'user' field.
@@ -79,6 +71,22 @@ class IsAdmin(BasePermission):
         return request.user.is_authenticated and request.user.is_admin
 
 
+class CanVisit(BasePermission):
+    """
+    Allows access to users who are eligible to visit the ARTCC.
+    """
+    def has_permission(self, request, view):
+        return request.user and request.user.visiting_eligibility.get('is_eligible')
+
+
+class IsGet(BasePermission):
+    """
+    Allows access only via GET.
+    """
+    def has_permission(self, request, view):
+        return request.method == 'GET'
+
+
 class IsPut(BasePermission):
     """
     Allows access to PUT requests.
@@ -93,11 +101,3 @@ class IsDelete(BasePermission):
     """
     def has_permission(self, request, view):
         return request.method == 'DELETE'
-
-
-class CanVisit(BasePermission):
-    """
-    Allows access to users who are eligible to visit the ARTCC.
-    """
-    def has_permission(self, request, view):
-        return request.user and request.user.visiting_eligibility.get('is_eligible')

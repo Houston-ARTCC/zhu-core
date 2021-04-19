@@ -2,7 +2,7 @@ from datetime import datetime
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly
+from zhu_core.permissions import IsGet
 from .serializers import *
 from ..booking.models import Booking
 from ..booking.serializers import BookingSerializer
@@ -10,7 +10,7 @@ from ..training.models import Status
 
 
 class CalendarView(APIView):
-    permission_classes = [ReadOnly]
+    permission_classes = [IsGet]
 
     def get(self, request, year=datetime.now().year, month=datetime.now().month):
         """

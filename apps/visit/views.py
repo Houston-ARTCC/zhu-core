@@ -8,12 +8,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsAdmin, ReadOnly, CanVisit
+from zhu_core.permissions import IsAdmin, IsGet, CanVisit
 from .serializers import *
 
 
 class VisitingListView(APIView):
-    permission_classes = [(ReadOnly & IsAdmin) | (~ReadOnly & IsAuthenticated & CanVisit)]
+    permission_classes = [(IsGet & IsAdmin) | (~IsGet & IsAuthenticated & CanVisit)]
 
     def get(self, request):
         """

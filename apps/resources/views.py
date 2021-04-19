@@ -3,12 +3,12 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import ReadOnly, IsStaff
+from zhu_core.permissions import IsGet, IsStaff
 from .serializers import *
 
 
 class ResourceListView(APIView):
-    permission_classes = [ReadOnly | IsStaff]
+    permission_classes = [IsGet | IsStaff]
 
     def get(self, request):
         """
