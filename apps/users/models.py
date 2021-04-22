@@ -188,37 +188,60 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def event_score(self):
+        return self.get_event_scores().get('event_score')
+
+    def get_event_scores(self):
         """
         Calculates an averaged percentage to represent the user's
         actual vs anticipated participation in all events.
+        Also factors in feedback for the event.
         """
         from apps.events.models import Event
+        from apps.events.serializers import BasicEventSerializer
         from apps.feedback.models import Feedback
+        from apps.feedback.serializers import EventFeedbackSerializer
 
-        individual_scores = [100 if self.membership == 'HC' else 85]
+        individual_scores = [
+            {
+                'event': None,
+                'score': 100 if self.membership == 'HC' else 85,
+            },
+        ]
 
         events = Event.objects.filter(end__lt=timezone.now(), positions__shifts__user=self).distinct()
         for event in events:
             # Get target controlling duration for event
             shifts = self.event_shifts.filter(position__event=event)
-            target_duration = sum([(shift.end - shift.start).total_seconds() for shift in shifts])
+            target_duration = round(sum([(shift.end - shift.start).total_seconds() for shift in shifts]))
 
             # Get actual controlling duration for event
             sessions = [session for session in self.controller_sessions.filter(
                 start__gt=event.start - timedelta(hours=1),
                 start__lt=event.end
             )]
-            actual_duration = sum([session.duration.total_seconds() for session in sessions])
+            actual_duration = round(sum([session.duration.total_seconds() for session in sessions]))
 
             # Calculate feedback adjustment
             adjustment = 1
-            for feedback in Feedback.objects.filter(controller=self, event=event):
+            event_feedback = Feedback.objects.filter(controller=self, event=event, approved=True)
+            for feedback in event_feedback:
                 adjustment += (feedback.rating - 3) * 0.05
 
             # Calculate final score for event and append to list
-            individual_scores.append(actual_duration * 100 * adjustment / target_duration)
+            individual_scores.append({
+                'event': BasicEventSerializer(event).data,
+                'score': round(actual_duration * 100 * adjustment / target_duration),
+                'target_duration': target_duration,
+                'actual_duration': actual_duration,
+                'feedback': EventFeedbackSerializer(event_feedback, many=True).data,
+            })
 
-        return round(sum(individual_scores) / len(individual_scores))
+        scores = list(map(lambda x: x.get('score'), individual_scores))
+
+        return {
+            'event_score': round(sum(scores) / len(scores)),
+            'scores': individual_scores,
+        }
 
     def assign_initials(self):
         """

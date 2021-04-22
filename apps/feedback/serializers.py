@@ -29,3 +29,9 @@ class SimplifiedFeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
         fields = ['id', 'controller_callsign', 'pilot_callsign', 'rating', 'comments', 'event', 'created']
+
+
+class EventFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['id', 'rating']
