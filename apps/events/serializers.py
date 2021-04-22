@@ -34,6 +34,8 @@ class ShiftRequestSerializer(serializers.ModelSerializer):
 
 class BaseShiftSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True, required=False)
+    start = serializers.DateTimeField()
+    end= serializers.DateTimeField()
 
     class Meta:
         model = PositionShift
@@ -43,6 +45,8 @@ class BaseShiftSerializer(serializers.ModelSerializer):
 class ShiftSerializer(serializers.ModelSerializer):
     requests = ShiftRequestSerializer(many=True, read_only=True)
     user = BaseUserSerializer()
+    start = serializers.DateTimeField()
+    end= serializers.DateTimeField()
 
     class Meta:
         model = PositionShift
@@ -70,7 +74,7 @@ class PositionSerializer(serializers.ModelSerializer):
         exclude = ['event']
 
     def get_shifts(self, instance):
-        shifts = instance.shifts.all().order_by('start')
+        shifts = instance.shifts.all()
         return ShiftSerializer(shifts, many=True, read_only=True).data
 
 

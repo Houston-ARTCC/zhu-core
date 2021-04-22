@@ -125,7 +125,7 @@ class PositionInstanceView(APIView):
         Add additional shift to position.
         """
         position = get_object_or_404(EventPosition, id=position_id)
-        position.add_shift()
+        PositionShift(position=position).save()
         return Response(status=status.HTTP_200_OK)
 
     def delete(self, request, position_id):
@@ -187,9 +187,7 @@ class ShiftInstanceView(APIView):
         Delete shift.
         """
         shift = get_object_or_404(PositionShift, id=shift_id)
-        position = shift.position
         shift.delete()
-        position.adjust_shift_times()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
