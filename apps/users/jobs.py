@@ -9,9 +9,9 @@ def sync_vatusa_roster():
     This job pulls all the facility roster from VATUSA
     and syncs with the local roster.
     """
-    # Checks for users that do not exist on local roster.
     roster = get_vatusa_roster()
 
+    # Checks for users that do not exist on local roster.
     for user in roster:
         query = User.objects.filter(cid=user.get('cid'))
         if not query.exists():

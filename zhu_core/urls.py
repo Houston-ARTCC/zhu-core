@@ -12,6 +12,7 @@ urlpatterns = [
     path('auth/', include('apps.vatsim.urls')),
     path('api/events/', include('apps.events.urls')),
     path('api/feedback/', include('apps.feedback.urls')),
+    path('api/loa/', include('apps.loa.urls')),
     path('api/resources/', include('apps.resources.urls')),
     path('api/tmu/', include('apps.tmu.urls')),
     path('api/training/', include('apps.training.urls')),

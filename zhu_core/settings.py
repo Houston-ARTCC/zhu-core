@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     'apps.connections',
     'apps.events',
     'apps.feedback',
+    'apps.loa',
     'apps.resources',
     'apps.tmu',
     'apps.training',

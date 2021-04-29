@@ -4,6 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apps.connections import jobs as connections
 from apps.users import jobs as users
 from apps.tmu import jobs as tmu
+from apps.loa import jobs as loa
 
 
 def start_scheduler():
@@ -45,6 +46,14 @@ def start_scheduler():
         tmu.delete_inactive_atis,
         trigger=CronTrigger(minute=4),  # Top of every hour + 4
         id='delete_inactive_atis',
+        max_instances=1,
+        replace_existing=True,
+    )
+
+    scheduler.add_job(
+        loa.update_loa_status,
+        trigger=CronTrigger(hour=0),  # Every midnight
+        id='update_loa_status',
         max_instances=1,
         replace_existing=True,
     )
