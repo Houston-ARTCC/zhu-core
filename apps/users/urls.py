@@ -12,5 +12,4 @@ urlpatterns = [
     path('all/', views.AllUserListView.as_view()),
     path('newest/', views.NewestUserListView.as_view()),
     path('staff/', views.StaffListView.as_view()),
-    path('roles/', views.RoleListView.as_view()),
 ]

@@ -180,13 +180,3 @@ class StaffListView(APIView):
             'mtr': BaseUserSerializer(User.objects.filter(roles__short='MTR'), many=True).data,
             'web': BaseUserSerializer(User.objects.filter(roles__short='WEB'), many=True).data,
         })
-
-
-class RoleListView(APIView):
-    def get(self, request):
-        """
-        Get list of all roles.
-        """
-        roles = Role.objects.all()
-        serializer = RoleSerializer(roles, many=True)
-        return Response(serializer.data)
