@@ -91,7 +91,7 @@ INSTALLED_APPS = [
     'apps.loa',
     'apps.resources',
     'apps.tmu',
-    'apps.training',
+    'apps.training.app.TrainingConfig',
     'apps.users',
     'apps.vatsim',
     'apps.visit',
