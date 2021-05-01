@@ -25,7 +25,10 @@ class TrainingSessionSerializer(BaseTrainingSessionSerializer):
 
 
 class BaseTrainingRequestSerializer(serializers.ModelSerializer):
-    user = BaseUserSerializer()
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault()
+    )
 
     class Meta:
         model = TrainingRequest
@@ -33,7 +36,4 @@ class BaseTrainingRequestSerializer(serializers.ModelSerializer):
 
 
 class TrainingRequestSerializer(BaseTrainingRequestSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault()
-    )
+    user = BaseUserSerializer()

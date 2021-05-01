@@ -1,6 +1,6 @@
 Hello {{ user.first_name }},
 
-One of your training requests has been picked up and a training session has been scheduled! Below are the details of the session:
+Your training request has been picked up by a member of training staff and a training session has been scheduled! Below are the details of the session:
 
     - Instructor: {{ session.instructor.full_name }}
     - Date: {{ session.start|date:'N j, Y' }}

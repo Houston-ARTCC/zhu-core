@@ -5,7 +5,7 @@ from ...models import User, Status
 
 
 class Command(BaseCommand):
-    help = 'Closes the specified poll for voting'
+    help = 'Pulls VATUSA roster for configured facility'
 
     def handle(self, *args, **options):
         sync_vatusa_roster()

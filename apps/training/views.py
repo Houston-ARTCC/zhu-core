@@ -47,16 +47,43 @@ class SessionInstanceView(APIView):
         serializer = TrainingSessionSerializer(session)
         return Response(serializer.data)
 
+    def post(self, request, session_id):
+        """
+        File training session.
+        """
+        session = get_object_or_404(TrainingSession, id=session_id)
+        request.data['status'] = Status.COMPLETED
+        serializer = BaseTrainingSessionSerializer(session, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+
+            # TODO: Send email on session file
+
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request, session_id):
         """
         Modify training session details.
         """
         session = get_object_or_404(TrainingSession, id=session_id)
-        serializer = TrainingSessionSerializer(session, data=request.data)
+        serializer = TrainingSessionSerializer(session, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, session_id):
+        """
+        Cancel training session. (DOES NOT DELETE MODEL)
+        """
+        session = get_object_or_404(TrainingSession, id=session_id)
+        session.status = Status.CANCELLED
+        session.save()
+
+        # TODO: Send email upon cancellation.
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class TrainingRequestListView(APIView):
@@ -74,7 +101,7 @@ class TrainingRequestListView(APIView):
         """
         Submit a new training request.
         """
-        serializer = TrainingRequestSerializer(data=request.data, context={'request': request})
+        serializer = BaseTrainingRequestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -89,7 +116,7 @@ class PendingTrainingRequestListView(APIView):
         Get list of all pending training requests.
         """
         requests = TrainingRequest.objects.filter(end__gt=timezone.now())
-        serializer = BaseTrainingRequestSerializer(requests, many=True)
+        serializer = TrainingRequestSerializer(requests, many=True)
         return Response(data=serializer.data)
 
 

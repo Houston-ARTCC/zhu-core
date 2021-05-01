@@ -5,7 +5,7 @@ from apps.users.models import User, Role
 
 
 class Command(BaseCommand):
-    help = 'Closes the specified poll for voting'
+    help = 'Sets a user as a superuser'
 
     def handle(self, *args, **options):
         cid = input('CID: ')
