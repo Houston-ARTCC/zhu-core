@@ -31,7 +31,13 @@ class EventsListView(APIView):
         """
         serializer = EventSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            event = serializer.save()
+
+            if 'preset' in request.data:
+                filter = PositionPreset.objects.filter(id=request.data.get('preset'))
+                if filter.exists():
+                    filter.first().apply_to_event(event)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -234,5 +240,49 @@ class SupportRequestInstanceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# TODO: Send email on position assignment.
+class PositionPresetListView(APIView):
+    permission_classes = [IsStaff]
+
+    def get(self, request):
+        """
+        Get list of all position presets.
+        """
+        presets = PositionPreset.objects.all()
+        serializer = PositionPresetSerializer(presets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """
+        Create new position preset.
+        """
+        serializer = PositionPresetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PositionPresetInstanceView(APIView):
+    permission_classes = [IsStaff]
+
+    def put(self, request, preset_id):
+        """
+        Modify position preset.
+        """
+        preset = get_object_or_404(PositionPreset, id=preset_id)
+        serializer = PositionPresetSerializer(preset, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, preset_id):
+        """
+        Remove position preset.
+        """
+        preset = get_object_or_404(PositionPreset, id=preset_id)
+        preset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # TODO: Send email on support request received/approved/rejected.

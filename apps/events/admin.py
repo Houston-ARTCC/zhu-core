@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Event, EventPosition, PositionShift, ShiftRequest, SupportRequest
+from .models import *
 
 
 @admin.register(Event)
@@ -26,3 +26,8 @@ class ShiftRequestAdmin(admin.ModelAdmin):
 @admin.register(SupportRequest)
 class SupportRequestAdmin(admin.ModelAdmin):
     list_display = ('name', 'host', 'start', 'end')
+
+
+@admin.register(PositionPreset)
+class PositionPresetAdmin(admin.ModelAdmin):
+    list_display = ('name', 'positions')

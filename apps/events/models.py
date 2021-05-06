@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 from django.db import models
 from django.utils import timezone
@@ -103,5 +104,24 @@ class SupportRequest(models.Model):
 
     def __str__(self):
         return f'{self.name} by {self.host}'
+
+
+class PositionPreset(models.Model):
+    class Meta:
+        verbose_name_plural = 'Position Presets'
+
+    name = models.CharField(max_length=64)
+    positions = models.JSONField(default=list)
+    
+    def apply_to_event(self, event):
+        for preset_position in self.positions:
+            # Create Position
+            position = EventPosition(event=event, callsign=preset_position.get('callsign'))
+            position.save()
+
+            # Create Shifts
+            for i in range(preset_position.get('shifts')):
+                PositionShift(position=position).save()
+
 
 # TODO: Add requested fields to SupportRequest model

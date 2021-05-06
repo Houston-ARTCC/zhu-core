@@ -11,4 +11,6 @@ urlpatterns = [
     path('shift/<int:shift_id>/', views.ShiftInstanceView.as_view()),
     path('support/', views.SupportRequestListView.as_view()),
     path('support/<int:request_id>/', views.SupportRequestInstanceView.as_view()),
+    path('presets/', views.PositionPresetListView.as_view()),
+    path('presets/<int:preset_id>/', views.PositionPresetInstanceView.as_view()),
 ]
