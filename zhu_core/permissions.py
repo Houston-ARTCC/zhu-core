@@ -20,17 +20,6 @@ class IsController(BasePermission):
         return request.user and request.parser_context.get('kwargs').get('cid') == request.user.cid
 
 
-class IsStudent(BasePermission):
-    """
-    Allows access to users who match the 'student' field via SAFE_METHDOS only.
-    """
-    def has_object_permission(self, request, view, obj):
-        if request.method not in SAFE_METHODS:
-            return False
-
-        return request.user and obj.student == request.user
-
-
 class IsMember(BasePermission):
     """
     Allows access to active controllers.

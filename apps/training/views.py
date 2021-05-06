@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsMember, IsTrainingStaff, IsOwner, IsPut, IsStudent
+from zhu_core.permissions import IsMember, IsTrainingStaff, IsOwner, IsPut, IsController
 from .models import Status
 from .serializers import *
 
@@ -25,7 +25,7 @@ class ScheduledSessionListView(APIView):
 
 
 class SessionListView(APIView):
-    permission_classes = [IsTrainingStaff | IsStudent]
+    permission_classes = [IsTrainingStaff | IsController]
 
     def get(self, request, cid):
         """
@@ -37,15 +37,7 @@ class SessionListView(APIView):
 
 
 class SessionInstanceView(APIView):
-    permission_classes = [IsTrainingStaff | IsStudent]
-
-    def get(self, request, session_id):
-        """
-        Get training session details.
-        """
-        session = get_object_or_404(TrainingSession, id=session_id)
-        serializer = TrainingSessionSerializer(session)
-        return Response(serializer.data)
+    permission_classes = [IsTrainingStaff]
 
     def post(self, request, session_id):
         """
@@ -186,6 +178,4 @@ class NotificationView(APIView):
         })
 
 
-# TODO: Add training note submit.
 # TODO: Send email on training note submit.
-# TODO: Add VATUSA CTRS integration to session PUT.
