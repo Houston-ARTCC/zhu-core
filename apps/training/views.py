@@ -39,6 +39,14 @@ class SessionListView(APIView):
 class SessionInstanceView(APIView):
     permission_classes = [IsTrainingStaff]
 
+    def get(self, request, session_id):
+        """
+        Get training session details.
+        """
+        session = get_object_or_404(TrainingSession, id=session_id)
+        serializer = TrainingSessionSerializer(session)
+        return Response(serializer.data)
+
     def post(self, request, session_id):
         """
         File training session.

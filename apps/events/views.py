@@ -152,7 +152,7 @@ class ShiftRequestView(APIView):
         """
         shift = get_object_or_404(PositionShift, id=shift_id)
 
-        if shift.position.event.hidden and not request.user.is_staff:
+        if shift.position.event.hidden and not request.user.is_staff or request.user.prevent_event_signup:
             raise PermissionDenied('You do not have permission to interact with this event.')
 
         serializer = BaseShiftRequestSerializer(data={'shift': shift.id}, context={'request': request})
