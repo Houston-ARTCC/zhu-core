@@ -184,6 +184,3 @@ class NotificationView(APIView):
         return Response({
             'training_requests': TrainingRequest.objects.filter(end__gt=timezone.now()).count(),
         })
-
-
-# TODO: Send email on training note submit.

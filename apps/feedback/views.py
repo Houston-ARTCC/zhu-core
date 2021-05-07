@@ -82,5 +82,3 @@ class FeedbackInstanceView(APIView):
         ).send()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-# TODO: Send email on reception/acception/rejection of feedback.

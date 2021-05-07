@@ -292,8 +292,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             if self.status == Status.NON_MEMBER:
                 self.assign_initials()
                 self.generate_profile()
-                # self.send_welcome_mail()
                 self.joined = timezone.now()
+
+                if os.getenv('DEV_ENV') == 'False':
+                    self.send_welcome_mail()
 
             if short == 'HC':
                 self.home_facility = 'ZHU'

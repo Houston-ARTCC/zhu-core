@@ -88,6 +88,3 @@ class EligibilityView(APIView):
         Check if authenticated user is eligible to apply as a visiting controller.
         """
         return Response(request.user.visiting_eligibility)
-
-
-# TODO: Send email on reception/acception/rejection of application.
