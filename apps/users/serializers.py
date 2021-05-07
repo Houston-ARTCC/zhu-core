@@ -34,10 +34,7 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = [
-            'password', 'groups', 'user_permissions', 'is_superuser',
-            'last_login', 'prevent_event_signup', 'cic_endorsed',
-        ]
+        exclude = ['password', 'groups', 'user_permissions', 'is_superuser']
 
     def get_rating(self, obj):
         return {
