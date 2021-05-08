@@ -42,5 +42,5 @@ def fetch_metars():
             station=airport,
             raw=data.get('sanitized'),
             flight_rules=data.get('flight_rules'),
-            timestamp=pytz.utc.localize(datetime.fromisoformat(data.get('time').get('dt')[:-1])),
+            timestamp=pytz.utc.localize(datetime.fromisoformat(data.get('meta').get('timestamp')[:-1])),
         ).save()
