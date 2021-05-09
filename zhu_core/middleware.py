@@ -12,8 +12,8 @@ class JWTAuthenticationMiddleware:
         """
         try:
             auth = authentication.JWTAuthentication().authenticate(request)
-            if auth.get_user():
-                request.user = auth.get_user()
+            if auth:
+                request.user = auth[0]
         except:
             pass
 
