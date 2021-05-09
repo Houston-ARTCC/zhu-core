@@ -120,7 +120,7 @@ class PositionPreset(models.Model):
             position.save()
 
             # Create Shifts
-            for i in range(preset_position.get('shifts')):
+            for _ in range(preset_position.get('shifts')):
                 PositionShift(position=position).save()
 
     def __str__(self):

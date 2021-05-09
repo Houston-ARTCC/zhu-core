@@ -103,7 +103,10 @@ class EventInstanceView(APIView):
         })
         if serializer.is_valid():
             serializer.save()
-            serializer.instance.add_shift(int(request.data.get('shifts')))
+
+            for _ in range(request.data.get('shifts')):
+                PositionShift(position=serializer.instance).save()
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
