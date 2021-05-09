@@ -133,6 +133,6 @@ class PositionPreset(models.Model):
 # TODO: Add requested fields to SupportRequest model
 
 
-auditlog.register(Event)
+auditlog.register(Event, exclude_fields=['feedback', 'positions'])
 auditlog.register(SupportRequest)
 auditlog.register(PositionPreset)

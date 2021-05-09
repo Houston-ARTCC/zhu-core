@@ -248,7 +248,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             'scores': individual_scores,
         }
 
-    def assign_initials(self):
+    def get_initials(self):
         """
         Assigns operating initials to the user. If the user's initials are taken
         the letters are cycled through until an available one is found.
@@ -260,8 +260,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             new_initials = base26decode(initials) + 1
             initials = base26encode(new_initials if new_initials <= 675 else 0)
 
-        self.initials = initials.rjust(2, 'A')
-        self.save()
+        return initials.rjust(2, 'A')
 
     def generate_profile(self):
         """
@@ -278,8 +277,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         profile_io = BytesIO()
         profile.save(profile_io, 'PNG')
 
-        self.profile = File(profile_io, name=str(self.cid) + '.png')
-        self.save()
+        return File(profile_io, name=str(self.cid) + '.png')
 
     def set_membership(self, short):
         """
@@ -295,9 +293,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.status = Status.NON_MEMBER
         else:
             if self.status == Status.NON_MEMBER:
-                self.assign_initials()
-                self.generate_profile()
+                self.initials = self.get_initials()
                 self.joined = timezone.now()
+                self.profile = self.generate_profile()
 
                 if os.getenv('DEV_ENV') == 'False':
                     self.send_welcome_mail()
@@ -329,4 +327,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.full_name
 
 
-auditlog.register(User, exclude_fields=['last_login'])
+auditlog.register(User, include_fields=[
+    'cid', 'email', 'first_name', 'last_name', 'biography', 'rating', 'home_facility',
+    'roles', 'status', 'initials', 'joined', 'prevent_event_signup', 'cic_endorsed',
+    'del_cert', 'gnd_cert', 'twr_cert', 'app_cert', 'ctr_cert', 'ocn_cert',
+])

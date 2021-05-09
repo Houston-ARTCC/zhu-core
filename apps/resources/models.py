@@ -36,4 +36,4 @@ class Resource(models.Model):
         return self.name
 
 
-auditlog.register(Resource)
+auditlog.register(Resource, exclude_fields=['updated'])
