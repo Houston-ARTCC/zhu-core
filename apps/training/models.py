@@ -38,7 +38,7 @@ class OTSStatus(models.IntegerChoices):
 
 class TrainingSession(models.Model):
     class Meta:
-        verbose_name_plural = 'Training Sessions'
+        verbose_name = 'Training session'
 
     student = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='student_sessions')
     instructor = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='instructor_sessions')
@@ -65,7 +65,7 @@ class TrainingSession(models.Model):
 
 class TrainingRequest(models.Model):
     class Meta:
-        verbose_name_plural = 'Training Requests'
+        verbose_name = 'Training request'
 
     user = models.ForeignKey(User, models.CASCADE, related_name='training_requests')
     start = models.DateTimeField()

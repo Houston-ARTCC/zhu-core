@@ -6,7 +6,7 @@ from ..users.models import User
 
 class VisitingApplication(models.Model):
     class Meta:
-        verbose_name_plural = 'Vistiting Applications'
+        verbose_name = 'Vistiting application'
 
     user = models.OneToOneField(User, models.CASCADE, related_name='visiting_application', unique=True)
     reason = models.TextField()

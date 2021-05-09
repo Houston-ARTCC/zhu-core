@@ -5,6 +5,9 @@ from ..users.models import User
 
 
 class LOA(models.Model):
+    class Meta:
+        verbose_name = 'LOA'
+
     user = models.ForeignKey(User, models.CASCADE, related_name='loa_requests')
     start = models.DateField()
     end = models.DateField()

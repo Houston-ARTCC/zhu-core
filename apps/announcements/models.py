@@ -5,6 +5,9 @@ from ..users.models import User
 
 
 class Announcement(models.Model):
+    class Meta:
+        verbose_name = 'Announcement'
+
     title = models.CharField(max_length=128)
     body = models.TextField()
     author = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='announcements')

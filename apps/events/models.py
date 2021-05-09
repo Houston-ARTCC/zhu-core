@@ -7,6 +7,9 @@ from apps.users.models import User
 
 
 class Event(models.Model):
+    class Meta:
+        verbose_name = 'Event'
+
     name = models.CharField(max_length=128)
     banner = models.URLField(null=True, blank=True)
     start = models.DateTimeField()
@@ -29,7 +32,7 @@ class Event(models.Model):
 
 class EventPosition(models.Model):
     class Meta:
-        verbose_name_plural = 'Event Positions'
+        verbose_name = 'Event position'
 
     event = models.ForeignKey(Event, models.CASCADE, related_name='positions')
     callsign = models.CharField(max_length=16)
@@ -44,7 +47,7 @@ class EventPosition(models.Model):
 
 class PositionShift(models.Model):
     class Meta:
-        verbose_name_plural = 'Position Shifts'
+        verbose_name = 'Position shift'
 
     user = models.ForeignKey(User, models.CASCADE, null=True, blank=True, related_name='event_shifts')
     position = models.ForeignKey(EventPosition, models.CASCADE, related_name='shifts')
@@ -67,7 +70,7 @@ class PositionShift(models.Model):
 
 class ShiftRequest(models.Model):
     class Meta:
-        verbose_name_plural = 'Shift Requests'
+        verbose_name = 'Shift request'
 
     shift = models.ForeignKey(PositionShift, models.CASCADE, related_name='requests')
     user = models.ForeignKey(User, models.CASCADE, related_name='shift_requests')
@@ -81,7 +84,7 @@ class ShiftRequest(models.Model):
 
 class SupportRequest(models.Model):
     class Meta:
-        verbose_name_plural = 'Event Support Requests'
+        verbose_name = 'Event support request'
 
     user = models.ForeignKey(User, models.CASCADE, related_name='support_requests')
     name = models.CharField(max_length=128)
@@ -108,7 +111,7 @@ class SupportRequest(models.Model):
 
 class PositionPreset(models.Model):
     class Meta:
-        verbose_name_plural = 'Position Presets'
+        verbose_name = 'Position preset'
 
     name = models.CharField(max_length=64)
     positions = models.JSONField(default=list)

@@ -4,6 +4,7 @@ from django.db import models
 
 class ATIS(models.Model):
     class Meta:
+        verbose_name = 'ATIS'
         verbose_name_plural = 'ATIS'
 
     facility = models.CharField(max_length=4)
@@ -16,7 +17,7 @@ class ATIS(models.Model):
 
 class TMUNotice(models.Model):
     class Meta:
-        verbose_name_plural = 'TMU Notices'
+        verbose_name = 'TMU notice'
 
     info = models.TextField()
     time_issued = models.DateTimeField(auto_now_add=True)
@@ -25,7 +26,7 @@ class TMUNotice(models.Model):
 
 class METAR(models.Model):
     class Meta:
-        verbose_name_plural = 'METARs'
+        verbose_name = 'METAR'
 
     station = models.CharField(max_length=4)
     raw = models.TextField()

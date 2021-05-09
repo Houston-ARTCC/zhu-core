@@ -15,6 +15,9 @@ class Category(models.TextChoices):
 
 
 class Resource(models.Model):
+    class Meta:
+        verbose_name = 'Resource'
+
     name = models.CharField(max_length=128)
     category = models.CharField(max_length=16, choices=Category.choices)
     path = models.FileField(upload_to='resources/')

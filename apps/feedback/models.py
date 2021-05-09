@@ -7,6 +7,7 @@ from ..events.models import Event
 
 class Feedback(models.Model):
     class Meta:
+        verbose_name = 'Feedback'
         verbose_name_plural = 'Feedback'
 
     controller = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='feedback')

@@ -4,6 +4,7 @@ import requests
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from datetime import timedelta, datetime
+from auditlog.models import AuditlogHistoryField
 from auditlog.registry import auditlog
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -73,6 +74,9 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    class Meta:
+        verbose_name = 'User'
+
     # Django Auth Fields
     objects = UserManager()
     USERNAME_FIELD = 'cid'
@@ -325,4 +329,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.full_name
 
 
-auditlog.register(User)
+auditlog.register(User, exclude_fields=['last_login'])

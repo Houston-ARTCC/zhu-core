@@ -5,7 +5,7 @@ from ..users.models import User
 
 class OnlineController(models.Model):
     class Meta:
-        verbose_name_plural = 'Online Controllers'
+        verbose_name = 'Online controller'
 
     user = models.ForeignKey(User, models.CASCADE, related_name='controller_online')
     callsign = models.CharField(max_length=16)
@@ -30,7 +30,7 @@ class OnlineController(models.Model):
 
 class ControllerSession(models.Model):
     class Meta:
-        verbose_name_plural = 'Controller Sessions'
+        verbose_name = 'Controller session'
 
     user = models.ForeignKey(User, models.CASCADE, related_name='controller_sessions')
     callsign = models.CharField(max_length=16)
