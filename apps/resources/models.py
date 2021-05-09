@@ -1,4 +1,5 @@
 import os
+from auditlog.registry import auditlog
 from django.db import models
 
 
@@ -30,3 +31,6 @@ class Resource(models.Model):
 
     def __str__(self):
         return self.name
+
+
+auditlog.register(Resource)

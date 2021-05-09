@@ -4,6 +4,7 @@ import requests
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from datetime import timedelta, datetime
+from auditlog.registry import auditlog
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
@@ -322,3 +323,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
+
+
+auditlog.register(User)

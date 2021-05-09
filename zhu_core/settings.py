@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'auditlog',
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
@@ -105,6 +106,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'zhu_core.middleware.JWTAuthenticationMiddleware',
+    'auditlog.middleware.AuditlogMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [

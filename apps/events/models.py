@@ -1,5 +1,5 @@
-import json
 from datetime import timedelta
+from auditlog.registry import auditlog
 from django.db import models
 from django.utils import timezone
 
@@ -123,5 +123,13 @@ class PositionPreset(models.Model):
             for i in range(preset_position.get('shifts')):
                 PositionShift(position=position).save()
 
+    def __str__(self):
+        return self.name
+
 
 # TODO: Add requested fields to SupportRequest model
+
+
+auditlog.register(Event)
+auditlog.register(SupportRequest)
+auditlog.register(PositionPreset)

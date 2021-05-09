@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.db import models
 
 from ..users.models import User
@@ -11,3 +12,6 @@ class Announcement(models.Model):
 
     def __str__(self):
         return self.title
+
+
+auditlog.register(Announcement)

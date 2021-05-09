@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.db import models
 
 from ..users.models import User
@@ -79,3 +80,6 @@ class TrainingRequest(models.Model):
 
     def __str__(self):
         return f'{self.user.full_name} {self.get_level_display()} {self.get_type_display()}'
+
+
+auditlog.register(TrainingSession)

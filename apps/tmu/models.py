@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.db import models
 
 
@@ -33,3 +34,6 @@ class METAR(models.Model):
 
     def __str__(self):
         return f'{self.station} @ {self.timestamp}'
+
+
+auditlog.register(TMUNotice)

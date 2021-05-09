@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.db import models
 
 from ..users.models import User
@@ -19,4 +20,7 @@ class Feedback(models.Model):
     approved = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.controller.full_name} @ {self.created.strftime("%b %d, %Y %H%Mz")}'
+        return self.controller.full_name
+
+
+auditlog.register(Feedback)

@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.db import models
 
 from ..users.models import User
@@ -12,4 +13,7 @@ class VisitingApplication(models.Model):
     submitted = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user.full_name} @ {self.submitted.strftime("%b %d, %Y %H%Mz")}'
+        return self.user.full_name
+
+
+auditlog.register(VisitingApplication)
