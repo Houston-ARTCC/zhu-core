@@ -35,7 +35,10 @@ def user_roles_changed(instance, action, pk_set, **kwargs):
         if entry_filter.exists():
             entry = entry_filter.first()
             old_changes = entry.changes_dict
-            old_changes['roles'][1] = str(after)
+            if 'roles' in old_changes:
+                old_changes['roles'][1] = str(after)
+            else:
+                old_changes['roles'] = [str(before), str(after)]
             entry.changes = json.dumps(old_changes)
             entry.save()
         else:
@@ -43,10 +46,7 @@ def user_roles_changed(instance, action, pk_set, **kwargs):
                 instance=instance,
                 action=LogEntry.Action.UPDATE,
                 changes=json.dumps({
-                    'roles': [
-                        str(before),
-                        str(after),
-                    ]
+                    'roles': [str(before), str(after)]
                 })
             )
 
