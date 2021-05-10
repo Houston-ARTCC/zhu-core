@@ -287,6 +287,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         assert short in ['HC', 'VC', 'MC', None]
 
+        if self.roles.filter(short=short).exists():
+            return
+
         self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
 
         if short is None:
