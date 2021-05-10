@@ -169,10 +169,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
 
         rating_time = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/').json()
-        last_rating_change = pytz.utc.localize(
-            datetime.strptime(rating_time.get('lastratingchange'), '%Y-%m-%dT%H:%M:%S')
-        )
-        rating_time_check = timezone.now() - last_rating_change >= timedelta(days=90)
+        if rating_time.get('lastratingchange') is not None:
+            last_rating_change = pytz.utc.localize(
+                datetime.strptime(rating_time.get('lastratingchange'), '%Y-%m-%dT%H:%M:%S')
+            )
+            rating_time_check = timezone.now() - last_rating_change >= timedelta(days=90)
+        else:
+            rating_time_check = True
 
         rating_hours = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/rating_times/').json()
         rating_hours_check = rating_hours.get(self.rating.lower()) > 50
