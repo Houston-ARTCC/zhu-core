@@ -1,5 +1,3 @@
-import math
-
 from rest_framework import serializers
 
 from zhu_core.utils import CustomDurationField

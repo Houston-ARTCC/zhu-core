@@ -4,7 +4,6 @@ import requests
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from datetime import timedelta, datetime
-from auditlog.models import AuditlogHistoryField
 from auditlog.registry import auditlog
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
