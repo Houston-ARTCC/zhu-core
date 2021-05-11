@@ -141,14 +141,17 @@ class TrainingRequestInstanceView(APIView):
             training_request.delete()
             serializer.save()
 
-            context = {'user': request.user, 'session': serializer.instance}
-            EmailMultiAlternatives(
-                subject='Training session scheduled!',
-                to=[request.user.email],
-                from_email=os.getenv('EMAIL_ADDRESS'),
-                body=render_to_string('training_scheduled.txt', context=context),
-                alternatives=[(render_to_string('training_scheduled.html', context=context), 'text/html')],
-            ).send()
+            try:
+                context = {'user': request.user, 'session': serializer.instance}
+                EmailMultiAlternatives(
+                    subject='Training session scheduled!',
+                    to=[request.user.email],
+                    from_email=os.getenv('EMAIL_ADDRESS'),
+                    body=render_to_string('training_scheduled.txt', context=context),
+                    alternatives=[(render_to_string('training_scheduled.html', context=context), 'text/html')],
+                ).send()
+            except:
+                pass
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

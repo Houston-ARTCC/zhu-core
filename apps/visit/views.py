@@ -31,14 +31,17 @@ class VisitingListView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            context = {'user': request.user}
-            EmailMultiAlternatives(
-                subject='We have received your visiting request!',
-                to=[request.user.email],
-                from_email=os.getenv('EMAIL_ADDRESS'),
-                body=render_to_string('visiting_request_received.txt', context=context),
-                alternatives=[(render_to_string('visiting_request_received.html', context=context), 'text/html')],
-            ).send()
+            try:
+                context = {'user': request.user}
+                EmailMultiAlternatives(
+                    subject='We have received your visiting request!',
+                    to=[request.user.email],
+                    from_email=os.getenv('EMAIL_ADDRESS'),
+                    body=render_to_string('visiting_request_received.txt', context=context),
+                    alternatives=[(render_to_string('visiting_request_received.html', context=context), 'text/html')],
+                ).send()
+            except:
+                pass
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -66,14 +69,17 @@ class VisitingInstanceView(APIView):
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
 
-        context = {'user': application.user, 'reason': request.data.get('reason')}
-        EmailMultiAlternatives(
-            subject='An update on your visiting request.',
-            to=[application.user.email],
-            from_email=os.getenv('EMAIL_ADDRESS'),
-            body=render_to_string('visiting_request_rejected.txt', context=context),
-            alternatives=[(render_to_string('visiting_request_rejected.html', context=context), 'text/html')],
-        ).send()
+        try:
+            context = {'user': application.user, 'reason': request.data.get('reason')}
+            EmailMultiAlternatives(
+                subject='An update on your visiting request.',
+                to=[application.user.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('visiting_request_rejected.txt', context=context),
+                alternatives=[(render_to_string('visiting_request_rejected.html', context=context), 'text/html')],
+            ).send()
+        except:
+            pass
 
         application.delete()
 

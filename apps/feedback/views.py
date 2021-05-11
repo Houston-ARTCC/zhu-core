@@ -30,14 +30,17 @@ class FeedbackListView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            context = {'user': request.user, 'feedback': serializer.instance}
-            EmailMultiAlternatives(
-                subject='We have received your feedback!',
-                to=[request.user.email],
-                from_email=os.getenv('EMAIL_ADDRESS'),
-                body=render_to_string('feedback_received.txt', context=context),
-                alternatives=[(render_to_string('feedback_received.html', context=context), 'text/html')],
-            ).send()
+            try:
+                context = {'user': request.user, 'feedback': serializer.instance}
+                EmailMultiAlternatives(
+                    subject='We have received your feedback!',
+                    to=[request.user.email],
+                    from_email=os.getenv('EMAIL_ADDRESS'),
+                    body=render_to_string('feedback_received.txt', context=context),
+                    alternatives=[(render_to_string('feedback_received.html', context=context), 'text/html')],
+                ).send()
+            except:
+                pass
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -54,14 +57,17 @@ class FeedbackInstanceView(APIView):
         feedback.approved = True
         feedback.save()
 
-        context = {'user': request.user, 'feedback': feedback}
-        EmailMultiAlternatives(
-            subject='Your feedback has been approved!',
-            to=[request.user.email],
-            from_email=os.getenv('EMAIL_ADDRESS'),
-            body=render_to_string('feedback_approved.txt', context=context),
-            alternatives=[(render_to_string('feedback_approved.html', context=context), 'text/html')],
-        ).send()
+        try:
+            context = {'user': request.user, 'feedback': feedback}
+            EmailMultiAlternatives(
+                subject='Your feedback has been approved!',
+                to=[request.user.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('feedback_approved.txt', context=context),
+                alternatives=[(render_to_string('feedback_approved.html', context=context), 'text/html')],
+            ).send()
+        except:
+            pass
 
         return Response(status=status.HTTP_200_OK)
 
@@ -72,13 +78,16 @@ class FeedbackInstanceView(APIView):
         feedback = get_object_or_404(Feedback, id=feedback_id)
         feedback.delete()
 
-        context = {'user': request.user, 'feedback': feedback, 'reason': request.data.get('reason')}
-        EmailMultiAlternatives(
-            subject='An update on your feedback.',
-            to=[request.user.email],
-            from_email=os.getenv('EMAIL_ADDRESS'),
-            body=render_to_string('feedback_rejected.txt', context=context),
-            alternatives=[(render_to_string('feedback_rejected.html', context=context), 'text/html')],
-        ).send()
+        try:
+            context = {'user': request.user, 'feedback': feedback, 'reason': request.data.get('reason')}
+            EmailMultiAlternatives(
+                subject='An update on your feedback.',
+                to=[request.user.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('feedback_rejected.txt', context=context),
+                alternatives=[(render_to_string('feedback_rejected.html', context=context), 'text/html')],
+            ).send()
+        except:
+            pass
 
         return Response(status=status.HTTP_204_NO_CONTENT)

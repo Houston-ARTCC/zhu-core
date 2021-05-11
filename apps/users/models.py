@@ -314,14 +314,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.save()
 
     def send_welcome_mail(self):
-        context = {'user': self}
-        EmailMultiAlternatives(
-            subject=f'Welcome to {os.getenv("FACILITY_NAME")}!',
-            to=[self.email],
-            from_email=os.getenv('EMAIL_ADDRESS'),
-            body=render_to_string('welcome_email.txt', context=context),
-            alternatives=[(render_to_string('welcome_email.html', context=context), 'text/html')],
-        ).send()
+        try:
+            context = {'user': self}
+            EmailMultiAlternatives(
+                subject=f'Welcome to {os.getenv("FACILITY_NAME")}!',
+                to=[self.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('welcome_email.txt', context=context),
+                alternatives=[(render_to_string('welcome_email.html', context=context), 'text/html')],
+            ).send()
+        except:
+            pass
 
     def add_role(self, short):
         self.roles.add(Role.objects.get(short=short))
