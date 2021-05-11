@@ -19,6 +19,14 @@ def start_scheduler():
     )
 
     scheduler.add_job(
+        connections.notify_inactive_controllers,
+        trigger=CronTrigger(day=23),  # Every 23rd date
+        id='notify_inactive_controllers',
+        max_instances=1,
+        replace_existing=True,
+    )
+
+    scheduler.add_job(
         users.sync_vatusa_roster,
         trigger=CronTrigger(minute=1),  # Top of every hour + 1
         id='sync_vatusa_roster',
