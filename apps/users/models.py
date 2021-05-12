@@ -292,8 +292,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.roles.filter(short=short).exists():
             return
 
-        self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
-
         if short is None:
             self.status = Status.NON_MEMBER
         else:
@@ -309,8 +307,11 @@ class User(AbstractBaseUser, PermissionsMixin):
                 self.home_facility = 'ZHU'
 
             self.status = Status.ACTIVE
-            self.add_role(short)
+
         self.save()
+
+        self.roles.remove(*self.roles.filter(short__in=['HC', 'VC', 'MC']))
+        self.add_role(short)
 
     def send_welcome_mail(self):
         try:
@@ -326,7 +327,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             pass
 
     def add_role(self, short):
-        self.roles.add(Role.objects.get(short=short))
+        self.roles.add(*Role.objects.filter(short=short))
 
     def remove_role(self, short):
         self.roles.remove(*self.roles.filter(short=short))
