@@ -1,4 +1,4 @@
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from apps.connections import jobs as connections
@@ -8,7 +8,7 @@ from apps.loa import jobs as loa
 
 
 def start_scheduler():
-    scheduler = AsyncIOScheduler()
+    scheduler = BackgroundScheduler()
 
     scheduler.add_job(
         connections.update_online_controllers,
