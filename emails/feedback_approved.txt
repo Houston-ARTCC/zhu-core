@@ -1,22 +1,9 @@
 Hello {{ user.first_name }},
 
-Thank you for submitting feedback for {{ feedback.controller.full_name }}! The feedback has been approved by our senior staff and will now be made available to the controller and ARTCC staff.
+Thank you for submitting feedback for {{ feedback.controller.full_name|default:'the Houston ARTCC' }}! The feedback has been approved by our senior staff and will now be made available to the controller and ARTCC staff.
 
 
 If you have any questions, don't hesitate to reach out to datm@zhuartcc.org.
-
-
-Marcus Miller
-atm@zhuartcc.org
-Air Traffic Manager
-
-Joshua Seagrave
-datm@zhuartcc.org
-Deputy Air Traffic Manager
-
-Ryan Drozd
-ta@zhuartcc.org
-Training Administrator
 
 
 If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

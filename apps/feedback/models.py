@@ -21,7 +21,10 @@ class Feedback(models.Model):
     approved = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.controller.full_name
+        if self.controller is None:
+            return 'General ARTCC Feedback'
+        else:
+            return self.controller.full_name
 
 
-auditlog.register(Feedback)
+auditlog.register(Feedback, exclude_fields=['created'])
