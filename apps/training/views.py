@@ -67,7 +67,7 @@ class SessionInstanceView(APIView):
         Modify training session details.
         """
         session = get_object_or_404(TrainingSession, id=session_id)
-        serializer = TrainingSessionSerializer(session, data=request.data, partial=True)
+        serializer = BaseTrainingSessionSerializer(session, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
