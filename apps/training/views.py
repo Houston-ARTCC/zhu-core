@@ -58,10 +58,10 @@ class SessionInstanceView(APIView):
             serializer.save()
 
             try:
-                context = {'user': request.user, 'session': session}
+                context = {'user': serializer.instance.student, 'session': session}
                 EmailMultiAlternatives(
                     subject='Training session filed!',
-                    to=[request.user.email],
+                    to=[serializer.instance.student.email],
                     from_email=os.getenv('EMAIL_ADDRESS'),
                     body=render_to_string('training_filed.txt', context=context),
                     alternatives=[(render_to_string('training_filed.html', context=context), 'text/html')],
@@ -92,10 +92,10 @@ class SessionInstanceView(APIView):
         session.save()
 
         try:
-            context = {'user': request.user, 'session': session}
+            context = {'user': session.student, 'session': session}
             EmailMultiAlternatives(
                 subject='Training session cancelled',
-                to=[request.user.email],
+                to=[session.student.email],
                 from_email=os.getenv('EMAIL_ADDRESS'),
                 body=render_to_string('training_cancelled.txt', context=context),
                 alternatives=[(render_to_string('training_cancelled.html', context=context), 'text/html')],

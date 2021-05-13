@@ -58,10 +58,10 @@ class FeedbackInstanceView(APIView):
         feedback.save()
 
         try:
-            context = {'user': request.user, 'feedback': feedback}
+            context = {'user': feedback.pilot, 'feedback': feedback}
             EmailMultiAlternatives(
                 subject='Your feedback has been approved!',
-                to=[request.user.email],
+                to=[feedback.pilot.email],
                 from_email=os.getenv('EMAIL_ADDRESS'),
                 body=render_to_string('feedback_approved.txt', context=context),
                 alternatives=[(render_to_string('feedback_approved.html', context=context), 'text/html')],
@@ -79,10 +79,10 @@ class FeedbackInstanceView(APIView):
         feedback.delete()
 
         try:
-            context = {'user': request.user, 'feedback': feedback, 'reason': request.data.get('reason')}
+            context = {'user': feedback.pilot, 'feedback': feedback, 'reason': request.data.get('reason')}
             EmailMultiAlternatives(
                 subject='An update on your feedback.',
-                to=[request.user.email],
+                to=[feedback.pilot.email],
                 from_email=os.getenv('EMAIL_ADDRESS'),
                 body=render_to_string('feedback_rejected.txt', context=context),
                 alternatives=[(render_to_string('feedback_rejected.html', context=context), 'text/html')],
