@@ -228,6 +228,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             )]
             actual_duration = round(sum([session.duration.total_seconds() for session in sessions]))
 
+            # No more than an hours worth of extra credit
+            actual_duration = min(actual_duration, target_duration + 3600)
+
             # Calculate feedback adjustment
             adjustment = 1
             event_feedback = Feedback.objects.filter(controller=self, event=event, approved=True)
