@@ -10,13 +10,13 @@ from .serializers import BookingSerializer, BaseBookingSerializer
 
 
 class BookingListView(APIView):
-    permission_classes = [IsGet | IsMember]
+    permission_classes = [IsMember]
 
     def get(self, request):
         """
-        Get list of all controller bookings.
+        Get list of own controller bookings.
         """
-        bookings = Booking.objects.filter(end__gt=timezone.now())
+        bookings = Booking.objects.filter(user=request.user, end__gt=timezone.now())
         serializer = BookingSerializer(bookings, many=True)
         return Response(serializer.data)
 
