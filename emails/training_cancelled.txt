@@ -1,0 +1,8 @@
+Hello {{ user.first_name }},
+
+Your training session on {{ session.start|date:'N j, Y' }} with {{ session.instructor.full_name }} has been cancelled. Please contact your instructor if you believe this was a mistake.
+
+If you have any questions, don't hesitate to reach out to ta@zhuartcc.org.
+
+
+If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

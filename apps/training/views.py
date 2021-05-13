@@ -57,7 +57,17 @@ class SessionInstanceView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            # TODO: Send email on session file
+            try:
+                context = {'user': request.user, 'session': session}
+                EmailMultiAlternatives(
+                    subject='Training session filed!',
+                    to=[request.user.email],
+                    from_email=os.getenv('EMAIL_ADDRESS'),
+                    body=render_to_string('training_filed.txt', context=context),
+                    alternatives=[(render_to_string('training_filed.html', context=context), 'text/html')],
+                ).send()
+            except:
+                pass
 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -81,7 +91,17 @@ class SessionInstanceView(APIView):
         session.status = Status.CANCELLED
         session.save()
 
-        # TODO: Send email upon cancellation.
+        try:
+            context = {'user': request.user, 'session': session}
+            EmailMultiAlternatives(
+                subject='Training session cancelled',
+                to=[request.user.email],
+                from_email=os.getenv('EMAIL_ADDRESS'),
+                body=render_to_string('training_cancelled.txt', context=context),
+                alternatives=[(render_to_string('training_cancelled.html', context=context), 'text/html')],
+            ).send()
+        except:
+            pass
 
         return Response(status=status.HTTP_200_OK)
 
@@ -145,7 +165,7 @@ class TrainingRequestInstanceView(APIView):
                 context = {'user': request.user, 'session': serializer.instance}
                 EmailMultiAlternatives(
                     subject='Training session scheduled!',
-                    to=[request.user.email],
+                    to=[serializer.instance.student.email, serializer.instance.instructor.email],
                     from_email=os.getenv('EMAIL_ADDRESS'),
                     body=render_to_string('training_scheduled.txt', context=context),
                     alternatives=[(render_to_string('training_scheduled.html', context=context), 'text/html')],
