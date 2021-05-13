@@ -1,4 +1,5 @@
 import os
+import traceback
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.utils import timezone
@@ -16,25 +17,28 @@ class Email(models.Model):
     text_body = models.TextField()
     from_email = models.EmailField(null=True)
     to_email = models.TextField()
-    cc_email = models.TextField(null=True)
-    bcc_email = models.TextField(null=True)
+    cc_email = models.CharField(max_length=255, null=True)
+    bcc_email = models.CharField(max_length=255, null=True)
     status = models.IntegerField(choices=Status.choices, default=Status.PENDING)
     last_attempt = models.DateTimeField(null=True)
+    error = models.TextField(null=True)
 
     def send(self):
         try:
             EmailMultiAlternatives(
                 subject=self.subject,
-                to=[self.to_email.split(',')],
-                cc=[self.cc_email.split(',')],
-                bcc=[self.bcc_email.split(',')],
+                to=self.to_email.split(','),
+                cc=self.cc_email.split(',') if self.cc_email is not None else None,
+                bcc=self.bcc_email.split(',') if self.bcc_email is not None else None,
                 from_email=self.from_email or os.getenv('EMAIL_ADDRESS'),
                 body=self.text_body,
                 alternatives=[(self.html_body, 'text/html')],
             ).send()
             self.status = Status.SENT
+            self.error = None
         except:
             self.status = Status.FAILED
+            self.error = traceback.format_exc()
 
         self.last_attempt = timezone.now()
         self.save()
