@@ -9,11 +9,11 @@ from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core.files import File
-from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
 
+from apps.mailer.models import Email
 from zhu_core.utils import base26decode, base26encode, OverwriteStorage
 
 
@@ -317,17 +317,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.add_role(short)
 
     def send_welcome_mail(self):
-        try:
-            context = {'user': self}
-            EmailMultiAlternatives(
-                subject=f'Welcome to {os.getenv("FACILITY_NAME")}!',
-                to=[self.email],
-                from_email=os.getenv('EMAIL_ADDRESS'),
-                body=render_to_string('welcome_email.txt', context=context),
-                alternatives=[(render_to_string('welcome_email.html', context=context), 'text/html')],
-            ).send()
-        except:
-            pass
+        context = {'user': self}
+        Email(
+            subject=f'Welcome to {os.getenv("FACILITY_NAME")}!',
+            html_body=render_to_string('welcome_email.html', context=context),
+            text_body=render_to_string('welcome_email.txt', context=context),
+            to_email=self.email,
+        ).save()
 
     def add_role(self, short):
         self.roles.add(*Role.objects.filter(short=short))

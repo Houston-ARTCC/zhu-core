@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'apps.events',
     'apps.feedback',
     'apps.loa',
+    'apps.mailer',
     'apps.resources',
     'apps.tmu',
     'apps.training.app.TrainingConfig',

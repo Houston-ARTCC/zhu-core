@@ -1,5 +1,3 @@
-import os
-from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -10,6 +8,7 @@ from rest_framework.views import APIView
 from zhu_core.permissions import IsMember, IsTrainingStaff, IsOwner, IsPut, IsController
 from .models import Status
 from .serializers import *
+from ..mailer.models import Email
 
 
 class ScheduledSessionListView(APIView):
@@ -57,17 +56,13 @@ class SessionInstanceView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            try:
-                context = {'user': serializer.instance.student, 'session': session}
-                EmailMultiAlternatives(
-                    subject='Training session filed!',
-                    to=[serializer.instance.student.email],
-                    from_email=os.getenv('EMAIL_ADDRESS'),
-                    body=render_to_string('training_filed.txt', context=context),
-                    alternatives=[(render_to_string('training_filed.html', context=context), 'text/html')],
-                ).send()
-            except:
-                pass
+            context = {'user': serializer.instance.student, 'session': session}
+            Email(
+                subject='Training session filed!',
+                html_body=render_to_string('training_filed.html', context=context),
+                text_body=render_to_string('training_filed.txt', context=context),
+                to_email=serializer.instance.student.email,
+            ).save()
 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -91,17 +86,13 @@ class SessionInstanceView(APIView):
         session.status = Status.CANCELLED
         session.save()
 
-        try:
-            context = {'user': session.student, 'session': session}
-            EmailMultiAlternatives(
-                subject='Training session cancelled',
-                to=[session.student.email],
-                from_email=os.getenv('EMAIL_ADDRESS'),
-                body=render_to_string('training_cancelled.txt', context=context),
-                alternatives=[(render_to_string('training_cancelled.html', context=context), 'text/html')],
-            ).send()
-        except:
-            pass
+        context = {'user': session.student, 'session': session}
+        Email(
+            subject='Training session cancelled',
+            html_body=render_to_string('training_cancelled.html', context=context),
+            text_body=render_to_string('training_cancelled.txt', context=context),
+            to_email=session.student.email,
+        ).save()
 
         return Response(status=status.HTTP_200_OK)
 
@@ -161,17 +152,14 @@ class TrainingRequestInstanceView(APIView):
             training_request.delete()
             serializer.save()
 
-            try:
-                context = {'user': request.user, 'session': serializer.instance}
-                EmailMultiAlternatives(
-                    subject='Training session scheduled!',
-                    to=[serializer.instance.student.email, serializer.instance.instructor.email],
-                    from_email=os.getenv('EMAIL_ADDRESS'),
-                    body=render_to_string('training_scheduled.txt', context=context),
-                    alternatives=[(render_to_string('training_scheduled.html', context=context), 'text/html')],
-                ).send()
-            except:
-                pass
+            context = {'user': request.user, 'session': serializer.instance}
+            Email(
+                subject='Training session scheduled!',
+                html_body=render_to_string('training_scheduled.html', context=context),
+                text_body=render_to_string('training_scheduled.txt', context=context),
+                to_email=serializer.instance.student.email,
+                cc_email=serializer.instance.instructor.email,
+            ).save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

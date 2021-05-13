@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsGet, IsMember, IsOwner
+from zhu_core.permissions import IsMember, IsOwner
 from .models import Booking
 from .serializers import BookingSerializer, BaseBookingSerializer
 

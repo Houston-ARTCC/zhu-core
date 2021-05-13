@@ -5,6 +5,8 @@ from apps.connections import jobs as connections
 from apps.users import jobs as users
 from apps.tmu import jobs as tmu
 from apps.loa import jobs as loa
+from apps.mailer import jobs as mailer
+from apps.training import jobs as training
 
 
 def start_scheduler():
@@ -64,6 +66,30 @@ def start_scheduler():
         id='update_loa_status',
         max_instances=1,
         replace_existing=True,
+    )
+
+    scheduler.add_job(
+        mailer.send_pending_mail,
+        trigger=CronTrigger(minute='*/5'),  # Every 5 minutes
+        id='send_pending_mail',
+        max_instances=1,
+        replace_existing=True
+    )
+
+    scheduler.add_job(
+        mailer.clear_old_mail,
+        trigger=CronTrigger(day_of_week='sat'),  # Every Saturday
+        id='clear_old_mail',
+        max_instances=1,
+        replace_existing=True
+    )
+
+    scheduler.add_job(
+        training.clear_expired_requests,
+        trigger=CronTrigger(day_of_week='sat'),  # Every Saturday
+        id='clear_expired_requests',
+        max_instances=1,
+        replace_existing=True
     )
 
     scheduler.start()

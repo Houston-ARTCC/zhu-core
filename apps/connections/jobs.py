@@ -1,12 +1,12 @@
 import os
 import pytz
 from datetime import datetime
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from zhu_core.utils import get_vatsim_data
 from .models import OnlineController
 from .statistics import get_user_hours
+from ..mailer.models import Email
 from ..users.models import User, Status
 
 
@@ -55,17 +55,13 @@ def notify_inactive_controllers():
 
     for user in hours.filter(status=Status.ACTIVE):
         if user.curr_hours < user.activity_requirement:
-            try:
-                context = {
-                    'user': user,
-                    'month': month_name,
-                }
-                EmailMultiAlternatives(
-                    subject='Controller Activity Reminder',
-                    to=[user.email],
-                    from_email=os.getenv('EMAIL_ADDRESS'),
-                    body=render_to_string('activity_reminder.txt', context=context),
-                    alternatives=[(render_to_string('emails/activity_reminder.html', context=context), 'text/html')],
-                ).send()
-            except:
-                pass
+            context = {
+                'user': user,
+                'month': month_name,
+            }
+            Email(
+                subject='Controller Activity Reminder',
+                html_body=render_to_string('activity_reminder.html', context=context),
+                text_body=render_to_string('activity_reminder.txt', context=context),
+                to_email=user.email,
+            ).save()

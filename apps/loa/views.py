@@ -1,5 +1,3 @@
-import os
-from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import status
@@ -9,6 +7,7 @@ from rest_framework.views import APIView
 from zhu_core.permissions import IsAdmin
 from .serlaizers import LOASerializer, BaseLOASerializer
 from ..loa.models import LOA
+from ..mailer.models import Email
 
 
 class LOARequestListView(APIView):
@@ -44,17 +43,13 @@ class LOARequestInstanceView(APIView):
         loa.approved = True
         loa.save()
 
-        try:
-            context = {'user': loa.user, 'loa': loa}
-            EmailMultiAlternatives(
-                subject='Your LOA request has been approved!',
-                to=[loa.user.email],
-                from_email=os.getenv('EMAIL_ADDRESS'),
-                body=render_to_string('loa_approved.txt', context=context),
-                alternatives=[(render_to_string('loa_approved.html', context=context), 'text/html')],
-            ).send()
-        except:
-            pass
+        context = {'user': loa.user, 'loa': loa}
+        Email(
+            subject='Your LOA request has been approved!',
+            html_body=render_to_string('loa_approved.html', context=context),
+            text_body=render_to_string('loa_approved.txt', context=context),
+            to_email=loa.user.email,
+        ).save()
 
         return Response(status=status.HTTP_200_OK)
 
@@ -64,17 +59,13 @@ class LOARequestInstanceView(APIView):
         """
         loa = get_object_or_404(LOA, id=request_id, approved=False)
 
-        try:
-            context = {'user': loa.user, 'reason': request.data.get('reason')}
-            EmailMultiAlternatives(
-                subject='An update on your LOA request...',
-                to=[loa.user.email],
-                from_email=os.getenv('EMAIL_ADDRESS'),
-                body=render_to_string('loa_rejected.txt', context=context),
-                alternatives=[(render_to_string('loa_rejected.html', context=context), 'text/html')],
-            ).send()
-        except:
-            pass
+        context = {'user': loa.user, 'reason': request.data.get('reason')}
+        Email(
+            subject='An update on your LOA request...',
+            html_body=render_to_string('loa_rejected.html', context=context),
+            text_body=render_to_string('loa_rejected.txt', context=context),
+            to_email=loa.user.email,
+        ).save()
 
         loa.delete()
 
