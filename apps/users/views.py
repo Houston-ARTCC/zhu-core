@@ -1,9 +1,15 @@
+import os
+import base64
+from PIL import Image
+from io import BytesIO
+from django.core.files import File
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsGet, IsStaff, IsController, IsTrainingStaff, IsDelete, IsAdmin
+from zhu_core.permissions import IsGet, IsStaff, IsController, IsTrainingStaff, IsDelete, IsAdmin, IsPut
+from zhu_core.settings import BASE_DIR
 from .models import Status
 from .serializers import *
 from ..feedback.models import Feedback
@@ -29,7 +35,11 @@ class ActiveUserListView(APIView):
 
 
 class UserInstanceView(APIView):
-    permission_classes = [(IsDelete & IsAdmin) | (~IsDelete & (IsGet | IsStaff))]
+    permission_classes = [
+        (IsDelete & IsAdmin) |
+        (IsPut & IsController) |
+        (IsGet | IsStaff)
+    ]
 
     def get(self, request, cid):
         """
@@ -41,6 +51,34 @@ class UserInstanceView(APIView):
         else:
             serializer = UserSerializer(user)
         return Response(serializer.data)
+
+    def put(self, request, cid):
+        """
+        Allows for the user to update their profile photo or biography.
+        Passing an falsy, non null value as the avatar triggers a reset to
+        the default profile picture.
+        """
+        user = get_object_or_404(User, cid=cid)
+
+        if 'avatar' in request.data:
+            if request.data.get('avatar'):
+                img_data = base64.b64decode(request.data.get('avatar'))
+                img = Image.open(BytesIO(img_data))
+                img = img.resize((500, 500), Image.ANTIALIAS)
+
+                profile_io = BytesIO()
+                img.save(profile_io, 'PNG')
+
+                user.profile = File(profile_io, name=str(user.cid) + '.png')
+            else:
+                os.remove(BASE_DIR / f'media/profile/{user.cid}.png')
+                user.profile = f'profile/{user.cid}_default.png'
+        if 'biography' in request.data:
+            user.biography = request.data.get('biography')
+
+        user.save()
+
+        return Response(UserSerializer(user).data)
 
     def patch(self, request, cid):
         """

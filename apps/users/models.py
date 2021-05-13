@@ -18,7 +18,7 @@ from zhu_core.utils import base26decode, base26encode, OverwriteStorage
 
 
 def create_profile_path(instance, filename):
-    return f'profile/{instance.cid}.png'
+    return f'profile/{filename}'
 
 
 class Rating(models.TextChoices):
@@ -282,7 +282,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         profile_io = BytesIO()
         profile.save(profile_io, 'PNG')
 
-        return File(profile_io, name=str(self.cid) + '.png')
+        return File(profile_io, name=str(self.cid) + '_default.png')
 
     def set_membership(self, short):
         """
