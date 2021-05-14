@@ -112,7 +112,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'https://www.zhuartcc.org',
+    'https://zhuartcc.org',
     'https://beta.zhuartcc.org',
     'http://www.zhuartcc.devel',
 ]
