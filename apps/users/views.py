@@ -35,11 +35,7 @@ class ActiveUserListView(APIView):
 
 
 class UserInstanceView(APIView):
-    permission_classes = [
-        (IsDelete & IsAdmin) |
-        (IsPut & IsController) |
-        (IsGet | IsStaff)
-    ]
+    permission_classes = [(IsDelete & IsAdmin) | (IsPut & IsController) | (IsGet | IsStaff)]
 
     def get(self, request, cid):
         """
