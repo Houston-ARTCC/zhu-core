@@ -3,6 +3,7 @@ import base64
 from PIL import Image
 from io import BytesIO
 from django.core.files import File
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -41,7 +42,7 @@ class UserInstanceView(APIView):
         """
         Get user details.
         """
-        user = get_object_or_404(User, cid=cid)
+        user = get_object_or_404(User, ~Q(status=Status.NON_MEMBER), cid=cid)
         if request.user.is_authenticated and request.user.is_staff:
             serializer = AuthenticatedUserSerializer(user)
         else:
