@@ -179,7 +179,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             rating_time_check = True
 
         rating_hours = requests.get('https://api.vatsim.net/api/ratings/' + str(self.cid) + '/rating_times/').json()
-        rating_hours_check = rating_hours.get(self.rating.lower()) > 50
+        if rating_hours.get(self.rating.lower()) is not None:
+            rating_hours_check = rating_hours.get(self.rating.lower()) > 50
+        else:
+            rating_hours_check = False
 
         membership_check = not self.is_member
 
