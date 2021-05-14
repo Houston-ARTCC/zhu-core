@@ -57,7 +57,7 @@ class Role(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, cid, email, first_name, last_name, rating, **extra_fields):
+    def create_user(self, cid, email, first_name, last_name, rating, save=True, **extra_fields):
         user = self.model(
             cid=int(cid),
             email=self.normalize_email(email),
@@ -67,7 +67,9 @@ class UserManager(BaseUserManager):
             **extra_fields,
         )
         user.set_unusable_password()
-        user.save()
+
+        if save:
+            user.save()
 
         return user
 
@@ -284,7 +286,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         return File(profile_io, name=str(self.cid) + '_default.png')
 
-    def set_membership(self, short):
+    def set_membership(self, short, override=True):
         """
         Sets the user to home, visiting, MAVP, or non-member.
         Automatically removes any other membership roles.
@@ -299,9 +301,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.status = Status.NON_MEMBER
         else:
             if self.status == Status.NON_MEMBER:
-                self.initials = self.get_initials()
-                self.joined = timezone.now()
                 self.profile = self.generate_profile()
+                if override:
+                    self.initials = self.get_initials()
+                    self.joined = timezone.now()
 
                 if os.getenv('DEV_ENV') == 'False':
                     self.send_welcome_mail()

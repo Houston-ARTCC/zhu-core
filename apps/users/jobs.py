@@ -24,9 +24,9 @@ def sync_vatusa_roster():
             ).set_membership('HC')
         else:
             user_obj = query.first()
-            user_obj.set_membership('HC')
             user_obj.rating = user.get('rating_short')
             user_obj.save()
+            user_obj.set_membership('HC')
 
     # Checks for users that were removed from VATUSA roster.
     cids = [user.get('cid') for user in roster]
