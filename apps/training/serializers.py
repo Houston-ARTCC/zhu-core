@@ -19,8 +19,8 @@ class BaseTrainingSessionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        if data.get('start') < data.get('end'):
-            raise serializers.ValidationError('The start time cannot be before the end time!')
+        if data.get('end') < data.get('start'):
+            raise serializers.ValidationError('The end time cannot be before the start time!')
 
         return data
 
@@ -41,8 +41,8 @@ class BaseTrainingRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'start', 'end', 'type', 'level', 'remarks']
 
     def validate(self, data):
-        if data.get('start') < data.get('end'):
-            raise serializers.ValidationError('The start time cannot be before the end time!')
+        if data.get('end') < data.get('start'):
+            raise serializers.ValidationError('The end time cannot be before the start time!')
 
         return data
 

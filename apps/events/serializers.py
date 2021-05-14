@@ -99,8 +99,8 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'banner', 'start', 'end', 'host', 'description', 'hidden', 'archived', 'positions']
 
     def validate(self, data):
-        if data.get('start') < data.get('end'):
-            raise serializers.ValidationError('The start time cannot be before the end time!')
+        if data.get('end') < data.get('start'):
+            raise serializers.ValidationError('The end time cannot be before the start time!')
 
         return data
 

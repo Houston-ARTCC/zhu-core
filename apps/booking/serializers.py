@@ -29,8 +29,8 @@ class BaseBookingSerializer(serializers.ModelSerializer):
         if filter_user.exists():
             raise serializers.ValidationError('You are already booked for this time!')
 
-        if data.get('start') < data.get('end'):
-            raise serializers.ValidationError('The start time cannot be before the end time!')
+        if data.get('end') < data.get('start'):
+            raise serializers.ValidationError('The end time cannot be before the start time!')
 
         return data
 
