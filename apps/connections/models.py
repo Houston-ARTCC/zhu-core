@@ -32,7 +32,7 @@ class ControllerSession(models.Model):
     class Meta:
         verbose_name = 'Controller session'
 
-    user = models.ForeignKey(User, models.CASCADE, related_name='controller_sessions')
+    user = models.ForeignKey(User, models.CASCADE, related_name='sessions')
     callsign = models.CharField(max_length=16)
     start = models.DateTimeField()
     duration = models.DurationField()

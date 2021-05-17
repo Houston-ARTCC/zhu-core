@@ -13,17 +13,17 @@ def annotate_hours(query):
     """
     MONTH_NOW = timezone.now().month
     YEAR_NOW = timezone.now().year
-    CURR_MONTH = (Q(controller_sessions__start__month=MONTH_NOW)
-                  & Q(controller_sessions__start__year=YEAR_NOW))
-    PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12)
-                  & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1))
-    PREV_PREV_MONTH = (Q(controller_sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11)
-                       & Q(controller_sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1))
+    CURR_MONTH = (Q(sessions__start__month=MONTH_NOW)
+                  & Q(sessions__start__year=YEAR_NOW))
+    PREV_MONTH = (Q(sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12)
+                  & Q(sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1))
+    PREV_PREV_MONTH = (Q(sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11)
+                       & Q(sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1))
 
     return query.annotate(
-        curr_hours=Sum('controller_sessions__duration', filter=CURR_MONTH),
-        prev_hours=Sum('controller_sessions__duration', filter=PREV_MONTH),
-        prev_prev_hours=Sum('controller_sessions__duration', filter=PREV_PREV_MONTH),
+        curr_hours=Sum('sessions__duration', filter=CURR_MONTH),
+        prev_hours=Sum('sessions__duration', filter=PREV_MONTH),
+        prev_prev_hours=Sum('sessions__duration', filter=PREV_PREV_MONTH),
     )
 
 
@@ -42,11 +42,11 @@ def get_top_controllers():
     hour sums for the current month (hours) sorted by most
     controlling hours (controllers with no hours are not included).
     """
-    SAME_MONTH = Q(controller_sessions__start__month=timezone.now().month)
-    SAME_YEAR = Q(controller_sessions__start__year=timezone.now().year)
+    SAME_MONTH = Q(sessions__start__month=timezone.now().month)
+    SAME_YEAR = Q(sessions__start__year=timezone.now().year)
 
     users = User.objects.exclude(status=Status.NON_MEMBER)
-    users = users.annotate(hours=Sum('controller_sessions__duration', filter=SAME_MONTH & SAME_YEAR))
+    users = users.annotate(hours=Sum('sessions__duration', filter=SAME_MONTH & SAME_YEAR))
 
     return users.exclude(hours__isnull=True).order_by('-hours')
 

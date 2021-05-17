@@ -10,6 +10,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core.files import File
 from django.db import models
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 
@@ -227,14 +228,19 @@ class User(AbstractBaseUser, PermissionsMixin):
             target_duration = round(sum([(shift.end - shift.start).total_seconds() for shift in shifts]))
 
             # Get actual controlling duration for event
-            sessions = [session for session in self.controller_sessions.filter(
-                start__gt=event.start - timedelta(hours=1),
-                start__lt=event.end
+            sessions = [session for session in self.sessions.filter(
+                start__gte=event.start - timedelta(days=1),
+                start__lte=event.end + timedelta(days=1)
+            ) if (
+                (session.start < event.start and session.end > event.end) or  # Contained by event
+                event.start <= session.start < event.end or  # Started during event
+                event.start < session.end <= event.end  # Ended during event
             )]
-            actual_duration = round(sum([session.duration.total_seconds() for session in sessions]))
-
-            # No more than an hours worth of extra credit
-            actual_duration = min(actual_duration, target_duration + 3600)
+            actual_duration = sum([
+                (min(event.end, session.end) - max(event.start, session.start)).total_seconds() for session in sessions
+            ])
+            extra_credit = sum([session.duration.total_seconds() for session in sessions]) - actual_duration
+            total_duration = round(min(actual_duration, target_duration) + min(extra_credit, 3600))
 
             # Calculate feedback adjustment
             adjustment = 1
@@ -245,9 +251,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             # Calculate final score for event and append to list
             individual_scores.append({
                 'event': BasicEventSerializer(event).data,
-                'score': round(actual_duration * 100 * adjustment / target_duration),
+                'score': round(total_duration * 100 * adjustment / target_duration),
                 'target_duration': target_duration,
-                'actual_duration': actual_duration,
+                'actual_duration': total_duration,
                 'feedback': EventFeedbackSerializer(event_feedback, many=True).data,
             })
 
