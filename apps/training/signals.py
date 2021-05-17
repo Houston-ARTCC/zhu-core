@@ -55,5 +55,5 @@ def update_ctrs(instance, **kwargs):
     else:
         response = requests.post(f'https://api.vatusa.net/v2/user/{instance.student.cid}/training/record', data=data)
 
-        if response.status_code != 200:
+        if response.status_code == 200:
             instance.ctrs_id = response.json().get('data').get('id')
