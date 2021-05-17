@@ -304,10 +304,11 @@ class User(AbstractBaseUser, PermissionsMixin):
             self.status = Status.NON_MEMBER
         else:
             if self.status == Status.NON_MEMBER:
-                self.profile = self.generate_profile()
                 if override:
                     self.initials = self.get_initials()
                     self.joined = timezone.now()
+                    
+                self.profile = self.generate_profile()
 
                 if os.getenv('DEV_ENV') == 'False':
                     self.send_welcome_mail()
