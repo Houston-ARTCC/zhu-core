@@ -10,7 +10,6 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core.files import File
 from django.db import models
-from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ATIS, TMUNotice
+from .models import ATIS, TMUNotice, METAR
 
 
 @admin.register(ATIS)
@@ -11,3 +11,8 @@ class ATISAdmin(admin.ModelAdmin):
 @admin.register(TMUNotice)
 class TMUNoticeAdmin(admin.ModelAdmin):
     list_display = ('info', 'time_issued', 'time_expires')
+
+
+@admin.register(METAR)
+class METARAdmin(admin.ModelAdmin):
+    list_display = ('station', 'flight_rules', 'raw', 'timestamp')
