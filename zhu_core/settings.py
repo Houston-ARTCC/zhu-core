@@ -87,7 +87,7 @@ INSTALLED_APPS = [
     'apps.booking',
     'apps.calendar',
     'apps.connections',
-    'apps.events',
+    'apps.events.app.EventsConfig',
     'apps.feedback',
     'apps.loa',
     'apps.mailer',
