@@ -152,7 +152,7 @@ class TrainingRequestInstanceView(APIView):
             training_request.delete()
             serializer.save()
 
-            context = {'user': request.user, 'session': serializer.instance}
+            context = {'user': serializer.instance.student, 'session': serializer.instance}
             Email(
                 subject='Training session scheduled!',
                 html_body=render_to_string('training_scheduled.html', context=context),
