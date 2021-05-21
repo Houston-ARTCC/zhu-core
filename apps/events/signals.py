@@ -12,8 +12,12 @@ def post_event_webhook(instance, **kwargs):
     This signal posts an embedded message in the designated
     events Discord channel when an event is set to visible.
     """
-    old_instance = Event.objects.get(id=instance.id)
-    if old_instance.hidden and not instance.hidden:
+    old_instance = Event.objects.filter(id=instance.id)
+
+    if not old_instance.exists():
+        return
+
+    if old_instance.first().hidden and not instance.hidden:
         url = f'https://www.zhuartcc.org/events/{instance.id}'
         webhook = DiscordWebhook(url=os.getenv('EVENTS_WEBHOOK_URL'))
         embed = DiscordEmbed(
