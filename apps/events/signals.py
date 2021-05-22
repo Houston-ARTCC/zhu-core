@@ -23,7 +23,7 @@ def post_event_webhook(instance, **kwargs):
     webhook = DiscordWebhook(url=os.getenv('EVENTS_WEBHOOK_URL'))
     embed = DiscordEmbed(
         title=f':calendar: {instance.name}',
-        description=instance.description + f'\n**[Sign up for the event here!]({url})**',
+        description=str(instance.description) + f'\n**[Sign up for the event here!]({url})**',
         color='109cf1',
     )
     embed.add_embed_field(
