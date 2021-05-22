@@ -25,7 +25,8 @@ class BaseShiftRequestSerializer(serializers.ModelSerializer):
 
 
 class ShiftRequestSerializer(serializers.ModelSerializer):
-    user = EventScoreUserSerializer()
+    # user = EventScoreUserSerializer()
+    user = BaseUserSerializer()
 
     class Meta:
         model = ShiftRequest
