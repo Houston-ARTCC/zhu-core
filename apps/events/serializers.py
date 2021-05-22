@@ -67,15 +67,11 @@ class BasePositionSerializer(serializers.ModelSerializer):
 
 
 class PositionSerializer(serializers.ModelSerializer):
-    shifts = serializers.SerializerMethodField()
+    shifts = ShiftSerializer(many=True, read_only=True)
 
     class Meta:
         model = EventPosition
         exclude = ['event']
-
-    def get_shifts(self, instance):
-        shifts = instance.shifts.all()
-        return ShiftSerializer(shifts, many=True, read_only=True).data
 
 
 class BasicEventSerializer(serializers.ModelSerializer):
