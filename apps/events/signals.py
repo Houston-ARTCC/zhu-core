@@ -7,7 +7,7 @@ from apps.events.models import Event
 
 
 @receiver(pre_save, sender=Event)
-def post_event_webhook(instance, created, **kwargs):
+def post_event_webhook(instance, **kwargs):
     """
     This signal posts an embedded message in the designated
     events Discord channel when an event is set to visible.

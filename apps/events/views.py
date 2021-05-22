@@ -1,3 +1,5 @@
+import os
+from discord_webhook import DiscordWebhook, DiscordEmbed
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -83,6 +85,34 @@ class EventInstanceView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, event_id):
+        """
+        Post positions to designated events Discord channel.
+        """
+        event = get_object_or_404(Event, id=event_id)
+        url = f'https://www.zhuartcc.org/events/{event.id}'
+        webhook = DiscordWebhook(url=os.getenv('EVENTS_WEBHOOK_URL'))
+        embed = DiscordEmbed(
+            title=f':calendar: "{event.name}"',
+            description=f'Below are the tentative event position assignments as they currently stand. Assignments are'
+                        f'subject to change on the day of the event so you should always double check the event page'
+                        f'before logging on to control.\n**[View the event page here!]({url})**',
+            color='109cf1',
+        )
+        for position in event.positions.all():
+            embed.add_embed_field(
+                name=position.callsign,
+                value='\n'.join(
+                    [f'`{i + 1}` *{shift.user.full_name}*' if shift.user is not None
+                     else f'`{i + 1}`' for i, shift in enumerate(position.shifts.all())]
+                ),
+            )
+        embed.set_image(url=event.banner)
+        webhook.add_embed(embed)
+        res = webhook.execute()
+
+        return Response(res.content, status=res.status_code)
 
     def delete(self, request, event_id):
         """
