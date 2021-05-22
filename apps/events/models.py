@@ -54,7 +54,7 @@ class PositionShift(models.Model):
 
     @property
     def start(self):
-        return self.position.event.start + (list(self.position.shifts.all()).index(self) + 1) * self.position.shift_duration
+        return self.position.event.start + list(self.position.shifts.all()).index(self) * self.position.shift_duration
 
     @property
     def end(self):
