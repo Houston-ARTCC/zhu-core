@@ -155,10 +155,8 @@ class User(AbstractBaseUser, PermissionsMixin):
             return timedelta(hours=0)
         elif self.is_staff:
             return timedelta(hours=5)
-        elif self.membership == 'HC':
-            return timedelta(hours=2)
         else:
-            return timedelta(hours=1)
+            return timedelta(hours=2)   
 
     @property
     def visiting_eligibility(self):
