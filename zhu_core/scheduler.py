@@ -46,7 +46,7 @@ def start_scheduler():
 
     scheduler.add_job(
         tmu.fetch_metars,
-        trigger=CronTrigger(minute=3),  # Top of every hour + 3
+        trigger=CronTrigger(minute=57),  # Every hour at x:57
         id='fetch_metars',
         max_instances=1,
         replace_existing=True,
