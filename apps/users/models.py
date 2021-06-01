@@ -127,19 +127,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_training_staff(self):
-        return self.roles.filter(short__in=['INS', 'MTR']).exists()
+        return self.roles.filter(short__in=['INS', 'MTR']).exists() or self.is_superuser
 
     @property
     def is_staff(self):
-        return self.roles.filter(short__in=['ATM', 'DATM', 'TA', 'ATA', 'FE', 'AFE', 'EC', 'AEC', 'WM', 'AWM']).exists()
+        return self.roles.filter(short__in=['ATM', 'DATM', 'TA', 'ATA', 'FE', 'AFE', 'EC', 'AEC', 'WM', 'AWM']).exists() or self.is_superuser
 
     @property
     def is_senior_staff(self):
-        return self.roles.filter(short__in=['ATM', 'DATM', 'TA']).exists()
+        return self.roles.filter(short__in=['ATM', 'DATM', 'TA']).exists() or self.is_superuser
 
     @property
     def is_admin(self):
-        return self.roles.filter(short__in=['ATM', 'DATM']).exists()
+        return self.roles.filter(short__in=['ATM', 'DATM']).exists() or self.is_superuser
 
     @property
     def training_staff_role(self):

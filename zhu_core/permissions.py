@@ -30,7 +30,7 @@ class IsTrainingStaff(BasePermission):
     Allows access to ARTCC training staff.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_training_staff
+        return request.user.is_authenticated and request.user.is_training_staff or request.user.is_superuser
 
 
 class IsStaff(BasePermission):
@@ -38,7 +38,7 @@ class IsStaff(BasePermission):
     Allows access to ARTCC staff and their assistants.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_staff
+        return request.user.is_authenticated and request.user.is_staff or request.user.is_superuser
 
 
 class IsSeniorStaff(BasePermission):
@@ -46,7 +46,7 @@ class IsSeniorStaff(BasePermission):
     Allows access to the ATM, DATM, and TA.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_senior_staff
+        return request.user.is_authenticated and request.user.is_senior_staff or request.user.is_superuser
 
 
 class IsAdmin(BasePermission):
@@ -54,7 +54,7 @@ class IsAdmin(BasePermission):
     Allows access to the ATM and DATM.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
+        return request.user.is_authenticated and request.user.is_admin or request.user.is_superuser
 
 
 class CanVisit(BasePermission):
