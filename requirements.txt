@@ -1,11 +1,11 @@
 APScheduler==3.7.0
-asgiref==3.3.1
+asgiref==3.3.4
 bleach==3.3.0
 certifi==2020.12.5
 chardet==4.0.0
 DateTime==4.3
 discord-webhook==0.13.0
-Django==3.1.7
+Django==3.2.4
 django-auditlog==1.0a1
 django-cors-headers==3.7.0
 django-jsonfield==1.4.1
