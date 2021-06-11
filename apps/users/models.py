@@ -108,6 +108,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     app_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
     ctr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
     ocn_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
+    solo_facility = models.CharField(max_length=3, null=True, blank=True)
 
     # Flags
     prevent_event_signup = models.BooleanField(default=False)
