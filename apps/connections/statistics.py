@@ -1,5 +1,6 @@
-from django.db.models import Sum, Q
-from django.db.models.functions import Coalesce
+from datetime import timedelta
+from django.db.models import Sum, Q, DurationField
+from django.db.models.functions import Coalesce, Cast
 from django.utils import timezone
 
 from .models import ControllerSession
@@ -22,9 +23,9 @@ def annotate_hours(query):
                        & Q(sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1))
 
     return query.annotate(
-        curr_hours=Coalesce(Sum('sessions__duration', filter=CURR_MONTH), 0),
-        prev_hours=Coalesce(Sum('sessions__duration', filter=PREV_MONTH), 0),
-        prev_prev_hours=Coalesce(Sum('sessions__duration', filter=PREV_PREV_MONTH), 0),
+        curr_hours=Coalesce(Sum('sessions__duration', filter=CURR_MONTH), Cast(timedelta(), DurationField())),
+        prev_hours=Coalesce(Sum('sessions__duration', filter=PREV_MONTH), Cast(timedelta(), DurationField())),
+        prev_prev_hours=Coalesce(Sum('sessions__duration', filter=PREV_PREV_MONTH), Cast(timedelta(), DurationField())),
     )
 
 
