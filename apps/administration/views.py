@@ -22,7 +22,7 @@ class NotificationView(APIView):
             'visiting_applications': VisitingApplication.objects.count(),
             'pending_feedback': Feedback.objects.filter(approved=False).count(),
             'support_requests': SupportRequest.objects.count(),
-            'loa_requests': LOA.objects.filter(end__gt=date.today(), approved=False),
+            'loa_requests': LOA.objects.filter(end__gt=date.today(), approved=False).count(),
         })
 
 
