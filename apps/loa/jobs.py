@@ -12,7 +12,7 @@ def update_loa_status():
     longer on a leave of absence.
     """
     for user in User.objects.filter(status=Status.ACTIVE):
-        loa_filter = LOA.objects.filter(user=user, start__lte=date.today(), end__gt=date.today())
+        loa_filter = LOA.objects.filter(user=user, start__lte=date.today(), end__gt=date.today(), approved=True)
         if loa_filter.exists():
             user.status = Status.LOA
             user.save()
@@ -26,7 +26,7 @@ def update_loa_status():
             ).save()
 
     for user in User.objects.filter(status=Status.LOA):
-        if not LOA.objects.filter(user=user, start__lte=date.today(), end__gt=date.today()).exists():
+        if not LOA.objects.filter(user=user, start__lte=date.today(), end__gt=date.today(), approved=True).exists():
             user.status = Status.ACTIVE
             user.save()
 
