@@ -1,11 +1,11 @@
 from auditlog.models import LogEntry
 from rest_framework import serializers
 
-from ..users.serializers import BaseUserSerializer
+from ..users.serializers import BasicUserSerializer
 
 
 class LogEntrySerializer(serializers.ModelSerializer):
-    actor = BaseUserSerializer()
+    actor = BasicUserSerializer()
     changes = serializers.SerializerMethodField()
     content_type = serializers.SerializerMethodField()
 

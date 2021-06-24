@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import TrainingSession, TrainingRequest
 from ..users.models import User
-from ..users.serializers import BaseUserSerializer
+from ..users.serializers import BasicUserSerializer
 
 
 class BaseTrainingSessionSerializer(serializers.ModelSerializer):
@@ -26,8 +26,8 @@ class BaseTrainingSessionSerializer(serializers.ModelSerializer):
 
 
 class TrainingSessionSerializer(BaseTrainingSessionSerializer):
-    instructor = BaseUserSerializer()
-    student = BaseUserSerializer()
+    instructor = BasicUserSerializer()
+    student = BasicUserSerializer()
 
 
 class BaseTrainingRequestSerializer(serializers.ModelSerializer):
@@ -48,4 +48,4 @@ class BaseTrainingRequestSerializer(serializers.ModelSerializer):
 
 
 class TrainingRequestSerializer(BaseTrainingRequestSerializer):
-    user = BaseUserSerializer()
+    user = BasicUserSerializer()

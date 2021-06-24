@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import LOA
 from ..users.models import User
-from ..users.serializers import BaseUserSerializer
+from ..users.serializers import BasicUserSerializer
 
 
 class BaseLOASerializer(serializers.ModelSerializer):
@@ -17,4 +17,4 @@ class BaseLOASerializer(serializers.ModelSerializer):
 
 
 class LOASerializer(BaseLOASerializer):
-    user = BaseUserSerializer()
+    user = BasicUserSerializer()

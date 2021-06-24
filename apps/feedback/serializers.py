@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Feedback
 from ..events.serializers import BasicEventSerializer
 from ..users.models import User
-from ..users.serializers import AuthenticatedBaseUserSerializer
+from ..users.serializers import AuthenticatedBasicUserSerializer
 
 
 class BaseFeedbackSerializer(serializers.ModelSerializer):
@@ -18,12 +18,12 @@ class BaseFeedbackSerializer(serializers.ModelSerializer):
 
 
 class FeedbackSerializer(BaseFeedbackSerializer):
-    controller = AuthenticatedBaseUserSerializer()
-    pilot = AuthenticatedBaseUserSerializer()
+    controller = AuthenticatedBasicUserSerializer()
+    pilot = AuthenticatedBasicUserSerializer()
     event = BasicEventSerializer()
 
 
-class SimplifiedFeedbackSerializer(serializers.ModelSerializer):
+class BasicFeedbackSerializer(serializers.ModelSerializer):
     event = BasicEventSerializer()
 
     class Meta:

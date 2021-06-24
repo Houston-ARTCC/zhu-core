@@ -14,7 +14,7 @@ from zhu_core.settings import BASE_DIR
 from .models import Status
 from .serializers import *
 from ..feedback.models import Feedback
-from ..feedback.serializers import SimplifiedFeedbackSerializer
+from ..feedback.serializers import BasicFeedbackSerializer
 
 
 class ActiveUserListView(APIView):
@@ -106,7 +106,7 @@ class UserFeedbackView(APIView):
         Get list of all approved feedback for user.
         """
         feedback = Feedback.objects.filter(controller__cid=cid).filter(approved=True)
-        serializer = SimplifiedFeedbackSerializer(feedback, many=True)
+        serializer = BasicFeedbackSerializer(feedback, many=True)
         return Response(serializer.data)
 
 
@@ -119,9 +119,9 @@ class SimplifiedActiveUserListView(APIView):
         """
         users = User.objects.filter(status=Status.ACTIVE).order_by('first_name')
         return Response({
-            'home': BaseUserSerializer(users.filter(roles__short='HC'), many=True).data,
-            'visiting': BaseUserSerializer(users.filter(roles__short='VC'), many=True).data,
-            'mavp': BaseUserSerializer(users.filter(roles__short='MC'), many=True).data,
+            'home': BasicUserSerializer(users.filter(roles__short='HC'), many=True).data,
+            'visiting': BasicUserSerializer(users.filter(roles__short='VC'), many=True).data,
+            'mavp': BasicUserSerializer(users.filter(roles__short='MC'), many=True).data,
         })
 
 
@@ -171,7 +171,7 @@ class NewestUserListView(APIView):
         Get list of 3 newest controllers.
         """
         users = User.objects.all().order_by('-joined')[:3]
-        serializer = BaseUserSerializer(users, many=True)
+        serializer = BasicUserSerializer(users, many=True)
         return Response(serializer.data)
 
 
@@ -182,12 +182,12 @@ class StaffListView(APIView):
         """
         Get list of ARTCC staff.
         """
-        atm = BaseUserSerializer(User.objects.filter(roles__short='ATM').first()).data
-        datm = BaseUserSerializer(User.objects.filter(roles__short='DATM').first()).data
-        ta = BaseUserSerializer(User.objects.filter(roles__short='TA').first()).data
-        fe = BaseUserSerializer(User.objects.filter(roles__short='FE').first()).data
-        ec = BaseUserSerializer(User.objects.filter(roles__short='EC').first()).data
-        wm = BaseUserSerializer(User.objects.filter(roles__short='WM').first()).data
+        atm = BasicUserSerializer(User.objects.filter(roles__short='ATM').first()).data
+        datm = BasicUserSerializer(User.objects.filter(roles__short='DATM').first()).data
+        ta = BasicUserSerializer(User.objects.filter(roles__short='TA').first()).data
+        fe = BasicUserSerializer(User.objects.filter(roles__short='FE').first()).data
+        ec = BasicUserSerializer(User.objects.filter(roles__short='EC').first()).data
+        wm = BasicUserSerializer(User.objects.filter(roles__short='WM').first()).data
         return Response({
             'atm': {
                 'user': atm if atm.get('cid') else None,
@@ -197,21 +197,21 @@ class StaffListView(APIView):
             },
             'ta': {
                 'user': ta if ta.get('cid') else None,
-                'assistants': BaseUserSerializer(User.objects.filter(roles__short='ATA'), many=True).data
+                'assistants': BasicUserSerializer(User.objects.filter(roles__short='ATA'), many=True).data
             },
             'fe': {
                 'user': fe if fe.get('cid') else None,
-                'assistants': BaseUserSerializer(User.objects.filter(roles__short='AFE'), many=True).data
+                'assistants': BasicUserSerializer(User.objects.filter(roles__short='AFE'), many=True).data
             },
             'ec': {
                 'user': ec if ec.get('cid') else None,
-                'assistants': BaseUserSerializer(User.objects.filter(roles__short='AEC'), many=True).data
+                'assistants': BasicUserSerializer(User.objects.filter(roles__short='AEC'), many=True).data
             },
             'wm': {
                 'user': wm if wm.get('cid') else None,
-                'assistants': BaseUserSerializer(User.objects.filter(roles__short='AWM'), many=True).data
+                'assistants': BasicUserSerializer(User.objects.filter(roles__short='AWM'), many=True).data
             },
-            'ins': BaseUserSerializer(User.objects.filter(roles__short='INS'), many=True).data,
-            'mtr': BaseUserSerializer(User.objects.filter(roles__short='MTR'), many=True).data,
-            'web': BaseUserSerializer(User.objects.filter(roles__short='WEB'), many=True).data,
+            'ins': BasicUserSerializer(User.objects.filter(roles__short='INS'), many=True).data,
+            'mtr': BasicUserSerializer(User.objects.filter(roles__short='MTR'), many=True).data,
+            'web': BasicUserSerializer(User.objects.filter(roles__short='WEB'), many=True).data,
         })

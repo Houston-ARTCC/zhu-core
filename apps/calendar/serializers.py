@@ -2,17 +2,17 @@ from rest_framework import serializers
 
 from apps.events.models import Event
 from apps.training.models import TrainingSession
-from apps.users.serializers import BaseUserSerializer
+from apps.users.serializers import BasicUserSerializer
 
 
-class EventCalendarSerializer(serializers.ModelSerializer):
+class CalendarEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'name', 'host', 'start', 'end']
 
 
-class TrainingCalendarSerializer(serializers.ModelSerializer):
-    student = BaseUserSerializer()
+class CalendarTrainingSerializer(serializers.ModelSerializer):
+    student = BasicUserSerializer()
 
     class Meta:
         model = TrainingSession

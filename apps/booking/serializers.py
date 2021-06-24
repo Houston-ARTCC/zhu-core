@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from .models import Booking
 from ..users.models import User
-from ..users.serializers import BaseUserSerializer
+from ..users.serializers import BasicUserSerializer
 
 
 class BaseBookingSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class BaseBookingSerializer(serializers.ModelSerializer):
 
 
 class BookingSerializer(serializers.ModelSerializer):
-    user = BaseUserSerializer()
+    user = BasicUserSerializer()
 
     class Meta:
         model = Booking

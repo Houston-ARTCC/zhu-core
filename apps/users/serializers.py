@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         exclude = [
             'email', 'password', 'groups', 'user_permissions', 'is_superuser',
-            'last_login', 'prevent_event_signup', 'cic_endorsed',
+            'last_login', 'prevent_event_signup',
         ]
 
     def get_rating(self, obj):
@@ -49,7 +49,7 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class BaseUserSerializer(serializers.ModelSerializer):
+class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['cid', 'first_name', 'last_name', 'initials', 'profile']
@@ -61,7 +61,7 @@ class EventScoreUserSerializer(serializers.ModelSerializer):
         fields = ['cid', 'first_name', 'last_name', 'initials', 'profile', 'event_score']
 
 
-class AuthenticatedBaseUserSerializer(serializers.ModelSerializer):
+class AuthenticatedBasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['cid', 'first_name', 'last_name', 'initials', 'profile', 'email']

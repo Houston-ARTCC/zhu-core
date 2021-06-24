@@ -29,8 +29,8 @@ class CalendarView(APIView):
         if not (request.user.is_authenticated and request.user.is_staff):
             events = events.exclude(hidden=True)
 
-        event_serializer = EventCalendarSerializer(events, many=True)
-        session_serializer = TrainingCalendarSerializer(sessions, many=True)
+        event_serializer = CalendarEventSerializer(events, many=True)
+        session_serializer = CalendarTrainingSerializer(sessions, many=True)
         booking_serializer = BookingSerializer(bookings, many=True)
         return Response({
             'events': event_serializer.data,
