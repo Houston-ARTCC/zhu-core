@@ -33,6 +33,9 @@ def event_webhook_created(instance, created, **kwargs):
 
 
 def post_event_webhook(event):
+    if os.getenv('EVENTS_WEBHOOK_URL') is None:
+        return
+
     url = f'https://www.zhuartcc.org/events/{event.id}'
     webhook = DiscordWebhook(url=os.getenv('EVENTS_WEBHOOK_URL'))
     embed = DiscordEmbed(

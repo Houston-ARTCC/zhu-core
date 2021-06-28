@@ -24,6 +24,9 @@ def fetch_metars():
     This job fetches the most recent METARs for
     all stations.
     """
+    if os.getenv('AVWX_API_TOKEN') is None:
+        return
+
     airports_iata = os.getenv('POSITION_PREFIXES').split(',')
     airports_icao = ['K' + iata for iata in airports_iata]
 
