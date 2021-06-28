@@ -53,7 +53,7 @@ def notify_inactive_controllers():
     hours = get_user_hours()
     month_name = datetime.now().strftime('%B')
 
-    for user in hours.filter(status=Status.ACTIVE, roles__in=['HC', 'VC']):
+    for user in hours.filter(status=Status.ACTIVE, roles__short__in=['HC', 'VC']):
         if user.curr_hours < user.activity_requirement:
             context = {
                 'user': user,
