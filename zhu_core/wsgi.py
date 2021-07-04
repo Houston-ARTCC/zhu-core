@@ -11,6 +11,10 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+from zhu_core.scheduler import start_scheduler
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zhu_core.settings')
 
 application = get_wsgi_application()
+
+start_scheduler()
