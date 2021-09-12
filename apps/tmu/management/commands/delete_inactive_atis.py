@@ -1,7 +1,8 @@
+from datetime import datetime
 from django.core.management.base import BaseCommand
 
-from apps.tmu.models import ATIS
 from zhu_core.utils import get_vatsim_data
+from apps.tmu.models import ATIS
 
 
 class Command(BaseCommand):
@@ -12,3 +13,5 @@ class Command(BaseCommand):
         for atis in ATIS.objects.all():
             if atis.facility + '_ATIS' not in all_atis:
                 atis.delete()
+
+        print(f'{datetime.now()} :: delete_inactive_atis :: SUCCESS')

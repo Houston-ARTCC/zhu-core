@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 
@@ -38,3 +38,5 @@ class Command(BaseCommand):
                     text_body=render_to_string('loa_deactivated.txt', context=context),
                     to_email=user.email,
                 ).save()
+
+        print(f'{datetime.now()} :: update_loa_status :: SUCCESS')

@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 from django.core.management.base import BaseCommand
 
 from zhu_core.utils import rating_int_to_short
@@ -16,3 +17,5 @@ class Command(BaseCommand):
             if rating_short:
                 user.rating = rating_short
                 user.save()
+
+        print(f'{datetime.now()} :: update_user_ratings :: SUCCESS')

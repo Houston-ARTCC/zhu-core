@@ -1,7 +1,8 @@
+from datetime import datetime
 from django.core.management.base import BaseCommand
 
-from apps.users.models import User
 from zhu_core.utils import get_vatusa_roster
+from apps.users.models import User
 
 
 class Command(BaseCommand):
@@ -32,3 +33,5 @@ class Command(BaseCommand):
         for user in User.objects.filter(roles__short='HC'):
             if user.cid not in cids:
                 user.set_membership(None)
+
+        print(f'{datetime.now()} :: sync_vatusa_roster :: SUCCESS')

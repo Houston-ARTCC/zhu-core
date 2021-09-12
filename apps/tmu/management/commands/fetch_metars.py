@@ -33,3 +33,5 @@ class Command(BaseCommand):
                         'timestamp': pytz.utc.localize(datetime.fromisoformat(data.get('meta').get('timestamp')[:-1])),
                     }
                 )
+
+        print(f'{datetime.now()} :: fetch_metars :: SUCCESS')

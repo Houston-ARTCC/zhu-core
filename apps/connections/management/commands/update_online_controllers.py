@@ -30,3 +30,5 @@ class Command(BaseCommand):
                     text_body=render_to_string('activity_reminder.txt', context=context),
                     to_email=user.email,
                 ).save()
+
+        print(f'{datetime.now()} :: update_online_controllers :: SUCCESS')

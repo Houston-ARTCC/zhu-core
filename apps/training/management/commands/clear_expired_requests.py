@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.utils import timezone
 from django.core.management.base import BaseCommand
 
@@ -9,3 +10,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         TrainingRequest.objects.filter(end__lte=timezone.now()).delete()
+
+        print(f'{datetime.now()} :: clear_expired_requests :: SUCCESS')

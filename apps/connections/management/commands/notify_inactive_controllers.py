@@ -35,3 +35,5 @@ class Command(BaseCommand):
                             datetime.strptime(connection.get('logon_time')[:-2], '%Y-%m-%dT%H:%M:%S.%f')
                         )
                     ).save()
+
+        print(f'{datetime.now()} :: notify_inactive_controllers :: SUCCESS')
