@@ -36,4 +36,4 @@ class Command(BaseCommand):
                         )
                     ).save()
 
-        print(f'{datetime.now()} :: notify_inactive_controllers :: SUCCESS')
+        print(f'{datetime.now()} :: update_online_controllers :: SUCCESS')
