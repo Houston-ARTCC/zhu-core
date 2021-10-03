@@ -4,8 +4,7 @@ from django.template.loader import render_to_string
 
 from apps.loa.models import LOA
 from apps.mailer.models import Email
-from apps.training.models import Status
-from apps.users.models import User
+from apps.users.models import User, Status
 
 
 class Command(BaseCommand):
