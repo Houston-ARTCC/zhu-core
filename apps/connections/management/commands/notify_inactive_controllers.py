@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 
 from apps.connections.statistics import get_user_hours
 from apps.mailer.models import Email
-from apps.training.models import Status
+from apps.users.models import Status
 
 
 class Command(BaseCommand):
