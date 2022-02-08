@@ -1,5 +1,6 @@
 import os
 import requests
+from django.conf import settings
 from django.contrib.auth.models import update_last_login
 from rest_framework import serializers
 from rest_framework_simplejwt.settings import api_settings
@@ -56,11 +57,11 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
         return data
 
     def process_oauth(self, code):
-        resp = requests.post('https://auth.vatsim.net/oauth/token/', data={
+        resp = requests.post(f'{settings.VATSIM_CONNECT_URL}/oauth/token/', data={
             'grant_type': 'authorization_code',
             'client_id': os.getenv('VATSIM_CONNECT_CLIENT_ID'),
             'client_secret': os.getenv('VATSIM_CONNECT_CLIENT_SECRET'),
-            'redirect_uri': os.getenv('VATSIM_CONNECT_REDIRECT_URI'),
+            'redirect_uri':  os.getenv('VATSIM_CONNECT_REDIRECT_URI'),
             'code': code,
         })
 
@@ -68,7 +69,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
 
         auth = resp.json()
 
-        data = requests.get('https://auth.vatsim.net/api/user/', headers={
+        data = requests.get(f'{settings.VATSIM_CONNECT_URL}/api/user/', headers={
             'Authorization': 'Bearer ' + auth.get('access_token'),
             'Accept': 'application/json',
         }).json().get('data')

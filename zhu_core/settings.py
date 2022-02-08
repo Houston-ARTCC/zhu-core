@@ -189,6 +189,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.User'
 
+VATSIM_CONNECT_URL = 'https://auth-dev.vatsim.net' if DEBUG else 'https://auth.vatsim.net'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
