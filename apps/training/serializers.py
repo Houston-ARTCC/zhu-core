@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.utils import timezone
+from datetime import timedelta
 
 from .models import TrainingSession, TrainingRequest
 from ..users.models import User
@@ -41,8 +43,14 @@ class BaseTrainingRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'start', 'end', 'type', 'level', 'remarks']
 
     def validate(self, data):
+        if data.get('user').training_requests.filter(end__gt=timezone.now()).count() >= 7:
+            raise serializers.ValidationError('You may not have more than 7 active requests!')
+
         if data.get('end') < data.get('start'):
             raise serializers.ValidationError('The end time cannot be before the start time!')
+
+        if data.get('start') > timezone.now() + timedelta(days=30):
+            raise serializers.ValidationError('The start time must be within the next 30 days!')
 
         return data
 
