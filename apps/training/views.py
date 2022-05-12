@@ -127,8 +127,16 @@ class PendingTrainingRequestListView(APIView):
         Get list of all pending training requests.
         """
         requests = TrainingRequest.objects.filter(end__gt=timezone.now())
-        serializer = TrainingRequestSerializer(requests, many=True)
-        return Response(data=serializer.data)
+        data = []
+        for cid in requests.values_list('user', flat=True).distinct():
+            last_session = TrainingSession.objects.filter(student=cid).order_by('start').first()
+            user_requests = requests.filter(user=cid)
+            data.append({
+                'user': BasicUserSerializer(user_requests[0].user).data,
+                'requests': BaseTrainingRequestSerializer(user_requests, many=True).data,
+                'last_session': last_session.start.isoformat() if last_session else None,
+            })
+        return Response(data=data)
 
 
 class TrainingRequestInstanceView(APIView):
@@ -192,6 +200,8 @@ class NotificationView(APIView):
         """
         Returns notification counts for training center categories.
         """
+        request_users = TrainingRequest.objects.filter(end__gt=timezone.now()).values_list('user')
+
         return Response({
-            'training_requests': TrainingRequest.objects.filter(end__gt=timezone.now()).count(),
+            'training_requests': len(set(request_users)),
         })
