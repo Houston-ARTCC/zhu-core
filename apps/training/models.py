@@ -36,6 +36,16 @@ class OTSStatus(models.IntegerChoices):
     RECOMMENDED = 3, 'Recommended'
 
 
+class DayOfWeek(models.IntegerChoices):
+    SUNDAY = 0, 'Sunday'
+    MONDAY = 1, 'Monday'
+    TUESDAY = 2, 'Tuesday'
+    WEDNESDAY = 3, 'Wednesday'
+    THURSDAY = 4, 'Thursday'
+    FRIDAY = 5, 'Friday'
+    SATURDAY = 6, 'Saturday'
+
+
 class TrainingSession(models.Model):
     class Meta:
         verbose_name = 'Training session'
@@ -80,6 +90,17 @@ class TrainingRequest(models.Model):
 
     def __str__(self):
         return self.user.full_name
+
+
+class MentorAvailability(models.Model):
+    class Meta:
+        verbose_name = 'Mentor availability'
+        unique_together = ('user', 'day')
+
+    user = models.ForeignKey(User, models.CASCADE, related_name='available_days')
+    day = models.IntegerField(choices=DayOfWeek.choices)
+    start = models.TimeField()
+    end = models.TimeField()
 
 
 auditlog.register(TrainingSession)

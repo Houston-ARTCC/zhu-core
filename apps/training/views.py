@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsMember, IsTrainingStaff, IsOwner, IsPut, IsController
-from .models import Status
+from .models import Status, DayOfWeek
 from .serializers import *
 from ..mailer.models import Email
 
@@ -205,3 +205,48 @@ class NotificationView(APIView):
         return Response({
             'training_requests': len(set(request_users)),
         })
+
+
+class AvailabilityListView(APIView):
+    def get(self, request):
+        availability = MentorAvailability.objects.all()
+        data = [MentorAvailabilitySerializer(availability.filter(day=i), many=True).data for i in DayOfWeek.values]
+        return Response(data)
+
+
+class ModifyAvailabilityView(APIView):
+    permission_classes = [IsTrainingStaff]
+
+    def get(self, request):
+        """
+        Returns array of 7 items, representing queried instructor's availability for each day of the week.
+        """
+        availability = MentorAvailability.objects.filter(user=request.user)
+        data = [BasicMentorAvailabilitySerializer(availability.filter(day=i).first()).data for i in DayOfWeek.values]
+        return Response(data)
+
+    def patch(self, request):
+        """
+        Sets the mentor's availability based off the same format 7-item array as in get().
+        """
+        for day, times in enumerate(request.data, start=1):
+            time_valid = times.get('start') is not None and times.get('end') is not None
+            prev_availability = MentorAvailability.objects.filter(day=day).first()
+            if prev_availability:
+                if time_valid:
+                    prev_availability.start = times.get('start')
+                    prev_availability.end = times.get('end')
+                    prev_availability.save()
+                else:
+                    prev_availability.delete()
+            elif time_valid:
+                MentorAvailability(
+                    user=request.user,
+                    day=day,
+                    start=times.get('start'),
+                    end=times.get('end'),
+                ).save()
+
+        availability = MentorAvailability.objects.filter(user=request.user)
+        data = [BasicMentorAvailabilitySerializer(availability.filter(day=i).first()).data for i in DayOfWeek.values]
+        return Response(data)

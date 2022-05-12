@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import TrainingSession, TrainingRequest
+from .models import TrainingSession, TrainingRequest, MentorAvailability
 from ..users.models import User
 from ..users.serializers import BasicUserSerializer
 
@@ -55,5 +55,26 @@ class BaseTrainingRequestSerializer(serializers.ModelSerializer):
         return data
 
 
-class TrainingRequestSerializer(BaseTrainingRequestSerializer):
+class TrainingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingRequest
+        fields = ['id', 'start', 'end', 'type', 'level', 'remarks']
+
+
+class BasicMentorAvailabilitySerializer(serializers.ModelSerializer):
+    start = serializers.TimeField(format='%H:%M')
+    end = serializers.TimeField(format='%H:%M')
+
+    class Meta:
+        model = MentorAvailability
+        fields = ['start', 'end']
+
+
+class MentorAvailabilitySerializer(serializers.ModelSerializer):
     user = BasicUserSerializer()
+    start = serializers.TimeField(format='%H:%M')
+    end = serializers.TimeField(format='%H:%M')
+
+    class Meta:
+        model = MentorAvailability
+        fields = '__all__'

@@ -11,4 +11,6 @@ urlpatterns = [
     path('request/<int:request_id>/', views.TrainingRequestInstanceView.as_view()),
     path('mentor/<int:cid>/', views.MentorHistoryListView.as_view()),
     path('notifications/', views.NotificationView.as_view()),
+    path('modifyavailability/', views.ModifyAvailabilityView.as_view()),
+    path('availability/', views.AvailabilityListView.as_view()),
 ]
