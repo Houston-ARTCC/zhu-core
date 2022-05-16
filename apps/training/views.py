@@ -129,7 +129,7 @@ class PendingTrainingRequestListView(APIView):
         requests = TrainingRequest.objects.filter(end__gt=timezone.now())
         data = []
         for cid in requests.values_list('user', flat=True).distinct():
-            last_session = TrainingSession.objects.filter(student=cid).order_by('-start').first()
+            last_session = TrainingSession.objects.filter(student=cid, status=Status.COMPLETED).order_by('-start').first()
             user_requests = requests.filter(user=cid)
             data.append({
                 'user': BasicUserSerializer(user_requests[0].user).data,
