@@ -136,7 +136,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_senior_staff(self):
-        return self.roles.filter(short__in=['ATM', 'DATM', 'TA']).exists() or self.is_superuser
+        return self.roles.filter(short__in=['ATM', 'DATM', 'TA', 'FE']).exists() or self.is_superuser
 
     @property
     def is_admin(self):
