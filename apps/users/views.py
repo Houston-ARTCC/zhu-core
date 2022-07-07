@@ -1,5 +1,6 @@
 import os
 import base64
+import requests
 from PIL import Image
 from io import BytesIO
 from django.core.files import File
@@ -91,9 +92,23 @@ class UserInstanceView(APIView):
     def delete(self, request, cid):
         """
         Remove user from roster.
-        Does NOT automatically remove from VATUSA roster.
+        Automatically removes user from VATUSA roster.
         """
         user = get_object_or_404(User, cid=cid)
+
+        if user.membership == 'HC':
+            requests.delete(
+                f'https://api.vatusa.net/v2/facility/ZHU/roster/{user.cid}',
+                data={'reason': request.data.reason, 'by': request.user.cid},
+                params={'apikey': os.getenv('VATUSA_API_TOKEN')},
+            )
+        elif user.membership == 'VC':
+            requests.delete(
+                f'https://api.vatusa.net/v2/facility/ZHU/roster/manageVisitor/{cid}',
+                data={'reason': request.data.reason},
+                params={'apikey': os.getenv('VATUSA_API_TOKEN')},
+            )
+
         user.set_membership(None)
         return Response(status.HTTP_200_OK)
 
