@@ -99,13 +99,13 @@ class UserInstanceView(APIView):
         if user.membership == 'HC':
             requests.delete(
                 f'https://api.vatusa.net/v2/facility/ZHU/roster/{user.cid}',
-                data={'reason': request.data.reason, 'by': request.user.cid},
+                data={'reason': request.data.get('reason'), 'by': request.user.cid},
                 params={'apikey': os.getenv('VATUSA_API_TOKEN')},
             )
         elif user.membership == 'VC':
             requests.delete(
                 f'https://api.vatusa.net/v2/facility/ZHU/roster/manageVisitor/{cid}',
-                data={'reason': request.data.reason},
+                data={'reason': request.data.get('reason')},
                 params={'apikey': os.getenv('VATUSA_API_TOKEN')},
             )
 
