@@ -1,5 +1,7 @@
 from datetime import date
 from auditlog.models import LogEntry
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -26,13 +28,15 @@ class NotificationView(APIView):
         })
 
 
-class AuditLogView(APIView):
-    permission_classes = [IsStaff]
+class AuditLogPagination(PageNumberPagination):
+    page_size_query_param = 'page_size'
+    page_size = 100
 
-    def get(self, request):
-        """
-        Get list of audit log entries.
-        """
-        entries = LogEntry.objects.all()
-        serializer = LogEntrySerializer(entries, many=True)
-        return Response(serializer.data)
+
+class AuditLogView(ListAPIView):
+    permission_classes = [IsStaff]
+    pagination_class = AuditLogPagination
+    serializer_class = LogEntrySerializer
+
+    def get_queryset(self):
+        return LogEntry.objects.all()
