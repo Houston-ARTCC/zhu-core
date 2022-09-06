@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsGet
+from zhu_core.permissions import IsGet, IsStaff
 from .serializers import *
 from .statistics import *
 from ..users.models import User
@@ -97,3 +97,22 @@ class UserDailyStatisticsView(APIView):
         connections = get_daily_statistics(year, user)
         serializer = DailyConnectionsSerializer(connections, many=True)
         return Response(serializer.data)
+
+
+class AdminStatisticsView(APIView):
+    permission_classes = [IsStaff]
+
+    def get(self, request):
+        """
+        Get total hours for the current month and year.
+        """
+        current_date = timezone.now()
+        year_sessions = ControllerSession.objects.filter(start__year=current_date.year)
+        month_sessions = year_sessions.filter(start__month=current_date.month)
+
+        SUM_DURATION = Coalesce(Sum('duration'), Cast(timedelta(), DurationField()))
+
+        return Response({
+            'month': month_sessions.aggregate(total=SUM_DURATION).get('total').total_seconds(),
+            'year': year_sessions.aggregate(total=SUM_DURATION).get('total').total_seconds(),
+        })
