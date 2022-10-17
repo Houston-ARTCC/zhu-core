@@ -231,7 +231,7 @@ class ModifyAvailabilityView(APIView):
         """
         for day, times in enumerate(request.data, start=1):
             time_valid = times.get('start') is not None and times.get('end') is not None
-            prev_availability = MentorAvailability.objects.filter(day=day).first()
+            prev_availability = MentorAvailability.objects.filter(user=request.user, day=day).first()
             if prev_availability:
                 if time_valid:
                     prev_availability.start = times.get('start')
