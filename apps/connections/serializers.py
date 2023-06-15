@@ -46,8 +46,8 @@ class TopPositionsSerializer(serializers.Serializer):
 
 
 class DailyConnectionsSerializer(serializers.Serializer):
-    day = serializers.DateField()
-    value = serializers.SerializerMethodField()
+    date = serializers.DateField()
+    count = serializers.SerializerMethodField()
 
-    def get_value(self, obj):
+    def get_count(self, obj):
         return obj.get('value').total_seconds() / 3600

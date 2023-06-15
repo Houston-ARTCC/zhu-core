@@ -80,4 +80,4 @@ def get_daily_statistics(year, user=None):
     sessions = ControllerSession.objects.filter(start__year=year)
     if user:
         sessions = sessions.filter(user=user)
-    return sessions.extra({'day': 'date(start)'}).values('day').annotate(value=Sum('duration'))
+    return sessions.extra({'date': 'date(start)'}).values('date').annotate(value=Sum('duration'))
