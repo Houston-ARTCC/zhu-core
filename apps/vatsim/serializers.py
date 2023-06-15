@@ -15,24 +15,6 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
 
         self.fields['code'] = serializers.CharField()
 
-    @classmethod
-    def get_token(cls, user):
-        token = RefreshToken.for_user(user)
-
-        token['first_name'] = user.first_name
-        token['last_name'] = user.last_name
-        token['cid'] = user.cid
-        token['email'] = user.email
-        token['rating'] = user.rating
-        token['facility'] = user.home_facility
-        token['is_member'] = user.is_member
-        token['is_training_staff'] = user.is_training_staff
-        token['is_staff'] = user.is_staff
-        token['is_senior_staff'] = user.is_senior_staff
-        token['is_admin'] = user.is_admin
-
-        return token
-
     def validate(self, attrs):
         authenticate_kwargs = {
             'code': attrs['code']
@@ -44,11 +26,11 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
 
         user = self.process_oauth(attrs['code'])
 
-        refresh = self.get_token(user)
+        refresh = RefreshToken.for_user(user)
 
         data = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
+            'access_token': str(refresh.access_token),
+            'refresh_token': str(refresh),
         }
 
         if api_settings.UPDATE_LAST_LOGIN:
