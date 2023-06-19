@@ -32,18 +32,12 @@ class ResourceListView(APIView):
 class ResourceInstanceView(APIView):
     permission_classes = [IsStaff]
 
-    def put(self, request, resource_id):
+    def patch(self, request, resource_id):
         """
         Modify resource details.
         """
         resource = get_object_or_404(Resource, id=resource_id)
-
-        # File is optional, if none is provided just use existing file
-        if 'path' in request.POST:
-            request.POST._mutable = True
-            request.POST['path'] = resource.path
-
-        serializer = ResourceSerializer(resource, data=request.data)
+        serializer = ResourceSerializer(resource, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

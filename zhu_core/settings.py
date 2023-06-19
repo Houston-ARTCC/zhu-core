@@ -114,7 +114,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'https://www.zhuartcc.org',
     'https://beta.zhuartcc.org',
-    'http://www.zhuartcc.devel',
+    'http://www.zhuartcc.devel:3000',
 ]
 
 CORS_ALLOW_HEADERS = [
