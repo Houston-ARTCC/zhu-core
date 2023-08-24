@@ -328,7 +328,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.add_role(short)
 
     def send_welcome_mail(self):
-        context = {'user': self}
+        context = {
+            'user': self,
+            'staff': {
+                'atm': User.objects.filter(roles__short='ATM').first(),
+                'datm': User.objects.filter(roles__short='DATM').first(),
+                'ta': User.objects.filter(roles__short='TA').first(),
+            }
+        }
         Email(
             subject=f'Welcome to {os.getenv("FACILITY_NAME")}!',
             html_body=render_to_string('welcome_email.html', context=context),
