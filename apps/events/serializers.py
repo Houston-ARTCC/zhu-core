@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -89,7 +90,7 @@ class BasicEventSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     archived = serializers.BooleanField(read_only=True, source='is_archived')
-    positions = PositionSerializer(many=True, read_only=True)
+    positions = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Event
@@ -100,6 +101,23 @@ class EventSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('The end time cannot be before the start time!')
 
         return data
+
+    def get_positions(self, obj):
+        positions = EventPosition.objects.filter(event=obj)
+        enroute_positions = positions.filter(
+            Q(callsign__iendswith='CTR') | Q(callsign__iendswith='FSS') | Q(callsign__iendswith='TMU'),
+        )
+        tracon_positions = positions.filter(
+            Q(callsign__iendswith='APP') | Q(callsign__iendswith='DEP'),
+        )
+        local_positions = positions.filter(
+            Q(callsign__iendswith='TWR') | Q(callsign__iendswith='GND') | Q(callsign__iendswith='DEL'),
+        )
+        return {
+            "enroute": PositionSerializer(enroute_positions, many=True).data,
+            "tracon": PositionSerializer(tracon_positions, many=True).data,
+            "local": PositionSerializer(local_positions, many=True).data,
+        }
 
 
 class BaseSupportRequestSerializer(serializers.ModelSerializer):
