@@ -4,14 +4,11 @@ from django.db import models
 
 
 class Category(models.TextChoices):
-    VRC = 'VRC', 'VRC'
-    VSTARS = 'vSTARS', 'vSTARS'
-    VERAM = 'vERAM', 'vERAM'
-    VATIS = 'vATIS', 'vATIS'
-    SOP = 'SOP', 'SOP'
-    LOA = 'LOA', 'LOA'
-    MAVP = 'MAVP', 'MAVP'
-    MISC = 'Misc', 'Misc'
+    POLY = 'POLY', 'Policies'
+    PROC = 'PROC', 'Procedures'
+    LOA = 'LOA', 'LOAs'
+    RVM = 'RVM', 'RVM Lists'
+    REF = 'REF', 'References'
 
 
 class Resource(models.Model):
