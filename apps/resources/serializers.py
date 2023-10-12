@@ -42,7 +42,7 @@ class ResourceGroupedSerializer(serializers.ModelSerializer):
         return self._build_resource_list(Category.LOA)
 
     def get_vatis(self, obj):
-        return self._build_resource_list(Category.vATIS)
+        return self._build_resource_list(Category.VATIS)
 
     def get_rvm(self, obj):
         return self._build_resource_list(Category.RVM)
