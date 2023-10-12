@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Category(models.TextChoices):
-    POLY = 'POLY', 'Policie'
+    POLY = 'POLY', 'Policy'
     PROC = 'PROC', 'Procedure'
     LOA = 'LOA', 'LOA'
     VATIS = 'vATIS', 'vATIS Profile'

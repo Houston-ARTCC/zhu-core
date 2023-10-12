@@ -23,6 +23,7 @@ class ResourceGroupedSerializer(serializers.ModelSerializer):
     poly = serializers.SerializerMethodField()
     proc = serializers.SerializerMethodField()
     loa = serializers.SerializerMethodField()
+    vatis = serializers.SerializerMethodField()
     rvm = serializers.SerializerMethodField()
     ref = serializers.SerializerMethodField()
 
@@ -40,6 +41,9 @@ class ResourceGroupedSerializer(serializers.ModelSerializer):
     def get_loa(self, obj):
         return self._build_resource_list(Category.LOA)
 
+    def get_vatis(self, obj):
+        return self._build_resource_list(Category.vATIS)
+
     def get_rvm(self, obj):
         return self._build_resource_list(Category.RVM)
 
@@ -48,4 +52,4 @@ class ResourceGroupedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ['poly', 'proc', 'loa', 'rvm', 'ref']
+        fields = ['poly', 'proc', 'loa', 'vatis', 'rvm', 'ref']
