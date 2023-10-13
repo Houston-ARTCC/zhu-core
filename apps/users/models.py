@@ -107,7 +107,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     twr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
     app_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
     ctr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
-    ocn_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
     solo_facility = models.CharField(max_length=3, null=True, blank=True)
 
     # Flags
@@ -356,5 +355,5 @@ class User(AbstractBaseUser, PermissionsMixin):
 auditlog.register(User, include_fields=[
     'cid', 'email', 'first_name', 'last_name', 'biography', 'rating', 'home_facility',
     'roles', 'status', 'initials', 'joined', 'prevent_event_signup', 'cic_endorsed',
-    'del_cert', 'gnd_cert', 'twr_cert', 'app_cert', 'ctr_cert', 'ocn_cert',
+    'del_cert', 'gnd_cert', 'twr_cert', 'app_cert', 'ctr_cert',
 ])

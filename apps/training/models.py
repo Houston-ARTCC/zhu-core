@@ -19,7 +19,6 @@ class Level(models.IntegerChoices):
     MINOR_APPROACH = 4, 'Minor Approach'
     MAJOR_APPROACH = 5, 'Major Approach'
     CENTER = 6, 'Center'
-    OCEANIC = 7, 'Oceanic'
 
 
 class Status(models.IntegerChoices):

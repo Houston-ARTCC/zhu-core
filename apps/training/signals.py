@@ -21,8 +21,6 @@ def get_default_position(intance):
         return 'IAH_APP'
     if intance.level == Level.CENTER:
         return 'HOU_CTR'
-    if intance.level == Level.OCEANIC:
-        return 'ZHU_FSS'
 
 
 @receiver(pre_save, sender=TrainingSession)
@@ -31,7 +29,7 @@ def update_ctrs(instance, **kwargs):
     This signal ensures that training sessions remain synced
     with the VATUSA Centralized Training Record System.
     """
-    if instance.status != Status.COMPLETED or instance.level == Level.OCEANIC:
+    if instance.status != Status.COMPLETED:
         return
 
     hours, remainder = divmod(instance.duration.total_seconds(), 3600)
