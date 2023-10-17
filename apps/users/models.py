@@ -1,14 +1,10 @@
 import os
 import pytz
 import requests
-from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
 from datetime import timedelta, datetime
 from auditlog.registry import auditlog
-from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin, Group
-from django.core.files import File
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -275,23 +271,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         return initials.rjust(2, 'A')
 
-    def generate_profile(self):
-        """
-        Generates a profile picture with the user's
-        initials and saves it to database.
-        """
-        profile = Image.new('RGB', (500, 500), color=(194, 207, 224))
-        font = ImageFont.truetype(str(settings.STATIC_ROOT) + '/fonts/CeraPro-Medium.ttf', 225)
-
-        text_layer = ImageDraw.Draw(profile)
-        text_width, text_height = text_layer.textsize(self.initials, font=font)
-        text_layer.text(((500 - text_width) / 2, (500 - text_height) / 2), self.initials, font=font, fill=(51, 77, 110))
-
-        profile_io = BytesIO()
-        profile.save(profile_io, 'PNG')
-
-        return File(profile_io, name=str(self.cid) + '_default.png')
-
     def set_membership(self, short, override=True):
         """
         Sets the user to home, visiting, MAVP, or non-member.
@@ -310,8 +289,6 @@ class User(AbstractBaseUser, PermissionsMixin):
                 if override:
                     self.initials = self.get_initials()
                     self.joined = timezone.now()
-                    
-                self.profile = self.generate_profile()
 
                 if os.getenv('DEV_ENV') == 'False':
                     self.send_welcome_mail()

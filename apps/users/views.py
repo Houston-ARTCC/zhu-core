@@ -67,10 +67,10 @@ class UserInstanceView(APIView):
                 profile_io = BytesIO()
                 img.save(profile_io, 'PNG')
 
-                user.profile = File(profile_io, name=str(user.cid) + '.png')
+                user.profile = File(profile_io, name=f'{user.cid}.png')
             else:
                 os.remove(BASE_DIR / f'media/profile/{user.cid}.png')
-                user.profile = f'profile/{user.cid}_default.png'
+                user.profile = None
         if 'biography' in request.data:
             user.biography = request.data.get('biography')
 
