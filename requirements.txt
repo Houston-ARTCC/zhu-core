@@ -6,7 +6,6 @@ discord-webhook==0.13.0
 Django==3.2.4
 django-auditlog==1.0a1
 django-cors-headers==3.7.0
-django-jsonfield==1.4.1
 djangorestframework==3.12.2
 djangorestframework-simplejwt==4.6.0
 idna==2.10

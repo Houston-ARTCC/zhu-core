@@ -92,6 +92,7 @@ class SupportRequest(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
     host = models.CharField(max_length=32)
+    requested_fields = models.JSONField(default=list, null=False, blank=True)
     description = models.TextField(null=True, blank=True)
 
     def convert_to_event(self):
@@ -128,9 +129,6 @@ class PositionPreset(models.Model):
 
     def __str__(self):
         return self.name
-
-
-# TODO: Add requested fields to SupportRequest model
 
 
 auditlog.register(Event, exclude_fields=['feedback', 'positions'])

@@ -125,6 +125,9 @@ class BaseSupportRequestSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault()
     )
+    requested_fields = serializers.ListField(
+        child=serializers.CharField()
+    )
 
     class Meta:
         model = SupportRequest
