@@ -157,17 +157,6 @@ class EventScoreActiveUserListView(APIView):
         })
 
 
-class EventScoresView(APIView):
-    permission_classes = [IsController | IsStaff]
-
-    def get(self, request, cid):
-        """
-        Get list of all event scores for controller.
-        """
-        user = get_object_or_404(User, cid=cid)
-        return Response(user.get_event_scores())
-
-
 class AllUserListView(APIView):
     permission_classes = [IsStaff]
 

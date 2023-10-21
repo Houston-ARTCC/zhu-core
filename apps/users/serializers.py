@@ -55,12 +55,6 @@ class BasicUserSerializer(serializers.ModelSerializer):
         fields = ['cid', 'first_name', 'last_name', 'initials', 'profile']
 
 
-class EventScoreUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['cid', 'first_name', 'last_name', 'initials', 'profile', 'event_score']
-
-
 class AuthenticatedBasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

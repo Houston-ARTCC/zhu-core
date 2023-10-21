@@ -131,6 +131,19 @@ class PositionPreset(models.Model):
         return self.name
 
 
+class EventScore(models.Model):
+    class Meta:
+        verbose_name = 'Event score'
+
+    user = models.ForeignKey(User, models.CASCADE, related_name='event_scores')
+    event = models.ForeignKey(Event, models.CASCADE, related_name='scores')
+    score = models.PositiveIntegerField()
+    notes = models.JSONField()
+
+    def __str__(self):
+        return f'{self.user.full_name} | {self.event.name}'
+
+
 auditlog.register(Event, exclude_fields=['feedback', 'positions'])
 auditlog.register(SupportRequest)
 auditlog.register(PositionPreset)

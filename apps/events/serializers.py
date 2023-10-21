@@ -2,9 +2,9 @@ from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from .models import Event, EventPosition, PositionShift, ShiftRequest, SupportRequest, PositionPreset
+from .models import Event, EventPosition, EventScore, PositionShift, ShiftRequest, SupportRequest, PositionPreset
 from ..users.models import User
-from ..users.serializers import BasicUserSerializer, AuthenticatedBasicUserSerializer, EventScoreUserSerializer
+from ..users.serializers import BasicUserSerializer, AuthenticatedBasicUserSerializer
 
 
 class BaseShiftRequestSerializer(serializers.ModelSerializer):
@@ -142,3 +142,12 @@ class PositionPresetSerializer(serializers.ModelSerializer):
     class Meta:
         model = PositionPreset
         fields = '__all__'
+
+
+class EventScoreSerializer(serializers.ModelSerializer):
+    # TODO: New serializer to exclude uninmportant things like available shifts
+    event = BasicEventSerializer()
+
+    class Meta:
+        model = EventScore
+        fields = ['event', 'score', 'notes']

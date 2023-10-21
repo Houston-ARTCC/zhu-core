@@ -13,4 +13,6 @@ urlpatterns = [
     path('support/<int:request_id>/', views.SupportRequestInstanceView.as_view()),
     path('presets/', views.PositionPresetListView.as_view()),
     path('presets/<int:preset_id>/', views.PositionPresetInstanceView.as_view()),
+    path('scores/', views.EventScoreListView().as_view()),
+    path('scores/<int:cid>/', views.EventScoreListView().as_view()),
 ]

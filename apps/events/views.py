@@ -318,4 +318,25 @@ class PositionPresetInstanceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class EventScoreListView(APIView):
+    permission_classes = [IsMember]
+
+    def get(self, request, cid=None):
+        """
+        Get event scores for user.
+        Defaults to session user if cid is not defined.
+        """
+        if not cid:
+            user = request.user
+        elif request.user.is_staff:
+            # Need to be staff to view another user's scores.
+            user = get_object_or_404(User, cid=cid)
+        else:
+            raise PermissionDenied('You do not have permission to view scores for this user.')
+
+        scores = EventScore.objects.filter(user=user)
+        serializer = EventScoreSerializer(scores, many=True)
+        return Response(serializer.data)
+
+
 # TODO: Send email on support request received/approved/rejected.
