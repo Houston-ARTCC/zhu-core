@@ -29,7 +29,7 @@ class StatisticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['cid', 'first_name', 'last_name', 'rating', 'curr_hours', 'initials',
-                  'prev_hours', 'prev_prev_hours', 'activity_requirement']
+                  'is_staff', 'prev_hours', 'prev_prev_hours', 'activity_requirement']
 
 
 class TopControllersSerializer(serializers.ModelSerializer):
