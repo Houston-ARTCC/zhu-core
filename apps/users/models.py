@@ -163,9 +163,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.endorsements["del"] == Certification.NONE:
             return timedelta(hours=0)
         elif self.is_staff:
-            return timedelta(hours=5)
+            return timedelta(hours=6)
         else:
-            return timedelta(hours=2)
+            return timedelta(hours=3)
 
     @property
     def visiting_eligibility(self):

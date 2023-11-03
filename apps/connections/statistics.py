@@ -15,20 +15,13 @@ def annotate_hours(query):
     current (curr_hours), previous (prev_hours), and
     penultimate (prev_prev_hours) months.
     """
-    MONTH_NOW = timezone.now().month
-    YEAR_NOW = timezone.now().year
-    CURR_MONTH = Q(sessions__start__month=MONTH_NOW) & Q(sessions__start__year=YEAR_NOW)
-    PREV_MONTH = Q(sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12) & Q(
-        sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1
-    )
-    PREV_PREV_MONTH = Q(sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11) & Q(
-        sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1
-    )
+    is_curr_year = Q(sessions__start__year=timezone.now().year)
 
     return query.annotate(
-        curr_hours=Coalesce(Sum("sessions__duration", filter=CURR_MONTH), Cast(timedelta(), DurationField())),
-        prev_hours=Coalesce(Sum("sessions__duration", filter=PREV_MONTH), Cast(timedelta(), DurationField())),
-        prev_prev_hours=Coalesce(Sum("sessions__duration", filter=PREV_PREV_MONTH), Cast(timedelta(), DurationField())),
+        q1=Coalesce(Sum('sessions__duration', filter=Q(sessions__start__quarter=1) & is_curr_year), Cast(timedelta(), DurationField())),
+        q2=Coalesce(Sum('sessions__duration', filter=Q(sessions__start__quarter=2) & is_curr_year), Cast(timedelta(), DurationField())),
+        q3=Coalesce(Sum('sessions__duration', filter=Q(sessions__start__quarter=3) & is_curr_year), Cast(timedelta(), DurationField())),
+        q4=Coalesce(Sum('sessions__duration', filter=Q(sessions__start__quarter=4) & is_curr_year), Cast(timedelta(), DurationField())),
     )
 
 
@@ -47,20 +40,26 @@ def get_top_controllers():
     hour sums for the current month (hours) sorted by most
     controlling hours (controllers with no hours are not included).
     """
-    SAME_MONTH = Q(sessions__start__month=timezone.now().month)
-    SAME_YEAR = Q(sessions__start__year=timezone.now().year)
+    curr_time = timezone.now()
 
-    users = User.objects.exclude(status=Status.NON_MEMBER)
-    users = users.annotate(hours=Sum("sessions__duration", filter=SAME_MONTH & SAME_YEAR))
-
-    return users.exclude(hours__isnull=True).order_by("-hours")
+    return (
+        User.objects
+        .exclude(status=Status.NON_MEMBER)
+        .annotate(
+            hours=Sum(
+                'sessions__duration',
+                filter=Q(sessions__start__month=curr_time.month) & Q(sessions__start__year=curr_time.year)
+            )
+        )
+        .exclude(hours__isnull=True)
+        .order_by('-hours')
+    )
 
 
 def get_top_positions():
-    SAME_MONTH = Q(start__month=timezone.now().month)
-    SAME_YEAR = Q(start__year=timezone.now().year)
+    curr_time = timezone.now()
 
-    sessions = ControllerSession.objects.filter(SAME_MONTH & SAME_YEAR)
+    sessions = ControllerSession.objects.filter(start__month=curr_time.month, start__year=curr_time.year)
     position_durations = {}
 
     for session in sessions:
