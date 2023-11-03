@@ -21,15 +21,16 @@ class OnlineControllerSerializer(serializers.ModelSerializer):
 
 
 class StatisticsSerializer(serializers.ModelSerializer):
-    curr_hours = CustomDurationField()
-    prev_hours = CustomDurationField()
-    prev_prev_hours = CustomDurationField()
+    q1 = CustomDurationField()
+    q2 = CustomDurationField()
+    q3 = CustomDurationField()
+    q4 = CustomDurationField()
     activity_requirement = CustomDurationField()
 
     class Meta:
         model = User
-        fields = ['cid', 'first_name', 'last_name', 'rating', 'curr_hours', 'initials',
-                  'prev_hours', 'prev_prev_hours', 'activity_requirement']
+        fields = ['cid', 'first_name', 'last_name', 'rating', 'initials',
+                  'q1', 'q2', 'q3', 'q4', 'activity_requirement']
 
 
 class TopControllersSerializer(serializers.ModelSerializer):

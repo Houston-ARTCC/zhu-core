@@ -8,7 +8,7 @@
 </tr>
 <tr>
     <td align="left" style="padding-bottom:10px;padding-top:15px">
-        <p>You are receiving this email to inform you that you have not fulfilled your monthly activity requirements. In the month of <b>{{ month }}</b>, you have controlled for <b>{{ user.curr_hours|format_timedelta }}</b>. To maintain roster currency you need to control for <b>{{ user.activity_requirement|timedelta_hours }} hours</b>.</p>
+        <p>You are receiving this email to inform you that you have not fulfilled your monthly activity requirements. During <b>Q{{ quarter }} {{ year }}</b>, you have controlled for <b>{{ user.curr_hours|format_timedelta }}</b>. To maintain roster currency you need to control for <b>{{ user.activity_requirement|timedelta_hours }} hours</b>.</p>
     </td>
 </tr>
 <tr>

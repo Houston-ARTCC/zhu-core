@@ -16,13 +16,15 @@ class Command(BaseCommand):
             return
 
         hours = get_user_hours()
-        month_name = datetime.now().strftime('%B')
+        curr_date = datetime.today()
+        current_quarter = (curr_date.month - 1) // 3 + 1
 
         for user in hours.filter(status=Status.ACTIVE, roles__short__in=['HC', 'VC']):
-            if user.curr_hours < user.activity_requirement:
+            if getattr(user, f'q{current_quarter}') < user.activity_requirement:
                 context = {
                     'user': user,
-                    'month': month_name,
+                    'quarter': current_quarter,
+                    'year': curr_date.year,
                 }
                 Email(
                     subject='Controller Activity Reminder',

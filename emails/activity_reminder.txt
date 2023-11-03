@@ -2,7 +2,7 @@
 
 Hello {{ user.first_name }},
 
-You are receiving this email to inform you that you have not fulfilled your monthly activity requirements. In the month of {{ month }}, you have controlled for {{ user.curr_hours|format_timedelta }}. To maintain roster currency you need to control for {{ user.activity_requirement|timedelta_hours }} hours.
+You are receiving this email to inform you that you have not fulfilled your monthly activity requirements. During Q{{ quarter }} {{ year }}, you have controlled for {{ user.curr_hours|format_timedelta }}. To maintain roster currency you need to control for {{ user.activity_requirement|timedelta_hours }} hours.
 
 Not fulfilling your hours by the end of the month puts you at risk for removal from the Houston ARTCC roster.
 
