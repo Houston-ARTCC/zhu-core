@@ -52,10 +52,6 @@ class VisitingInstanceView(APIView):
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
         application.user.set_membership('VC')
-        requests.post(
-            f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}'
-            f'/roster/manageVisitor/{application.user.cid}/'
-        )
         application.delete()
         return Response(status=status.HTTP_200_OK)
 
