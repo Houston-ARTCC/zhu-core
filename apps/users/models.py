@@ -245,6 +245,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             if short == "HC":
                 self.home_facility = "ZHU"
 
+            if short == 'VC':
+                requests.post(
+                    f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster/manageVisitor/{self.cid}/',
+                    params={'apikey': os.getenv('VATUSA_API_TOKEN')},
+                )
+
             self.status = Status.ACTIVE
 
         self.save()
