@@ -40,7 +40,7 @@ def sync_visit_roster():
     remote_cids = {user['cid'] for user in visit_roster}
 
     # Users that have been added to the local roster but not the VATUSA roster.
-    for local_cid in User.objects.filter(roles__short='VC').values('cid', flat=True):
+    for local_cid in User.objects.filter(roles__short='VC').values_list('cid', flat=True):
         if local_cid not in remote_cids:
             requests.post(
                 f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster/manageVisitor/{local_cid}/',
