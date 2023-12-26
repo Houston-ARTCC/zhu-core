@@ -51,7 +51,9 @@ class ShiftSerializer(serializers.ModelSerializer):
         exclude = ["position"]
 
 
-class BasePositionSerializer(serializers.ModelSerializer):
+class AddPositionSerializer(serializers.ModelSerializer):
+    shifts = serializers.IntegerField()
+
     class Meta:
         model = EventPosition
         fields = "__all__"
@@ -62,6 +64,15 @@ class BasePositionSerializer(serializers.ModelSerializer):
                 message="Position with this name already exists.",
             )
         ]
+
+    def create(self, validated_data):
+        shifts = validated_data.pop("shifts")
+        position = super().create(validated_data)
+
+        for _ in range(shifts):
+            PositionShift.objects.create(position=position)
+
+        return position
 
 
 class PositionSerializer(serializers.ModelSerializer):

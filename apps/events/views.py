@@ -14,7 +14,7 @@ from zhu_core.permissions import IsGet, IsMember, IsStaff
 
 from .models import Event, EventPosition, EventScore, PositionShift, ShiftRequest, SupportRequest
 from .serializers import (
-    BasePositionSerializer,
+    AddPositionSerializer,
     BaseShiftRequestSerializer,
     BaseShiftSerializer,
     BaseSupportRequestSerializer,
@@ -23,6 +23,8 @@ from .serializers import (
     EventSerializer,
     PositionPreset,
     PositionPresetSerializer,
+    PositionSerializer,
+    ShiftSerializer,
     SupportRequestSerializer,
 )
 
@@ -141,22 +143,17 @@ class EventInstanceView(APIView):
 
     def post(self, request, event_id):
         """
-        Add event position.
+        Add event positions.
         """
         event = get_object_or_404(Event, id=event_id)
-        serializer = BasePositionSerializer(
-            data={
-                "event": event.id,
-                "callsign": request.data.get("callsign"),
-            }
+        serializer = AddPositionSerializer(
+            data=[{"event": event.id, **pos} for pos in request.data],
+            many=True,
         )
+
         if serializer.is_valid():
             serializer.save()
-
-            for _ in range(int(request.data.get("shifts"))):
-                PositionShift(position=serializer.instance).save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -186,7 +183,8 @@ class PositionInstanceView(APIView):
         """
         position = get_object_or_404(EventPosition, id=position_id)
         PositionShift(position=position).save()
-        return Response(status=status.HTTP_200_OK)
+        serializer = PositionSerializer(position)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, position_id):
         """
@@ -239,7 +237,8 @@ class ShiftInstanceView(APIView):
         serializer = BaseShiftSerializer(shift, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer = ShiftSerializer(shift)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, shift_id):
