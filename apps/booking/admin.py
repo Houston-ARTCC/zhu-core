@@ -5,4 +5,4 @@ from .models import Booking
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'callsign', 'start', 'end')
+    list_display = ("user", "callsign", "start", "end")

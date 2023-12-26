@@ -4,10 +4,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.loa.models import LOA
+from apps.mailer.models import Email
 from zhu_core.permissions import IsAdmin
-from .serlaizers import LOASerializer, BaseLOASerializer
-from ..loa.models import LOA
-from ..mailer.models import Email
+
+from .serlaizers import BaseLOASerializer, LOASerializer
 
 
 class LOARequestListView(APIView):
@@ -25,7 +26,7 @@ class LOARequestListView(APIView):
         """
         Submit LOA request.
         """
-        serializer = BaseLOASerializer(data=request.data, context={'request': request})
+        serializer = BaseLOASerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -43,11 +44,11 @@ class LOARequestInstanceView(APIView):
         loa.approved = True
         loa.save()
 
-        context = {'user': loa.user, 'loa': loa}
+        context = {"user": loa.user, "loa": loa}
         Email(
-            subject='Your LOA request has been approved!',
-            html_body=render_to_string('loa_approved.html', context=context),
-            text_body=render_to_string('loa_approved.txt', context=context),
+            subject="Your LOA request has been approved!",
+            html_body=render_to_string("loa_approved.html", context=context),
+            text_body=render_to_string("loa_approved.txt", context=context),
             to_email=loa.user.email,
         ).save()
 
@@ -59,11 +60,11 @@ class LOARequestInstanceView(APIView):
         """
         loa = get_object_or_404(LOA, id=request_id, approved=False)
 
-        context = {'user': loa.user, 'reason': request.data.get('reason')}
+        context = {"user": loa.user, "reason": request.data.get("reason")}
         Email(
-            subject='An update on your LOA request...',
-            html_body=render_to_string('loa_rejected.html', context=context),
-            text_body=render_to_string('loa_rejected.txt', context=context),
+            subject="An update on your LOA request...",
+            html_body=render_to_string("loa_rejected.html", context=context),
+            text_body=render_to_string("loa_rejected.txt", context=context),
             to_email=loa.user.email,
         ).save()
 

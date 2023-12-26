@@ -1,14 +1,14 @@
 from auditlog.registry import auditlog
 from django.db import models
 
-from ..users.models import User
+from apps.users.models import User
 
 
 class VisitingApplication(models.Model):
     class Meta:
-        verbose_name = 'Vistiting application'
+        verbose_name = "Vistiting application"
 
-    user = models.OneToOneField(User, models.CASCADE, related_name='visiting_application', unique=True)
+    user = models.OneToOneField(User, models.CASCADE, related_name="visiting_application", unique=True)
     reason = models.TextField()
     submitted = models.DateTimeField(auto_now_add=True)
 

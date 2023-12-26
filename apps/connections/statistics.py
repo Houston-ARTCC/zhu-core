@@ -1,10 +1,12 @@
 from datetime import timedelta
-from django.db.models import Sum, Q, DurationField
-from django.db.models.functions import Coalesce, Cast
+
+from django.db.models import DurationField, Q, Sum
+from django.db.models.functions import Cast, Coalesce
 from django.utils import timezone
 
+from apps.users.models import Status, User
+
 from .models import ControllerSession
-from ..users.models import User, Status
 
 
 def annotate_hours(query):
@@ -15,17 +17,18 @@ def annotate_hours(query):
     """
     MONTH_NOW = timezone.now().month
     YEAR_NOW = timezone.now().year
-    CURR_MONTH = (Q(sessions__start__month=MONTH_NOW)
-                  & Q(sessions__start__year=YEAR_NOW))
-    PREV_MONTH = (Q(sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12)
-                  & Q(sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1))
-    PREV_PREV_MONTH = (Q(sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11)
-                       & Q(sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1))
+    CURR_MONTH = Q(sessions__start__month=MONTH_NOW) & Q(sessions__start__year=YEAR_NOW)
+    PREV_MONTH = Q(sessions__start__month=MONTH_NOW - 1 if MONTH_NOW > 1 else 12) & Q(
+        sessions__start__year=YEAR_NOW if MONTH_NOW > 1 else YEAR_NOW - 1
+    )
+    PREV_PREV_MONTH = Q(sessions__start__month=MONTH_NOW - 2 if MONTH_NOW > 2 else 12 if MONTH_NOW > 1 else 11) & Q(
+        sessions__start__year=YEAR_NOW if MONTH_NOW > 2 else YEAR_NOW - 1
+    )
 
     return query.annotate(
-        curr_hours=Coalesce(Sum('sessions__duration', filter=CURR_MONTH), Cast(timedelta(), DurationField())),
-        prev_hours=Coalesce(Sum('sessions__duration', filter=PREV_MONTH), Cast(timedelta(), DurationField())),
-        prev_prev_hours=Coalesce(Sum('sessions__duration', filter=PREV_PREV_MONTH), Cast(timedelta(), DurationField())),
+        curr_hours=Coalesce(Sum("sessions__duration", filter=CURR_MONTH), Cast(timedelta(), DurationField())),
+        prev_hours=Coalesce(Sum("sessions__duration", filter=PREV_MONTH), Cast(timedelta(), DurationField())),
+        prev_prev_hours=Coalesce(Sum("sessions__duration", filter=PREV_PREV_MONTH), Cast(timedelta(), DurationField())),
     )
 
 
@@ -48,9 +51,9 @@ def get_top_controllers():
     SAME_YEAR = Q(sessions__start__year=timezone.now().year)
 
     users = User.objects.exclude(status=Status.NON_MEMBER)
-    users = users.annotate(hours=Sum('sessions__duration', filter=SAME_MONTH & SAME_YEAR))
+    users = users.annotate(hours=Sum("sessions__duration", filter=SAME_MONTH & SAME_YEAR))
 
-    return users.exclude(hours__isnull=True).order_by('-hours')
+    return users.exclude(hours__isnull=True).order_by("-hours")
 
 
 def get_top_positions():
@@ -61,14 +64,14 @@ def get_top_positions():
     position_durations = {}
 
     for session in sessions:
-        position = session.facility + '_' + session.level
+        position = session.facility + "_" + session.level
         if position in position_durations:
             position_durations[position] += session.duration
         else:
             position_durations[position] = session.duration
 
     sorted_positions = sorted(position_durations, key=position_durations.get, reverse=True)
-    return [{'position': position, 'hours': position_durations[position]} for position in sorted_positions]
+    return [{"position": position, "hours": position_durations[position]} for position in sorted_positions]
 
 
 def get_daily_statistics(year, user=None):
@@ -80,4 +83,4 @@ def get_daily_statistics(year, user=None):
     sessions = ControllerSession.objects.filter(start__year=year)
     if user:
         sessions = sessions.filter(user=user)
-    return sessions.extra({'date': 'date(start)'}).values('date').annotate(value=Sum('duration'))
+    return sessions.extra({"date": "date(start)"}).values("date").annotate(value=Sum("duration"))

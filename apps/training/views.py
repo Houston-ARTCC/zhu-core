@@ -5,10 +5,19 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsMember, IsTrainingStaff, IsOwner, IsPut, IsController
-from .models import Status, DayOfWeek
-from .serializers import *
-from ..mailer.models import Email
+from apps.mailer.models import Email
+from apps.users.serializers import BasicUserSerializer
+from zhu_core.permissions import IsController, IsMember, IsOwner, IsPut, IsTrainingStaff
+
+from .models import DayOfWeek, MentorAvailability, Status, TrainingRequest, TrainingSession
+from .serializers import (
+    BaseTrainingRequestSerializer,
+    BaseTrainingSessionSerializer,
+    BasicMentorAvailabilitySerializer,
+    MentorAvailabilitySerializer,
+    TrainingRequestSerializer,
+    TrainingSessionSerializer,
+)
 
 
 class ScheduledSessionListView(APIView):
@@ -51,16 +60,16 @@ class SessionInstanceView(APIView):
         File training session.
         """
         session = get_object_or_404(TrainingSession, id=session_id)
-        request.data['status'] = Status.COMPLETED
+        request.data["status"] = Status.COMPLETED
         serializer = BaseTrainingSessionSerializer(session, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
 
-            context = {'user': serializer.instance.student, 'session': session}
+            context = {"user": serializer.instance.student, "session": session}
             Email(
-                subject='Training session filed!',
-                html_body=render_to_string('training_filed.html', context=context),
-                text_body=render_to_string('training_filed.txt', context=context),
+                subject="Training session filed!",
+                html_body=render_to_string("training_filed.html", context=context),
+                text_body=render_to_string("training_filed.txt", context=context),
                 to_email=serializer.instance.student.email,
             ).save()
 
@@ -86,11 +95,11 @@ class SessionInstanceView(APIView):
         session.status = Status.CANCELLED
         session.save()
 
-        context = {'user': session.student, 'session': session}
+        context = {"user": session.student, "session": session}
         Email(
-            subject='Training session cancelled',
-            html_body=render_to_string('training_cancelled.html', context=context),
-            text_body=render_to_string('training_cancelled.txt', context=context),
+            subject="Training session cancelled",
+            html_body=render_to_string("training_cancelled.html", context=context),
+            text_body=render_to_string("training_cancelled.txt", context=context),
             to_email=session.student.email,
         ).save()
 
@@ -112,7 +121,7 @@ class TrainingRequestListView(APIView):
         """
         Submit a new training request.
         """
-        serializer = BaseTrainingRequestSerializer(data=request.data, context={'request': request})
+        serializer = BaseTrainingRequestSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -128,14 +137,18 @@ class PendingTrainingRequestListView(APIView):
         """
         requests = TrainingRequest.objects.filter(end__gt=timezone.now())
         data = []
-        for cid in requests.values_list('user', flat=True).distinct():
-            last_session = TrainingSession.objects.filter(student=cid, status=Status.COMPLETED).order_by('-start').first()
+        for cid in requests.values_list("user", flat=True).distinct():
+            last_session = (
+                TrainingSession.objects.filter(student=cid, status=Status.COMPLETED).order_by("-start").first()
+            )
             user_requests = requests.filter(user=cid)
-            data.append({
-                'user': BasicUserSerializer(user_requests[0].user).data,
-                'requests': BaseTrainingRequestSerializer(user_requests, many=True).data,
-                'last_session': last_session.start.isoformat() if last_session else None,
-            })
+            data.append(
+                {
+                    "user": BasicUserSerializer(user_requests[0].user).data,
+                    "requests": BaseTrainingRequestSerializer(user_requests, many=True).data,
+                    "last_session": last_session.start.isoformat() if last_session else None,
+                }
+            )
         return Response(data=data)
 
 
@@ -153,18 +166,17 @@ class TrainingRequestInstanceView(APIView):
         """
         training_request = get_object_or_404(TrainingRequest, id=request_id)
         serializer = BaseTrainingSessionSerializer(
-            data={'student': training_request.user.cid, **request.data},
-            context={'request': request}
+            data={"student": training_request.user.cid, **request.data}, context={"request": request}
         )
         if serializer.is_valid():
             training_request.delete()
             serializer.save()
 
-            context = {'user': serializer.instance.student, 'session': serializer.instance}
+            context = {"user": serializer.instance.student, "session": serializer.instance}
             Email(
-                subject='Training session scheduled!',
-                html_body=render_to_string('training_scheduled.html', context=context),
-                text_body=render_to_string('training_scheduled.txt', context=context),
+                subject="Training session scheduled!",
+                html_body=render_to_string("training_scheduled.html", context=context),
+                text_body=render_to_string("training_scheduled.txt", context=context),
                 to_email=serializer.instance.student.email,
                 cc_email=serializer.instance.instructor.email,
             ).save()
@@ -200,11 +212,13 @@ class NotificationView(APIView):
         """
         Returns notification counts for training center categories.
         """
-        request_users = TrainingRequest.objects.filter(end__gt=timezone.now()).values_list('user')
+        request_users = TrainingRequest.objects.filter(end__gt=timezone.now()).values_list("user")
 
-        return Response({
-            'training_requests': len(set(request_users)),
-        })
+        return Response(
+            {
+                "training_requests": len(set(request_users)),
+            }
+        )
 
 
 class AvailabilityListView(APIView):
@@ -230,12 +244,12 @@ class ModifyAvailabilityView(APIView):
         Sets the mentor's availability based off the same format 7-item array as in get().
         """
         for day, times in enumerate(request.data, start=1):
-            time_valid = times.get('start') is not None and times.get('end') is not None
+            time_valid = times.get("start") is not None and times.get("end") is not None
             prev_availability = MentorAvailability.objects.filter(user=request.user, day=day).first()
             if prev_availability:
                 if time_valid:
-                    prev_availability.start = times.get('start')
-                    prev_availability.end = times.get('end')
+                    prev_availability.start = times.get("start")
+                    prev_availability.end = times.get("end")
                     prev_availability.save()
                 else:
                     prev_availability.delete()
@@ -243,8 +257,8 @@ class ModifyAvailabilityView(APIView):
                 MentorAvailability(
                     user=request.user,
                     day=day,
-                    start=times.get('start'),
-                    end=times.get('end'),
+                    start=times.get("start"),
+                    end=times.get("end"),
                 ).save()
 
         availability = MentorAvailability.objects.filter(user=request.user)

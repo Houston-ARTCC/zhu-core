@@ -5,9 +5,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsSeniorStaff, IsGet
-from .serializers import *
-from ..mailer.models import Email
+from apps.mailer.models import Email
+from zhu_core.permissions import IsGet, IsSeniorStaff
+
+from .models import Feedback
+from .serializers import BaseFeedbackSerializer, FeedbackSerializer
 
 
 class FeedbackListView(APIView):
@@ -25,15 +27,15 @@ class FeedbackListView(APIView):
         """
         Add a new feedback.
         """
-        serializer = BaseFeedbackSerializer(data=request.data, context={'request': request})
+        serializer = BaseFeedbackSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
 
-            context = {'user': request.user, 'feedback': serializer.instance}
+            context = {"user": request.user, "feedback": serializer.instance}
             Email(
-                subject='We have received your feedback!',
-                html_body=render_to_string('feedback_received.html', context=context),
-                text_body=render_to_string('feedback_received.txt', context=context),
+                subject="We have received your feedback!",
+                html_body=render_to_string("feedback_received.html", context=context),
+                text_body=render_to_string("feedback_received.txt", context=context),
                 to_email=request.user.email,
             ).save()
 
@@ -52,11 +54,11 @@ class FeedbackInstanceView(APIView):
         feedback.approved = True
         feedback.save()
 
-        context = {'user': feedback.pilot, 'feedback': feedback}
+        context = {"user": feedback.pilot, "feedback": feedback}
         Email(
-            subject='Your feedback has been approved!',
-            html_body=render_to_string('feedback_approved.html', context=context),
-            text_body=render_to_string('feedback_approved.txt', context=context),
+            subject="Your feedback has been approved!",
+            html_body=render_to_string("feedback_approved.html", context=context),
+            text_body=render_to_string("feedback_approved.txt", context=context),
             to_email=feedback.pilot.email,
         ).save()
 
@@ -71,11 +73,11 @@ class FeedbackInstanceView(APIView):
         feedback = get_object_or_404(Feedback, id=feedback_id)
         feedback.delete()
 
-        context = {'user': feedback.pilot, 'feedback': feedback, 'reason': request.data.get('reason')}
+        context = {"user": feedback.pilot, "feedback": feedback, "reason": request.data.get("reason")}
         Email(
-            subject='An update on your feedback.',
-            html_body=render_to_string('feedback_rejected.html', context=context),
-            text_body=render_to_string('feedback_rejected.txt', context=context),
+            subject="An update on your feedback.",
+            html_body=render_to_string("feedback_rejected.html", context=context),
+            text_body=render_to_string("feedback_rejected.txt", context=context),
             to_email=feedback.pilot.email,
         ).save()
 

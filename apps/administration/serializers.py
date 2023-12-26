@@ -1,7 +1,7 @@
 from auditlog.models import LogEntry
 from rest_framework import serializers
 
-from ..users.serializers import BasicUserSerializer
+from apps.users.serializers import BasicUserSerializer
 
 
 class LogEntrySerializer(serializers.ModelSerializer):
@@ -11,7 +11,7 @@ class LogEntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LogEntry
-        fields = ['id', 'action', 'actor', 'changes', 'content_type', 'object_id', 'object_repr', 'timestamp']
+        fields = ["id", "action", "actor", "changes", "content_type", "object_id", "object_repr", "timestamp"]
 
     def get_changes(self, obj):
         """
@@ -24,7 +24,7 @@ class LogEntrySerializer(serializers.ModelSerializer):
 
         for field in changes:
             field_class = model._meta.get_field(field)
-            if getattr(field_class, 'choices', None):
+            if getattr(field_class, "choices", None):
                 choices = {str(key): value for key, value in field_class.choices}
                 for i in range(2):
                     changes[field][i] = choices.get(changes.get(field)[i])

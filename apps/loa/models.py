@@ -1,14 +1,14 @@
 from auditlog.registry import auditlog
 from django.db import models
 
-from ..users.models import User
+from apps.users.models import User
 
 
 class LOA(models.Model):
     class Meta:
-        verbose_name = 'LOA'
+        verbose_name = "LOA"
 
-    user = models.ForeignKey(User, models.CASCADE, related_name='loa_requests')
+    user = models.ForeignKey(User, models.CASCADE, related_name="loa_requests")
     start = models.DateField()
     end = models.DateField()
     remarks = models.TextField()

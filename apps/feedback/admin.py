@@ -5,4 +5,4 @@ from .models import Feedback
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('id', 'controller', 'controller_callsign', 'pilot', 'rating', 'event', 'approved')
+    list_display = ("id", "controller", "controller_callsign", "pilot", "rating", "event", "approved")

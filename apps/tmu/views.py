@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsGet
-from .serializers import *
+
+from .models import ATIS, METAR, TMUNotice
+from .serializers import ATISSerializer, METARSerializer, TMUNoticeSerializer
 
 
 class ATISListView(APIView):
@@ -24,7 +26,7 @@ class ATISListView(APIView):
         """
         Create new ATIS (from vATIS).
         """
-        ATIS.objects.filter(facility=request.data.get('facility')).delete()
+        ATIS.objects.filter(facility=request.data.get("facility")).delete()
         serializer = ATISSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

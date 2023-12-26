@@ -1,10 +1,11 @@
 import json
 from datetime import timedelta
+
 from auditlog.models import LogEntry
 from django.db.models.signals import m2m_changed
 from django.utils import timezone
 
-from .models import User, Role
+from .models import Role, User
 
 
 def user_roles_changed(instance, action, pk_set, **kwargs):
@@ -18,11 +19,11 @@ def user_roles_changed(instance, action, pk_set, **kwargs):
     log entry, we check if there has been a log entry for the same model
     in the last second, and update that in lieu of creating a new log entry.
     """
-    if instance.cid is not None and action in ['pre_add', 'pre_remove']:
-        delta_roles = [Role.objects.get(id=id).long for id in pk_set]
+    if instance.cid is not None and action in ["pre_add", "pre_remove"]:
+        delta_roles = [Role.objects.get(id=role_id).long for role_id in pk_set]
         before = [role.long for role in instance.roles.all()]
 
-        if action == 'pre_add':
+        if action == "pre_add":
             after = before + delta_roles
         else:
             after = [item for item in before if item not in delta_roles]
@@ -31,23 +32,23 @@ def user_roles_changed(instance, action, pk_set, **kwargs):
         after.sort()
 
         # Checking for the log entry from pre_add
-        entry_filter = LogEntry.objects.filter(object_id=instance.cid, timestamp__gt=timezone.now() - timedelta(seconds=1))
+        entry_filter = LogEntry.objects.filter(
+            object_id=instance.cid, timestamp__gt=timezone.now() - timedelta(seconds=1)
+        )
         if entry_filter.exists():
             entry = entry_filter.first()
             old_changes = entry.changes_dict
-            if 'roles' in old_changes:
-                old_changes['roles'][1] = str(after)
+            if "roles" in old_changes:
+                old_changes["roles"][1] = str(after)
             else:
-                old_changes['roles'] = [str(before), str(after)]
+                old_changes["roles"] = [str(before), str(after)]
             entry.changes = json.dumps(old_changes)
             entry.save()
         else:
             LogEntry.objects.log_create(
                 instance=instance,
                 action=LogEntry.Action.UPDATE,
-                changes=json.dumps({
-                    'roles': [str(before), str(after)]
-                })
+                changes=json.dumps({"roles": [str(before), str(after)]}),
             )
 
 

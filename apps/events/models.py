@@ -1,4 +1,5 @@
 from datetime import timedelta
+
 from auditlog.registry import auditlog
 from django.db import models
 from django.utils import timezone
@@ -8,7 +9,7 @@ from apps.users.models import User
 
 class Event(models.Model):
     class Meta:
-        verbose_name = 'Event'
+        verbose_name = "Event"
 
     name = models.CharField(max_length=128)
     banner = models.URLField(null=True, blank=True)
@@ -21,7 +22,7 @@ class Event(models.Model):
     @property
     def duration(self):
         return self.end - self.start
-    
+
     @property
     def is_archived(self):
         return self.end < timezone.now()
@@ -32,9 +33,9 @@ class Event(models.Model):
 
 class EventPosition(models.Model):
     class Meta:
-        verbose_name = 'Event position'
+        verbose_name = "Event position"
 
-    event = models.ForeignKey(Event, models.CASCADE, related_name='positions')
+    event = models.ForeignKey(Event, models.CASCADE, related_name="positions")
     callsign = models.CharField(max_length=16)
 
     @property
@@ -42,15 +43,15 @@ class EventPosition(models.Model):
         return timedelta(seconds=self.event.duration.total_seconds() / self.shifts.count())
 
     def __str__(self):
-        return f'{self.event} | {self.callsign}'
+        return f"{self.event} | {self.callsign}"
 
 
 class PositionShift(models.Model):
     class Meta:
-        verbose_name = 'Position shift'
+        verbose_name = "Position shift"
 
-    user = models.ForeignKey(User, models.CASCADE, null=True, blank=True, related_name='event_shifts')
-    position = models.ForeignKey(EventPosition, models.CASCADE, related_name='shifts')
+    user = models.ForeignKey(User, models.CASCADE, null=True, blank=True, related_name="event_shifts")
+    position = models.ForeignKey(EventPosition, models.CASCADE, related_name="shifts")
 
     @property
     def start(self):
@@ -70,23 +71,23 @@ class PositionShift(models.Model):
 
 class ShiftRequest(models.Model):
     class Meta:
-        verbose_name = 'Shift request'
+        verbose_name = "Shift request"
 
-    shift = models.ForeignKey(PositionShift, models.CASCADE, related_name='requests')
-    user = models.ForeignKey(User, models.CASCADE, related_name='shift_requests')
+    shift = models.ForeignKey(PositionShift, models.CASCADE, related_name="requests")
+    user = models.ForeignKey(User, models.CASCADE, related_name="shift_requests")
 
     def accept_request(self):
         self.shift.assign_user(self.user)
 
     def __str__(self):
-        return f'{self.user.full_name} for {self.shift}'
+        return f"{self.user.full_name} for {self.shift}"
 
 
 class SupportRequest(models.Model):
     class Meta:
-        verbose_name = 'Event support request'
+        verbose_name = "Event support request"
 
-    user = models.ForeignKey(User, models.CASCADE, related_name='support_requests')
+    user = models.ForeignKey(User, models.CASCADE, related_name="support_requests")
     name = models.CharField(max_length=128)
     banner = models.URLField(null=True, blank=True)
     start = models.DateTimeField()
@@ -107,24 +108,24 @@ class SupportRequest(models.Model):
         ).save()
 
     def __str__(self):
-        return f'{self.name} by {self.host}'
+        return f"{self.name} by {self.host}"
 
 
 class PositionPreset(models.Model):
     class Meta:
-        verbose_name = 'Position preset'
+        verbose_name = "Position preset"
 
     name = models.CharField(max_length=64)
     positions = models.JSONField(default=list)
-    
+
     def apply_to_event(self, event):
         for preset_position in self.positions:
             # Create Position
-            position = EventPosition(event=event, callsign=preset_position.get('callsign'))
+            position = EventPosition(event=event, callsign=preset_position.get("callsign"))
             position.save()
 
             # Create Shifts
-            for _ in range(int(preset_position.get('shifts'))):
+            for _ in range(int(preset_position.get("shifts"))):
                 PositionShift(position=position).save()
 
     def __str__(self):
@@ -133,17 +134,17 @@ class PositionPreset(models.Model):
 
 class EventScore(models.Model):
     class Meta:
-        verbose_name = 'Event score'
+        verbose_name = "Event score"
 
-    user = models.ForeignKey(User, models.CASCADE, related_name='event_scores')
-    event = models.ForeignKey(Event, models.CASCADE, related_name='scores')
+    user = models.ForeignKey(User, models.CASCADE, related_name="event_scores")
+    event = models.ForeignKey(Event, models.CASCADE, related_name="scores")
     score = models.PositiveIntegerField()
     notes = models.JSONField()
 
     def __str__(self):
-        return f'{self.user.full_name} | {self.event.name}'
+        return f"{self.user.full_name} | {self.event.name}"
 
 
-auditlog.register(Event, exclude_fields=['feedback', 'positions'])
+auditlog.register(Event, exclude_fields=["feedback", "positions"])
 auditlog.register(SupportRequest)
 auditlog.register(PositionPreset)

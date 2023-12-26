@@ -1,14 +1,16 @@
 import os
 import traceback
+from smtplib import SMTPException
+
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.utils import timezone
 
 
 class Status(models.IntegerChoices):
-    PENDING = 0, 'Pending'
-    FAILED = 1, 'Failed'
-    SENT = 2, 'Sent'
+    PENDING = 0, "Pending"
+    FAILED = 1, "Failed"
+    SENT = 2, "Sent"
 
 
 class Email(models.Model):
@@ -27,16 +29,16 @@ class Email(models.Model):
         try:
             EmailMultiAlternatives(
                 subject=self.subject,
-                to=self.to_email.split(','),
-                cc=self.cc_email.split(',') if self.cc_email is not None else None,
-                bcc=self.bcc_email.split(',') if self.bcc_email is not None else None,
-                from_email=self.from_email or os.getenv('EMAIL_ADDRESS'),
+                to=self.to_email.split(","),
+                cc=self.cc_email.split(",") if self.cc_email is not None else None,
+                bcc=self.bcc_email.split(",") if self.bcc_email is not None else None,
+                from_email=self.from_email or os.getenv("EMAIL_ADDRESS"),
                 body=self.text_body,
-                alternatives=[(self.html_body, 'text/html')],
+                alternatives=[(self.html_body, "text/html")],
             ).send()
             self.status = Status.SENT
             self.error = None
-        except:
+        except SMTPException:
             self.status = Status.FAILED
             self.error = traceback.format_exc()
 

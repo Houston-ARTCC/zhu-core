@@ -1,4 +1,5 @@
 from rest_framework_simplejwt import authentication
+from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken
 
 
 class JWTAuthenticationMiddleware:
@@ -14,7 +15,7 @@ class JWTAuthenticationMiddleware:
             auth = authentication.JWTAuthentication().authenticate(request)
             if auth:
                 request.user = auth[0]
-        except:
+        except (AuthenticationFailed, InvalidToken):
             pass
 
         return self.get_response(request)

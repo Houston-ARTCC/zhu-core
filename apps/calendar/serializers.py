@@ -8,7 +8,7 @@ from apps.users.serializers import BasicUserSerializer
 class CalendarEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['id', 'name', 'host', 'start', 'end']
+        fields = ["id", "name", "host", "start", "end"]
 
 
 class CalendarTrainingSerializer(serializers.ModelSerializer):
@@ -16,4 +16,4 @@ class CalendarTrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrainingSession
-        fields = ['id', 'student', 'level', 'type', 'position', 'start', 'end']
+        fields = ["id", "student", "level", "type", "position", "start", "end"]

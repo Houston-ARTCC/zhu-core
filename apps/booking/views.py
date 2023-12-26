@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsMember, IsOwner
+
 from .models import Booking
-from .serializers import BookingSerializer, BaseBookingSerializer
+from .serializers import BaseBookingSerializer, BookingSerializer
 
 
 class BookingListView(APIView):
@@ -24,7 +25,7 @@ class BookingListView(APIView):
         """
         Create controller booking.
         """
-        serializer = BaseBookingSerializer(data=request.data, context={'request': request})
+        serializer = BaseBookingSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

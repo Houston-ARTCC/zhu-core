@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from .models import User, Role
+from .models import Role, User
 
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
-        fields = ['short', 'long']
+        fields = ["short", "long"]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,15 +16,17 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = [
-            'email', 'password', 'groups', 'user_permissions', 'is_superuser',
-            'last_login', 'prevent_event_signup',
+            "email",
+            "password",
+            "groups",
+            "user_permissions",
+            "is_superuser",
+            "last_login",
+            "prevent_event_signup",
         ]
 
     def get_rating(self, obj):
-        return {
-            'short': obj.rating,
-            'long': obj.get_rating_display()
-        }
+        return {"short": obj.rating, "long": obj.get_rating_display()}
 
 
 class AuthenticatedUserSerializer(serializers.ModelSerializer):
@@ -34,28 +36,25 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ['password', 'groups', 'user_permissions', 'is_superuser']
+        exclude = ["password", "groups", "user_permissions", "is_superuser"]
 
     def get_rating(self, obj):
-        return {
-            'short': obj.rating,
-            'long': obj.get_rating_display()
-        }
+        return {"short": obj.rating, "long": obj.get_rating_display()}
 
     def update(self, instance, validated_data):
-        roles = validated_data.pop('roles', [])
+        roles = validated_data.pop("roles", [])
         instance = super().update(instance, validated_data)
-        instance.roles.set([Role.objects.filter(short=role.get('short')).first() for role in roles])
+        instance.roles.set([Role.objects.filter(short=role.get("short")).first() for role in roles])
         return instance
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['cid', 'first_name', 'last_name', 'initials', 'profile']
+        fields = ["cid", "first_name", "last_name", "initials", "profile"]
 
 
 class AuthenticatedBasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['cid', 'first_name', 'last_name', 'initials', 'profile', 'email']
+        fields = ["cid", "first_name", "last_name", "initials", "profile", "email"]

@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsGet, IsStaff
-from .serializers import *
+
+from .models import Resource
+from .serializers import ResourceGroupedSerializer, ResourceSerializer
 
 
 class ResourceListView(APIView):
