@@ -221,6 +221,10 @@ MEDIA_ROOT = os.getenv("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 # Email configuration
 
+if DEBUG:
+    # Logs all emails to stdout for development.
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 
 EMAIL_PORT = os.getenv("EMAIL_PORT")
