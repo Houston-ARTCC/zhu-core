@@ -18,6 +18,21 @@ def create_profile_path(instance, filename):
     return f"profile/{filename}"
 
 
+def default_endorsements():
+    return {
+        "del": False,
+        "gnd": False,
+        "hou_gnd": False,
+        "iah_gnd": False,
+        "twr": False,
+        "hou_twr": False,
+        "iah_twr": False,
+        "app": False,
+        "i90_app": False,
+        "zhu": False,
+    }
+
+
 class Rating(models.TextChoices):
     UNK = "", "Unknown"
     OBS = "OBS", "Observer"
@@ -97,14 +112,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     status = models.IntegerField(default=Status.NON_MEMBER, choices=Status.choices)
     initials = models.CharField(max_length=2, null=True, blank=True)
     joined = models.DateTimeField(null=True, blank=True)
-
-    # Certifications
-    del_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
-    gnd_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
-    twr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
-    app_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
-    ctr_cert = models.IntegerField(default=Certification.NONE, choices=Certification.choices)
-    solo_facility = models.CharField(max_length=3, null=True, blank=True)
+    endorsements = models.JSONField(default=default_endorsements)
 
     # Flags
     prevent_event_signup = models.BooleanField(default=False)
@@ -151,7 +159,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def activity_requirement(self):
-        if self.del_cert == Certification.NONE:
+        # TODO: Check for T1/T2 requirements too
+        if self.endorsements["del"] == Certification.NONE:
             return timedelta(hours=0)
         elif self.is_staff:
             return timedelta(hours=5)
@@ -160,9 +169,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def visiting_eligibility(self):
-        """
-        Check if authenticated user is eligible to apply as a visiting controller.
-        """
+        """Check if authenticated user is eligible to apply as a visiting controller."""
         from apps.visit.models import VisitingApplication
 
         rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
@@ -200,9 +207,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         }
 
     def get_initials(self):
-        """
-        Assigns operating initials to the user. If the user's initials are taken
-        the letters are cycled through until an available one is found.
+        """Assigns operating initials to user.
+
+        If the user's initials are taken, the letters are cycled through until an available one is found.
         """
         initials = (self.first_name[0] + self.last_name[0]).upper()
 
@@ -214,8 +221,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         return initials.rjust(2, "A")
 
     def set_membership(self, short, override=True):
-        """
-        Sets the user to home, visiting, MAVP, or non-member.
+        """Sets the user to home, visiting, MAVP, or non-member.
+
         Automatically removes any other membership roles.
         Automatically assigns initials and sets join date if new member.
         """
@@ -287,10 +294,6 @@ auditlog.register(
         "joined",
         "prevent_event_signup",
         "cic_endorsed",
-        "del_cert",
-        "gnd_cert",
-        "twr_cert",
-        "app_cert",
-        "ctr_cert",
+        "endorsements",
     ],
 )

@@ -57,8 +57,6 @@ class UserInstanceView(APIView):
     def put(self, request, cid):
         """
         Allows for the user to update their profile photo or biography.
-        Passing an falsy, non null value as the avatar triggers a reset to
-        the default profile picture.
         """
         user = get_object_or_404(User, cid=cid)
 

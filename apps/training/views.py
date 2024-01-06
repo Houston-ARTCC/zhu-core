@@ -217,6 +217,7 @@ class NotificationView(APIView):
         return Response(
             {
                 "training_requests": len(set(request_users)),
+                # TODO: Number of scheduled sessions
             }
         )
 
