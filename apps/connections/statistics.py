@@ -43,16 +43,15 @@ def get_top_controllers():
     curr_time = timezone.now()
 
     return (
-        User.objects
-        .exclude(status=Status.NON_MEMBER)
+        User.objects.exclude(status=Status.NON_MEMBER)
         .annotate(
             hours=Sum(
-                'sessions__duration',
-                filter=Q(sessions__start__month=curr_time.month) & Q(sessions__start__year=curr_time.year)
+                "sessions__duration",
+                filter=Q(sessions__start__month=curr_time.month) & Q(sessions__start__year=curr_time.year),
             )
         )
         .exclude(hours__isnull=True)
-        .order_by('-hours')
+        .order_by("-hours")
     )
 
 

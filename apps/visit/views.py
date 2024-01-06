@@ -1,6 +1,3 @@
-import os
-
-import requests
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import status
@@ -54,7 +51,7 @@ class VisitingInstanceView(APIView):
         Approve visiting application.
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
-        application.user.set_membership('VC')
+        application.user.set_membership("VC")
         application.delete()
         return Response(status=status.HTTP_200_OK)
 
