@@ -51,12 +51,6 @@ class BaseTrainingRequestSerializer(serializers.ModelSerializer):
         return data
 
 
-class TrainingRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TrainingRequest
-        fields = ["id", "start", "end", "type", "level", "remarks"]
-
-
 class BasicMentorAvailabilitySerializer(serializers.ModelSerializer):
     start = serializers.TimeField(format="%H:%M")
     end = serializers.TimeField(format="%H:%M")

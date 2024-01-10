@@ -15,7 +15,6 @@ from .serializers import (
     BaseTrainingSessionSerializer,
     BasicMentorAvailabilitySerializer,
     MentorAvailabilitySerializer,
-    TrainingRequestSerializer,
     TrainingSessionSerializer,
 )
 
@@ -114,7 +113,7 @@ class TrainingRequestListView(APIView):
         Get list of own pending training requests.
         """
         requests = TrainingRequest.objects.filter(user=request.user, end__gt=timezone.now())
-        serializer = TrainingRequestSerializer(requests, many=True)
+        serializer = BaseTrainingRequestSerializer(requests, many=True)
         return Response(data=serializer.data)
 
     def post(self, request):
@@ -213,11 +212,12 @@ class NotificationView(APIView):
         Returns notification counts for training center categories.
         """
         request_users = TrainingRequest.objects.filter(end__gt=timezone.now()).values_list("user")
+        scheduled_sessions = TrainingSession.objects.filter(status=Status.SCHEDULED, instructor=request.user)
 
         return Response(
             {
                 "training_requests": len(set(request_users)),
-                # TODO: Number of scheduled sessions
+                "scheduled_sessions": len(scheduled_sessions),
             }
         )
 
