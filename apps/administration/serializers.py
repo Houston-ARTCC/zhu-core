@@ -1,4 +1,5 @@
 from auditlog.models import LogEntry
+from django.core.exceptions import FieldDoesNotExist
 from rest_framework import serializers
 
 from apps.users.serializers import BasicUserSerializer
@@ -23,7 +24,12 @@ class LogEntrySerializer(serializers.ModelSerializer):
         model = obj.content_type.model_class()
 
         for field in changes:
-            field_class = model._meta.get_field(field)
+            try:
+                field_class = model._meta.get_field(field)
+            except FieldDoesNotExist:
+                # This can happen if a field gets deleted. We'll just ignore it.
+                continue
+
             if getattr(field_class, "choices", None):
                 choices = {str(key): value for key, value in field_class.choices}
                 for i in range(2):

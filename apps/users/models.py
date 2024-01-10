@@ -108,7 +108,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     home_facility = models.CharField(max_length=8)
 
     # ARTCC Details
-    roles = models.ManyToManyField(Role, related_name="roles", blank=True)
+    roles = models.ManyToManyField(Role, related_name="users", blank=True)
     status = models.IntegerField(default=Status.NON_MEMBER, choices=Status.choices)
     initials = models.CharField(max_length=2, null=True, blank=True)
     joined = models.DateTimeField(null=True, blank=True)
@@ -156,16 +156,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def staff_role(self):
         return self.roles.filter(short__in=["ATM", "DATM", "TA", "ATA", "FE", "AFE", "EC", "AEC", "WM", "AWM"]).first()
-
-    @property
-    def activity_requirement(self):
-        # TODO: Check for T1/T2 requirements too
-        if self.endorsements["del"] == Certification.NONE:
-            return timedelta(hours=0)
-        elif self.is_staff:
-            return timedelta(hours=6)
-        else:
-            return timedelta(hours=3)
 
     @property
     def visiting_eligibility(self):

@@ -75,12 +75,10 @@ def rating_int_to_short(rating_int):
 
 class CustomDurationField(DurationField):
     def to_representation(self, value):
-        minutes, seconds = divmod(value.total_seconds(), 60)
+        minutes = value.total_seconds() // 60
         hours, minutes = divmod(minutes, 60)
 
-        string = f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
-
-        return string
+        return f"{int(hours):02}:{int(minutes):02}"
 
 
 class OverwriteStorage(FileSystemStorage):
