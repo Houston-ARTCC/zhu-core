@@ -25,21 +25,21 @@ Getting Trained
 The training center, located at https://zhuartcc.org/training, is the one-stop shop for all of your training needs. Here you can request training, view booked training sessions, and see past training notes. Instructions on how to schedule a session can be found in the Training Center.
 
 
-On behalf of the entire Houston ARTCC staff team, welcome! If you ever have any questions, don't hesitate to reach out to datm@zhuartcc.org.
+On behalf of the entire Houston ARTCC staff team, welcome! If you ever have any questions, don't hesitate to reach out to zhu-datm@vatusa.net.
 
 {% if staff.atm is not None %}
 {{ staff.atm.full_name }}
-atm@zhuartcc.org
+zhu-atm@vatusa.net
 Air Traffic Manager
 {% endif %}
 {% if staff.datm is not None %}
 {{ staff.datm.full_name }}
-datm@zhuartcc.org
+zhu-datm@vatusa.net
 Deputy Air Traffic Manager
 {% endif %}
 {% if staff.ta is not None %}
 {{ staff.ta.full_name }}
-ta@zhuartcc.org
+zhu-ta@vatusa.net
 Training Administrator
 {% endif %}
 

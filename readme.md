@@ -110,4 +110,4 @@ axios
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Contact
-Michael Romashov - wm@zhuartcc.org
+Michael Romashov - michael.romashov@vatusa.net

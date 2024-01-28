@@ -5,7 +5,7 @@ Your request for a leave of absence has been rejected by the ARTCC administratio
 {{ reason }}
 
 
-If you have any questions, don't hesitate to reach out to datm@zhuartcc.org.
+If you have any questions, don't hesitate to reach out to zhu-datm@vatusa.net.
 
 
 If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
