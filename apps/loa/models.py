@@ -8,7 +8,7 @@ class LOA(models.Model):
     class Meta:
         verbose_name = "LOA"
 
-    user = models.ForeignKey(User, models.CASCADE, related_name="loa_requests")
+    user = models.ForeignKey(User, models.CASCADE, related_name="loas")
     start = models.DateField()
     end = models.DateField()
     remarks = models.TextField()

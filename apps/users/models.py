@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import pytz
 import requests
@@ -263,6 +263,32 @@ class User(AbstractBaseUser, PermissionsMixin):
             text_body=render_to_string("welcome_email.txt", context=context),
             to_email=self.email,
         ).save()
+
+    def update_loa_status(self):
+        loa_filter = self.loas.filter(start__lt=date.today(), end__gt=date.today(), approved=True)
+
+        if loa_filter.exists() and self.status == Status.ACTIVE:
+            self.status = Status.LOA
+
+            context = {"user": self, "loa": loa_filter.first()}
+            Email(
+                subject="You have been placed on a leave of absence",
+                html_body=render_to_string("loa_activated.html", context=context),
+                text_body=render_to_string("loa_activated.txt", context=context),
+                to_email=self.email,
+            ).save()
+        elif self.status == Status.LOA:
+            self.status = Status.ACTIVE
+
+            context = {"user": self}
+            Email(
+                subject="Welcome back to Houston!",
+                html_body=render_to_string("loa_deactivated.html", context=context),
+                text_body=render_to_string("loa_deactivated.txt", context=context),
+                to_email=self.email,
+            ).save()
+
+        self.save()
 
     def add_role(self, short):
         self.roles.add(*Role.objects.filter(short=short))

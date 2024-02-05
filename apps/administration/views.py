@@ -1,3 +1,5 @@
+from datetime import date
+
 from auditlog.models import LogEntry
 from django.db.models import Case, CharField, Q, Value, When
 from django.db.models.functions import Concat
@@ -27,7 +29,7 @@ class NotificationView(APIView):
                 "visiting_applications": VisitingApplication.objects.count(),
                 "pending_feedback": Feedback.objects.filter(approved=False).count(),
                 "support_requests": SupportRequest.objects.count(),
-                "loa_requests": LOA.objects.filter(approved=False).count(),
+                "loa_requests": LOA.objects.filter(approved=False, end__gte=date.today()).count(),
             }
         )
 

@@ -63,6 +63,11 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+    # Lets us use full ISO datetime strings for DateField forms
+    "DATE_INPUT_FORMATS": [
+        "iso-8601",
+        "%Y-%m-%dT%H:%M:%S.%fZ",
+    ],
 }
 
 SIMPLE_JWT = {
