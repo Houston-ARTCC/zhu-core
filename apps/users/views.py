@@ -24,7 +24,7 @@ class ActiveUserListView(APIView):
     def get(self, request):
         """
         Get list of all active users sorted by first name.
-        Sorted into home, visiting, and mavp controllers.
+        Sorted into home and visiting controllers.
         """
         users = User.objects.filter(status=Status.ACTIVE).order_by("first_name")
         if request.user.is_authenticated and request.user.is_staff:
@@ -35,7 +35,6 @@ class ActiveUserListView(APIView):
             {
                 "home": serializer(users.filter(roles__short="HC"), many=True).data,
                 "visiting": serializer(users.filter(roles__short="VC"), many=True).data,
-                "mavp": serializer(users.filter(roles__short="MC"), many=True).data,
             }
         )
 
@@ -132,14 +131,13 @@ class SimplifiedActiveUserListView(APIView):
         """
         Get list of all active users sorted by first name.
         Only includes basic information (CID, name, initials, profile).
-        Sorted into home, visiting, and mavp controllers.
+        Sorted into home and visiting controllers.
         """
         users = User.objects.filter(status=Status.ACTIVE).order_by("first_name")
         return Response(
             {
                 "home": BasicUserSerializer(users.filter(roles__short="HC"), many=True).data,
                 "visiting": BasicUserSerializer(users.filter(roles__short="VC"), many=True).data,
-                "mavp": BasicUserSerializer(users.filter(roles__short="MC"), many=True).data,
             }
         )
 

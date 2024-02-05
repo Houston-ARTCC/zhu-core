@@ -124,7 +124,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def membership(self):
-        return self.roles.filter(short__in=["HC", "VC", "MC"]).first().short
+        return self.roles.filter(short__in=["HC", "VC"]).first().short
 
     @property
     def is_member(self):
@@ -211,12 +211,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return initials.rjust(2, "A")
 
     def set_membership(self, short, override=True):
-        """Sets the user to home, visiting, MAVP, or non-member.
+        """Sets the user to home, visiting, or non-member.
 
         Automatically removes any other membership roles.
         Automatically assigns initials and sets join date if new member.
         """
-        assert short in ["HC", "VC", "MC", None]
+        assert short in ["HC", "VC", None]
 
         if self.roles.filter(short=short).exists():
             return
@@ -237,7 +237,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
             if short == "VC":
                 requests.post(
-                    f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster/manageVisitor/{self.cid}/',
+                    f"https://api.vatusa.net/v2/facility/ZHU/roster/manageVisitor/{self.cid}/",
                     params={"apikey": os.getenv("VATUSA_API_TOKEN")},
                 )
 
@@ -245,7 +245,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         self.save()
 
-        self.roles.remove(*self.roles.filter(short__in=["HC", "VC", "MC"]))
+        self.roles.remove(*self.roles.filter(short__in=["HC", "VC"]))
         self.add_role(short)
 
     def send_welcome_mail(self):
@@ -258,7 +258,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             },
         }
         Email(
-            subject=f'Welcome to {os.getenv("FACILITY_NAME")}!',
+            subject="Welcome to Houston ARTCC!",
             html_body=render_to_string("welcome_email.html", context=context),
             text_body=render_to_string("welcome_email.txt", context=context),
             to_email=self.email,

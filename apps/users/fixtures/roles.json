@@ -118,13 +118,5 @@
       "long": "Visiting Controller",
       "short": "VC"
     }
-  },
-  {
-    "model": "users.role",
-    "pk": 16,
-    "fields": {
-      "long": "MAVP Controller",
-      "short": "MC"
-    }
   }
 ]

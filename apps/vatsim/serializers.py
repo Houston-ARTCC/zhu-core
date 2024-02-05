@@ -88,9 +88,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
             user.rating = data.get("vatsim").get("rating").get("short")
             user.save()
 
-        if division == os.getenv("FACILITY_IATA"):
+        if division == "ZHU":
             user.set_membership("HC")
-        elif division in os.getenv("MAVP_FACILTIY_IATA").split(","):
-            user.set_membership("MC")
 
         return user

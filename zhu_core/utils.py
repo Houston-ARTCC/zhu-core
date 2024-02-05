@@ -37,7 +37,7 @@ def get_vatsim_data():
 
 def get_vatusa_roster(membership="home"):
     resp = requests.get(
-        f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster/{membership}',
+        f"https://api.vatusa.net/v2/facility/ZHU/roster/{membership}",
         params={"apikey": os.getenv("VATUSA_API_TOKEN")},
     )
     assert resp.status_code == 200, "Error pulling VATUSA roster."

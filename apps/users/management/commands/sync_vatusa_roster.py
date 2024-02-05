@@ -43,7 +43,7 @@ def sync_visit_roster():
     for local_cid in User.objects.filter(roles__short="VC").values_list("cid", flat=True):
         if local_cid not in remote_cids:
             requests.post(
-                f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster/manageVisitor/{local_cid}/',
+                f"https://api.vatusa.net/v2/facility/ZHU/roster/manageVisitor/{local_cid}/",
                 params={"apikey": os.getenv("VATUSA_API_TOKEN")},
             )
 
