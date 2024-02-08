@@ -1,3 +1,5 @@
+import requests
+
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import get_object_or_404
@@ -24,7 +26,10 @@ class ATISListView(APIView):
         """
         Create new ATIS (from vATIS).
         """
-        ATIS.objects.filter(facility=request.data.get('facility')).delete()
+        # Forward request to SimTraffic so the data is replicated there
+        requests.post("https://api.simtraffic.net/vatis", data=request.data)
+
+        ATIS.objects.filter(facility=request.data.get("facility")).delete()
         serializer = ATISSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
