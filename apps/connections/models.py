@@ -1,13 +1,13 @@
 from django.db import models
 
-from ..users.models import User
+from apps.users.models import User
 
 
 class OnlineController(models.Model):
     class Meta:
-        verbose_name = 'Online controller'
+        verbose_name = "Online controller"
 
-    user = models.ForeignKey(User, models.CASCADE, related_name='controller_online')
+    user = models.ForeignKey(User, models.CASCADE, related_name="controller_online")
     callsign = models.CharField(max_length=16)
     online_since = models.DateTimeField()
     last_updated = models.DateTimeField(auto_now=True)
@@ -25,14 +25,14 @@ class OnlineController(models.Model):
         return self.last_updated - self.online_since
 
     def __str__(self):
-        return f'{self.user.full_name} on {self.callsign}'
+        return f"{self.user.full_name} on {self.callsign}"
 
 
 class ControllerSession(models.Model):
     class Meta:
-        verbose_name = 'Controller session'
+        verbose_name = "Controller session"
 
-    user = models.ForeignKey(User, models.CASCADE, related_name='sessions')
+    user = models.ForeignKey(User, models.CASCADE, related_name="sessions")
     callsign = models.CharField(max_length=16)
     start = models.DateTimeField()
     duration = models.DurationField()
@@ -43,11 +43,11 @@ class ControllerSession(models.Model):
 
     @property
     def facility(self):
-        return self.callsign.split('_')[0]
+        return self.callsign.split("_")[0]
 
     @property
     def level(self):
-        return self.callsign.split('_')[-1]
+        return self.callsign.split("_")[-1]
 
     def __str__(self):
-        return f'{self.start} | {self.user.full_name} on {self.callsign}'
+        return f"{self.start} | {self.user.full_name} on {self.callsign}"

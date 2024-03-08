@@ -4,7 +4,7 @@ Your training session on {{ session.start|date:'N j, Y' }} with {{ session.instr
 
 More information regarding the session, including the notes that your instructor submitted, can be found at the training center at https://zhuartcc.org/training.
 
-If you have any questions, don't hesitate to reach out to ta@zhuartcc.org.
+If you have any questions, don't hesitate to reach out to zhu-ta@vatusa.net.
 
 
 If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

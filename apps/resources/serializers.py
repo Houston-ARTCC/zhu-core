@@ -10,7 +10,7 @@ class ResourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
-        fields = '__all__'
+        fields = "__all__"
 
     def get_extension(self, resource):
         return resource.extension
@@ -52,4 +52,4 @@ class ResourceGroupedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ['poly', 'proc', 'loa', 'vatis', 'rvm', 'ref']
+        fields = ["poly", "proc", "loa", "vatis", "rvm", "ref"]

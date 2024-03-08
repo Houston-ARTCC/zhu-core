@@ -4,5 +4,5 @@ from .models import LOA
 
 
 @admin.register(LOA)
-class ATISAdmin(admin.ModelAdmin):
-    list_display = ('user', 'start', 'end', 'approved')
+class LoaAdmin(admin.ModelAdmin):
+    list_display = ("user", "start", "end", "approved")

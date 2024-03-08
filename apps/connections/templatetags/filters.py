@@ -1,6 +1,5 @@
 from django import template
 
-
 register = template.Library()
 
 
@@ -19,9 +18,9 @@ def format_timedelta(td):
     Format a timedelta object with the format {hours}h {minutes}m.
     """
     if td is None:
-        return '0h 0m'
+        return "0h 0m"
 
     seconds = td.total_seconds()
     hours, seconds = divmod(seconds, 3600)
     minutes = seconds / 60
-    return f'{int(hours)}h {int(minutes)}m'
+    return f"{int(hours)}h {int(minutes)}m"

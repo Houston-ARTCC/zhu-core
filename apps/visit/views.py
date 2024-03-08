@@ -1,5 +1,3 @@
-import os
-import requests
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import status
@@ -7,9 +5,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsAdmin, IsGet, CanVisit
-from .serializers import *
-from ..mailer.models import Email
+from apps.mailer.models import Email
+from zhu_core.permissions import CanVisit, IsAdmin, IsGet
+
+from .models import VisitingApplication
+from .serializers import BaseVisitingApplicationSerializer, VisitingApplicationSerializer
 
 
 class VisitingListView(APIView):
@@ -27,15 +27,15 @@ class VisitingListView(APIView):
         """
         Submit visit application.
         """
-        serializer = BaseVisitingApplicationSerializer(data=request.data, context={'request': request})
+        serializer = BaseVisitingApplicationSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
 
-            context = {'user': request.user}
+            context = {"user": request.user}
             Email(
-                subject='We have received your visiting request!',
-                html_body=render_to_string('visiting_request_received.html', context=context),
-                text_body=render_to_string('visiting_request_received.txt', context=context),
+                subject="We have received your visiting request!",
+                html_body=render_to_string("visiting_request_received.html", context=context),
+                text_body=render_to_string("visiting_request_received.txt", context=context),
                 to_email=request.user.email,
             ).save()
 
@@ -51,7 +51,7 @@ class VisitingInstanceView(APIView):
         Approve visiting application.
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
-        application.user.set_membership('VC')
+        application.user.set_membership("VC")
         application.delete()
         return Response(status=status.HTTP_200_OK)
 
@@ -61,11 +61,11 @@ class VisitingInstanceView(APIView):
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
 
-        context = {'user': application.user, 'reason': request.data.get('reason')}
+        context = {"user": application.user, "reason": request.data.get("reason")}
         Email(
-            subject='An update on your visiting request.',
-            html_body=render_to_string('visiting_request_rejected.html', context=context),
-            text_body=render_to_string('visiting_request_rejected.txt', context=context),
+            subject="An update on your visiting request.",
+            html_body=render_to_string("visiting_request_rejected.html", context=context),
+            text_body=render_to_string("visiting_request_rejected.txt", context=context),
             to_email=application.user.email,
         ).save()
 

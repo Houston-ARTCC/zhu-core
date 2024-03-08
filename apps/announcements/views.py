@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsGet, IsStaff
-from .serializers import *
+
+from .models import Announcement
+from .serializers import AnnouncementSerializer, BaseAnnouncementSerializer
 
 
 class AnnouncementListView(APIView):
@@ -16,7 +18,7 @@ class AnnouncementListView(APIView):
         """
         Get list of all announcements.
         """
-        announcements = Announcement.objects.all().order_by('-posted')
+        announcements = Announcement.objects.all().order_by("-posted")
         serializer = AnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)
 
@@ -24,9 +26,9 @@ class AnnouncementListView(APIView):
         """
         Post a new announcement.
         """
-        request.data['body'] = bleach.clean(request.data['body'], tags=settings.BLEACH_ALLOWED_TAGS)
-        request.data['body'] = request.data['body'].replace('<p><br></p>', '')
-        serializer = BaseAnnouncementSerializer(data=request.data, context={'request': request})
+        request.data["body"] = bleach.clean(request.data["body"], tags=settings.BLEACH_ALLOWED_TAGS)
+        request.data["body"] = request.data["body"].replace("<p><br></p>", "")
+        serializer = BaseAnnouncementSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -52,6 +54,6 @@ class RecentAnnouncementListView(APIView):
         """
         Get list of 3 newest announcements.
         """
-        announcements = Announcement.objects.all().order_by('-posted')[:3]
+        announcements = Announcement.objects.all().order_by("-posted")[:3]
         serializer = AnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)

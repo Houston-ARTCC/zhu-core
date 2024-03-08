@@ -2,10 +2,20 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.users.models import User
 from zhu_core.permissions import IsGet, IsStaff
-from .serializers import *
-from .statistics import *
-from ..users.models import User
+
+from .models import ControllerSession, OnlineController
+from .serializers import (
+    AdminStatisticsSerializer,
+    ControllerSessionSerializer,
+    DailyConnectionsSerializer,
+    OnlineControllerSerializer,
+    StatisticsSerializer,
+    TopControllersSerializer,
+    TopPositionsSerializer,
+)
+from .statistics import get_annotated_statistics, get_daily_statistics, get_top_controllers, get_top_positions
 
 
 class ControllerSessionsView(APIView):
@@ -63,17 +73,28 @@ class StatisticsView(APIView):
     permission_classes = [IsGet]
 
     def get(self, request):
-        """
-        Get list of all controllers along with hours for
-        current, previous, and penultimate months.
-        Sorted into home, visiting, and mavp controllers.
-        """
-        hours = get_user_hours()
-        return Response({
-            'home': StatisticsSerializer(hours.filter(roles__short='HC'), many=True).data,
-            'visiting': StatisticsSerializer(hours.filter(roles__short='VC'), many=True).data,
-            'mavp': StatisticsSerializer(hours.filter(roles__short='MC'), many=True).data,
-        })
+        statistics = get_annotated_statistics()
+
+        return Response(
+            {
+                "home": StatisticsSerializer(statistics.filter(roles__short="HC"), many=True).data,
+                "visiting": StatisticsSerializer(statistics.filter(roles__short="VC"), many=True).data,
+            }
+        )
+
+
+class AdminStatisticsView(APIView):
+    permission_classes = [IsStaff]
+
+    def get(self, request):
+        statistics = get_annotated_statistics(admin=True)
+
+        return Response(
+            {
+                "home": AdminStatisticsSerializer(statistics.filter(roles__short="HC"), many=True).data,
+                "visiting": AdminStatisticsSerializer(statistics.filter(roles__short="VC"), many=True).data,
+            }
+        )
 
 
 class DailyStatisticsView(APIView):
@@ -97,22 +118,3 @@ class UserDailyStatisticsView(APIView):
         connections = get_daily_statistics(year, user)
         serializer = DailyConnectionsSerializer(connections, many=True)
         return Response(serializer.data)
-
-
-class AdminStatisticsView(APIView):
-    permission_classes = [IsStaff]
-
-    def get(self, request):
-        """
-        Get total hours for the current month and year.
-        """
-        current_date = timezone.now()
-        year_sessions = ControllerSession.objects.filter(start__year=current_date.year)
-        month_sessions = year_sessions.filter(start__month=current_date.month)
-
-        SUM_DURATION = Coalesce(Sum('duration'), Cast(timedelta(), DurationField()))
-
-        return Response({
-            'month': month_sessions.aggregate(total=SUM_DURATION).get('total').total_seconds(),
-            'year': year_sessions.aggregate(total=SUM_DURATION).get('total').total_seconds(),
-        })

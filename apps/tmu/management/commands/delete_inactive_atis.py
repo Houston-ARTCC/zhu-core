@@ -1,17 +1,18 @@
 from datetime import datetime
+
 from django.core.management.base import BaseCommand
 
-from zhu_core.utils import get_vatsim_data
 from apps.tmu.models import ATIS
+from zhu_core.utils import get_vatsim_data
 
 
 class Command(BaseCommand):
-    help = 'Deletes inactive ATIS broadcasts.'
+    help = "Deletes inactive ATIS broadcasts"  # noqa: A003
 
     def handle(self, *args, **options):
-        all_atis = {connection.get('callsign'): connection for connection in get_vatsim_data().get('atis')}
+        all_atis = {connection.get("callsign"): connection for connection in get_vatsim_data().get("atis")}
         for atis in ATIS.objects.all():
-            if atis.facility + '_ATIS' not in all_atis:
+            if atis.facility + "_ATIS" not in all_atis:
                 atis.delete()
 
-        print(f'{datetime.now()} :: delete_inactive_atis :: SUCCESS')
+        print(f"{datetime.now()} :: delete_inactive_atis :: SUCCESS")

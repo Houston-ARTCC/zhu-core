@@ -4,8 +4,8 @@ from django.db import models
 
 class ATIS(models.Model):
     class Meta:
-        verbose_name = 'ATIS'
-        verbose_name_plural = 'ATIS'
+        verbose_name = "ATIS"
+        verbose_name_plural = "ATIS"
 
     facility = models.CharField(max_length=4)
     config_profile = models.CharField(max_length=16)
@@ -17,7 +17,7 @@ class ATIS(models.Model):
 
 class TMUNotice(models.Model):
     class Meta:
-        verbose_name = 'TMU notice'
+        verbose_name = "TMU notice"
 
     info = models.TextField()
     time_issued = models.DateTimeField(auto_now_add=True)
@@ -26,7 +26,7 @@ class TMUNotice(models.Model):
 
 class METAR(models.Model):
     class Meta:
-        verbose_name = 'METAR'
+        verbose_name = "METAR"
 
     station = models.CharField(max_length=4)
     raw = models.TextField()
@@ -34,7 +34,7 @@ class METAR(models.Model):
     timestamp = models.DateTimeField()
 
     def __str__(self):
-        return f'{self.station} @ {self.timestamp}'
+        return f"{self.station} @ {self.timestamp}"
 
 
 auditlog.register(TMUNotice)

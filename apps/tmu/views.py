@@ -1,5 +1,4 @@
 import requests
-
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import get_object_or_404
@@ -8,7 +7,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from zhu_core.permissions import IsGet
-from .serializers import *
+
+from .models import ATIS, METAR, TMUNotice
+from .serializers import ATISSerializer, METARSerializer, TMUNoticeSerializer
 
 
 class ATISListView(APIView):

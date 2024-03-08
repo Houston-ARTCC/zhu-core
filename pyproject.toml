@@ -1,0 +1,26 @@
+[project]
+name = "zhu-core"
+description = "Django REST API for Houston ARTCC web services."
+requires-python = ">=3.10,<3.12"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+# We won't touch auto-generated migration files
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = [
+    "F",   # pyflakes
+    "E",   # pycodestyle -- errors
+    "W",   # pycodestyle -- warnings
+    "A",   # flake8-builtins
+    "PLC", # pylint
+    "PLE", # pylint
+    "PLW", # pylint
+    "I",   # isort
+    "TID", # flake8-tidy-imports
+]

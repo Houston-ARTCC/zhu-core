@@ -1,5 +1,6 @@
 import os
-from discord_webhook import DiscordWebhook, DiscordEmbed
+
+from discord_webhook import DiscordEmbed, DiscordWebhook
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -8,8 +9,24 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from zhu_core.permissions import IsStaff, IsMember, IsGet
-from .serializers import *
+from apps.users.models import User
+from zhu_core.permissions import IsGet, IsMember, IsStaff
+
+from .models import Event, EventPosition, EventScore, PositionShift, ShiftRequest, SupportRequest
+from .serializers import (
+    AddPositionSerializer,
+    BaseShiftRequestSerializer,
+    BaseShiftSerializer,
+    BaseSupportRequestSerializer,
+    BasicEventSerializer,
+    EventScoreSerializer,
+    EventSerializer,
+    PositionPreset,
+    PositionPresetSerializer,
+    PositionSerializer,
+    ShiftSerializer,
+    SupportRequestSerializer,
+)
 
 
 class EventsListView(APIView):
@@ -19,7 +36,7 @@ class EventsListView(APIView):
         """
         Get list of all events.
         """
-        events = Event.objects.filter(end__gt=timezone.now()).order_by('start')
+        events = Event.objects.filter(end__gt=timezone.now()).order_by("start")
 
         if not (request.user.is_authenticated and request.user.is_staff):
             events = events.exclude(hidden=True)
@@ -35,10 +52,10 @@ class EventsListView(APIView):
         if serializer.is_valid():
             event = serializer.save()
 
-            if 'preset' in request.data:
-                filter = PositionPreset.objects.filter(id=request.data.get('preset'))
-                if filter.exists():
-                    filter.first().apply_to_event(event)
+            if "preset" in request.data:
+                preset_filter = PositionPreset.objects.filter(id=request.data.get("preset"))
+                if preset_filter.exists():
+                    preset_filter.first().apply_to_event(event)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -51,7 +68,7 @@ class ArchivedEventsListView(APIView):
         """
         Get list of all archived events.
         """
-        events = Event.objects.filter(end__lt=timezone.now()).order_by('-start')
+        events = Event.objects.filter(end__lt=timezone.now()).order_by("-start")
 
         if not (request.user.is_authenticated and request.user.is_staff):
             events = events.exclude(hidden=True)
@@ -70,7 +87,7 @@ class EventInstanceView(APIView):
         event = get_object_or_404(Event, id=event_id)
 
         if event.hidden and not request.user.is_staff:
-            raise PermissionDenied('You do not have permission to view this event.')
+            raise PermissionDenied("You do not have permission to view this event.")
 
         serializer = EventSerializer(event)
         return Response(serializer.data)
@@ -91,21 +108,23 @@ class EventInstanceView(APIView):
         Post positions to designated events Discord channel.
         """
         event = get_object_or_404(Event, id=event_id)
-        url = f'https://www.zhuartcc.org/events/{event.id}'
-        webhook = DiscordWebhook(url=os.getenv('EVENTS_WEBHOOK_URL'))
+        url = f"https://www.zhuartcc.org/events/{event.id}"
+        webhook = DiscordWebhook(url=os.getenv("EVENTS_WEBHOOK_URL"))
         embed = DiscordEmbed(
             title=f':calendar: "{event.name}"',
-            description=f'Below are the tentative event position assignments as they currently stand. Assignments are'
-                        f'subject to change on the day of the event so you should always double check the event page'
-                        f'before logging on to control.\n**[View the event page here!]({url})**',
-            color='109cf1',
+            description=f"Below are the tentative event position assignments as they currently stand. Assignments are"
+            f"subject to change on the day of the event so you should always double check the event page"
+            f"before logging on to control.\n**[View the event page here!]({url})**",
+            color="109cf1",
         )
         for position in event.positions.all():
             embed.add_embed_field(
                 name=position.callsign,
-                value='\n'.join(
-                    [f'`{i + 1}` *{shift.user.full_name}*' if shift.user is not None
-                     else f'`{i + 1}`' for i, shift in enumerate(position.shifts.all())]
+                value="\n".join(
+                    [
+                        f"`{i + 1}` *{shift.user.full_name}*" if shift.user is not None else f"`{i + 1}`"
+                        for i, shift in enumerate(position.shifts.all())
+                    ]
                 ),
             )
         embed.set_image(url=event.banner)
@@ -124,20 +143,17 @@ class EventInstanceView(APIView):
 
     def post(self, request, event_id):
         """
-        Add event position.
+        Add event positions.
         """
         event = get_object_or_404(Event, id=event_id)
-        serializer = BasePositionSerializer(data={
-            'event': event.id,
-            'callsign': request.data.get('callsign'),
-        })
+        serializer = AddPositionSerializer(
+            data=[{"event": event.id, **pos} for pos in request.data],
+            many=True,
+        )
+
         if serializer.is_valid():
             serializer.save()
-
-            for _ in range(int(request.data.get('shifts'))):
-                PositionShift(position=serializer.instance).save()
-            
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -149,11 +165,13 @@ class PositionInstanceView(APIView):
         Add event shift.
         """
         position = get_object_or_404(EventPosition, id=position_id)
-        serializer = BaseShiftSerializer(data={
-            'position': position.id,
-            'start': request.data.get('start'),
-            'end': request.data.get('end'),
-        })
+        serializer = BaseShiftSerializer(
+            data={
+                "position": position.id,
+                "start": request.data.get("start"),
+                "end": request.data.get("end"),
+            }
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -165,7 +183,8 @@ class PositionInstanceView(APIView):
         """
         position = get_object_or_404(EventPosition, id=position_id)
         PositionShift(position=position).save()
-        return Response(status=status.HTTP_200_OK)
+        serializer = PositionSerializer(position)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, position_id):
         """
@@ -186,9 +205,9 @@ class ShiftRequestView(APIView):
         shift = get_object_or_404(PositionShift, id=shift_id)
 
         if shift.position.event.hidden and not request.user.is_staff or request.user.prevent_event_signup:
-            raise PermissionDenied('You do not have permission to interact with this event.')
+            raise PermissionDenied("You do not have permission to interact with this event.")
 
-        serializer = BaseShiftRequestSerializer(data={'shift': shift.id}, context={'request': request})
+        serializer = BaseShiftRequestSerializer(data={"shift": shift.id}, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -201,7 +220,7 @@ class ShiftRequestView(APIView):
         shift_request = get_object_or_404(ShiftRequest, shift=shift_id, user=request.user)
 
         if shift_request.shift.position.event.hidden and not request.user.is_staff:
-            raise PermissionDenied('You do not have permission to interact with this event.')
+            raise PermissionDenied("You do not have permission to interact with this event.")
 
         shift_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -218,7 +237,8 @@ class ShiftInstanceView(APIView):
         serializer = BaseShiftSerializer(shift, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer = ShiftSerializer(shift)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, shift_id):
@@ -245,7 +265,7 @@ class SupportRequestListView(APIView):
         """
         Request support for event.
         """
-        serializer = BaseSupportRequestSerializer(data=request.data, context={'request': request})
+        serializer = BaseSupportRequestSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -306,7 +326,7 @@ class PositionPresetInstanceView(APIView):
         serializer = PositionPresetSerializer(preset, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, preset_id):
@@ -316,6 +336,27 @@ class PositionPresetInstanceView(APIView):
         preset = get_object_or_404(PositionPreset, id=preset_id)
         preset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EventScoreListView(APIView):
+    permission_classes = [IsMember]
+
+    def get(self, request, cid=None):
+        """
+        Get event scores for user.
+        Defaults to session user if cid is not defined.
+        """
+        if not cid:
+            user = request.user
+        elif request.user.is_staff:
+            # Need to be staff to view another user's scores.
+            user = get_object_or_404(User, cid=cid)
+        else:
+            raise PermissionDenied("You do not have permission to view scores for this user.")
+
+        scores = EventScore.objects.filter(user=user)
+        serializer = EventScoreSerializer(scores, many=True)
+        return Response(serializer.data)
 
 
 # TODO: Send email on support request received/approved/rejected.

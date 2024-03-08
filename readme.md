@@ -45,9 +45,6 @@ All commands assume that you are at the root of the `zhu-core` repository that y
     | `VATSIM_CONNECT_REDIRECT_URI`       |  Redirect URI for VATSIM Connect                                     |                      |
     | `VATUSA_API_TOKEN`                  |  Token for VATUSA API                                                |                      |
     | `AVWX_API_TOKEN` **[Optional]**     |  [AVWX](https://avwx.rest/) API token for pulling METARs             |                      |
-    | `FACILITY_NAME`                     |  Full facility name                                                  | `"Houston ARTCC"`    |
-    | `FACILITY_IATA`                     |  Facility IATA code                                                  | `"ZHU"`              |
-    | `MAVP_FACILTIY_IATA`                |  Comma separated list of MAVP facilities                             | `"ZFW,ZID,ZJX"`      |
     | `POSITION_PREFIXES`                 |  Comma separated list of all airport IATA codes                      | `"HOU,IAH,AUS"`      |
     | `EMAIL_HOST`                        |  Email server hostname                                               | `"smtp.mailtrap.io"` |
     | `EMAIL_PORT`                        |  Email server port                                                   | `2525`               |
@@ -110,4 +107,4 @@ axios
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## Contact
-Michael Romashov - wm@zhuartcc.org
+Michael Romashov - michael.romashov@vatusa.net

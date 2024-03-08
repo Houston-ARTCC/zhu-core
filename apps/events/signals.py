@@ -1,12 +1,10 @@
 import os
-from discord_webhook import DiscordWebhook, DiscordEmbed
-from django.db.models.signals import pre_save, post_save
-from django.dispatch import receiver
+
+from discord_webhook import DiscordEmbed, DiscordWebhook
 
 from apps.events.models import Event
 
 
-@receiver(pre_save, sender=Event)
 def event_webhook_edited(instance, **kwargs):
     """
     This signal posts an embedded message in the designated
@@ -22,7 +20,6 @@ def event_webhook_edited(instance, **kwargs):
     post_event_webhook(instance)
 
 
-@receiver(post_save, sender=Event)
 def event_webhook_created(instance, created, **kwargs):
     """
     This signal posts an embedded message in the designated
@@ -33,23 +30,23 @@ def event_webhook_created(instance, created, **kwargs):
 
 
 def post_event_webhook(event):
-    if os.getenv('EVENTS_WEBHOOK_URL') is None:
+    if not os.getenv("EVENTS_WEBHOOK_URL"):
         return
 
-    url = f'https://www.zhuartcc.org/events/{event.id}'
-    webhook = DiscordWebhook(url=os.getenv('EVENTS_WEBHOOK_URL'))
+    url = f"https://www.zhuartcc.org/events/{event.id}"
+    webhook = DiscordWebhook(url=os.getenv("EVENTS_WEBHOOK_URL"))
     embed = DiscordEmbed(
-        title=f':calendar: {event.name}',
-        description=str(event.description) + f'\n**[Sign up for the event here!]({url})**',
-        color='109cf1',
+        title=f":calendar: {event.name}",
+        description=f"{event.description}\n**[Sign up for the event here!]({url})**",
+        color="109cf1",
     )
     embed.add_embed_field(
-        name='Start & End',
+        name="Start & End",
         value=f'{event.start.strftime("%b %d, %Y @ %H%Mz")} - {event.end.strftime("%b %d, %Y @ %H%Mz")}',
         inline=False,
     )
     embed.add_embed_field(
-        name='Presented by',
+        name="Presented by",
         value=event.host,
     )
     embed.set_image(url=event.banner)

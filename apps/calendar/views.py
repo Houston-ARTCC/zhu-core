@@ -1,12 +1,15 @@
 from datetime import datetime
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.booking.models import Booking
+from apps.booking.serializers import BookingSerializer
+from apps.events.models import Event
+from apps.training.models import Status, TrainingSession
 from zhu_core.permissions import IsGet
-from .serializers import *
-from ..booking.models import Booking
-from ..booking.serializers import BookingSerializer
-from ..training.models import Status
+
+from .serializers import CalendarEventSerializer, CalendarTrainingSerializer
 
 
 class CalendarView(APIView):
@@ -32,8 +35,10 @@ class CalendarView(APIView):
         event_serializer = CalendarEventSerializer(events, many=True)
         session_serializer = CalendarTrainingSerializer(sessions, many=True)
         booking_serializer = BookingSerializer(bookings, many=True)
-        return Response({
-            'events': event_serializer.data,
-            'sessions': session_serializer.data,
-            'bookings': booking_serializer.data,
-        })
+        return Response(
+            {
+                "events": event_serializer.data,
+                "sessions": session_serializer.data,
+                "bookings": booking_serializer.data,
+            }
+        )

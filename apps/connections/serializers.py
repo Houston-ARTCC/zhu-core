@@ -1,15 +1,17 @@
 from rest_framework import serializers
+from rest_framework.fields import BooleanField
 
+from apps.users.models import User
+from apps.users.serializers import BasicUserSerializer
 from zhu_core.utils import CustomDurationField
-from .models import OnlineController, ControllerSession
-from ..users.models import User
-from ..users.serializers import BasicUserSerializer
+
+from .models import ControllerSession, OnlineController
 
 
 class ControllerSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ControllerSession
-        exclude = ['user']
+        exclude = ["user"]
 
 
 class OnlineControllerSerializer(serializers.ModelSerializer):
@@ -17,20 +19,66 @@ class OnlineControllerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OnlineController
-        fields = '__all__'
+        fields = "__all__"
 
 
 class StatisticsSerializer(serializers.ModelSerializer):
-    q1 = CustomDurationField()
-    q2 = CustomDurationField()
-    q3 = CustomDurationField()
-    q4 = CustomDurationField()
-    activity_requirement = CustomDurationField()
+    month_1_hours = CustomDurationField()
+    month_2_hours = CustomDurationField()
+    month_3_hours = CustomDurationField()
+
+    quarter_hours = CustomDurationField()
+    quarter_active = BooleanField()
 
     class Meta:
         model = User
-        fields = ['cid', 'first_name', 'last_name', 'rating', 'initials',
-                  'q1', 'q2', 'q3', 'q4', 'activity_requirement']
+        fields = [
+            "cid",
+            "first_name",
+            "last_name",
+            "initials",
+            "rating",
+            "month_1_hours",
+            "month_2_hours",
+            "month_3_hours",
+            "quarter_hours",
+            "quarter_active",
+        ]
+
+
+class AdminStatisticsSerializer(StatisticsSerializer):
+    quarter_hou_t1_hours = CustomDurationField()
+    quarter_iah_t1_hours = CustomDurationField()
+    quarter_i90_t1_hours = CustomDurationField()
+
+    # quarter_t1_hours = CustomDurationField()
+    # quarter_t1_active = BooleanField()
+
+    training_hours = CustomDurationField()
+    training_active = BooleanField()
+
+    class Meta:
+        model = User
+        fields = [
+            "cid",
+            "first_name",
+            "last_name",
+            "initials",
+            "rating",
+            "is_staff",
+            "month_1_hours",
+            "month_2_hours",
+            "month_3_hours",
+            "quarter_hours",
+            "quarter_active",
+            "quarter_hou_t1_hours",
+            "quarter_iah_t1_hours",
+            "quarter_i90_t1_hours",
+            # "quarter_t1_hours",
+            # "quarter_t1_active",
+            "training_hours",
+            "training_active",
+        ]
 
 
 class TopControllersSerializer(serializers.ModelSerializer):
@@ -38,7 +86,7 @@ class TopControllersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'hours']
+        fields = ["first_name", "last_name", "hours"]
 
 
 class TopPositionsSerializer(serializers.Serializer):
@@ -47,8 +95,8 @@ class TopPositionsSerializer(serializers.Serializer):
 
 
 class DailyConnectionsSerializer(serializers.Serializer):
-    day = serializers.DateField()
-    value = serializers.SerializerMethodField()
+    date = serializers.DateField()
+    count = serializers.SerializerMethodField()
 
-    def get_value(self, obj):
-        return obj.get('value').total_seconds() / 3600
+    def get_count(self, obj):
+        return obj.get("value").total_seconds() / 3600
