@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for user in User.objects.exclude(status=Status.NON_MEMBER):
-            vatsim_data = requests.get("https://api.vatsim.net/api/ratings/" + str(user.cid)).json()
+            vatsim_data = requests.get(f"https://api.vatsim.net/api/ratings/{user.cid}").json()
 
             rating_short = rating_int_to_short(vatsim_data.get("rating"))
             if rating_short:

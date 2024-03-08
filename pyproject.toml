@@ -13,7 +13,14 @@ extend-exclude = ["*/migrations/*"]
 line-ending = "lf"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "A", "PLC", "PLE", "PLW", "I"]
-extend-select = [
+select = [
+    "F",   # pyflakes
+    "E",   # pycodestyle -- errors
+    "W",   # pycodestyle -- warnings
+    "A",   # flake8-builtins
+    "PLC", # pylint
+    "PLE", # pylint
+    "PLW", # pylint
+    "I",   # isort
     "TID", # flake8-tidy-imports
 ]

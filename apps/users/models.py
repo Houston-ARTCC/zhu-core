@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from apps.mailer.models import Email
+from apps.visit.models import VisitingApplication
 from zhu_core.utils import OverwriteStorage, base26decode, base26encode
 
 
@@ -161,11 +162,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def visiting_eligibility(self):
         """Check if authenticated user is eligible to apply as a visiting controller."""
-        from apps.visit.models import VisitingApplication
-
         rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
 
-        rating_time = requests.get("https://api.vatsim.net/api/ratings/" + str(self.cid) + "/").json()
+        rating_time = requests.get(f"https://api.vatsim.net/api/ratings/{self.cid}/").json()
         if rating_time.get("lastratingchange") is not None:
             last_rating_change = pytz.utc.localize(
                 datetime.strptime(rating_time.get("lastratingchange"), "%Y-%m-%dT%H:%M:%S")
@@ -174,7 +173,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             rating_time_check = True
 
-        rating_hours = requests.get("https://api.vatsim.net/api/ratings/" + str(self.cid) + "/rating_times/").json()
+        rating_hours = requests.get(f"https://api.vatsim.net/api/ratings/{self.cid}/rating_times/").json()
         if rating_hours.get(self.rating.lower()) is not None:
             rating_hours_check = rating_hours.get(self.rating.lower()) > 50
         else:
