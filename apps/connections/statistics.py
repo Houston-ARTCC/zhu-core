@@ -11,7 +11,8 @@ from django.db.models import (
     Q,
     Subquery,
     Sum,
-    When, Value,
+    Value,
+    When,
 )
 from django.utils import timezone
 
