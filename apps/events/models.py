@@ -15,7 +15,7 @@ class Event(models.Model):
     banner = models.URLField(null=True, blank=True)
     start = models.DateTimeField()
     end = models.DateTimeField()
-    host = models.CharField(max_length=32)
+    host = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
     hidden = models.BooleanField(default=False)
 

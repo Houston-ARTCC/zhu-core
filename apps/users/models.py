@@ -12,7 +12,6 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from apps.mailer.models import Email
-from apps.visit.models import VisitingApplication
 from zhu_core.utils import OverwriteStorage, base26decode, base26encode
 
 
@@ -100,14 +99,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Personal Info
     cid = models.IntegerField(primary_key=True, unique=True)
     email = models.EmailField()
-    first_name = models.CharField(max_length=16)
-    last_name = models.CharField(max_length=16)
+    first_name = models.CharField(max_length=32)
+    last_name = models.CharField(max_length=32)
     profile = models.ImageField(upload_to=create_profile_path, null=True, blank=True, storage=OverwriteStorage())
     biography = models.TextField(null=True, blank=True)
 
     # VATSIM Details
     rating = models.CharField(max_length=3, choices=Rating.choices)
-    home_facility = models.CharField(max_length=8)
+    home_facility = models.CharField(max_length=16)
 
     # ARTCC Details
     roles = models.ManyToManyField(Role, related_name="users", blank=True)
@@ -162,6 +161,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def visiting_eligibility(self):
         """Check if authenticated user is eligible to apply as a visiting controller."""
+        # Imported in here to avoid a circular dependency
+        from apps.visit.models import VisitingApplication
+
         rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
 
         rating_time = requests.get(f"https://api.vatsim.net/api/ratings/{self.cid}/").json()
