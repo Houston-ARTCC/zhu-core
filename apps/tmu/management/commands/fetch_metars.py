@@ -15,19 +15,17 @@ class Command(BaseCommand):
         if os.getenv("AVWX_API_TOKEN") is None:
             return
 
-        airports_iata = os.getenv("POSITION_PREFIXES").split(",")
-        airports_icao = ["K" + iata for iata in airports_iata]
-
         headers = {"Authorization": os.getenv("AVWX_API_TOKEN")}
 
-        for airport in airports_icao:
-            url = "https://avwx.rest/api/metar/" + airport + "?format=json&onfail=cache"
-            resp = requests.get(url, headers=headers)
+        for iata in os.getenv("POSITION_PREFIXES").split(","):
+            icao = f"K{iata}"
+
+            resp = requests.get(f"https://avwx.rest/api/metar/{icao}?format=json&onfail=cache", headers=headers)
             if resp.status_code == 200:
                 data = resp.json()
 
                 METAR.objects.update_or_create(
-                    station=airport,
+                    station=icao,
                     defaults={
                         "raw": data.get("sanitized"),
                         "flight_rules": data.get("flight_rules"),

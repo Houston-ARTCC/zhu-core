@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 import pytz
 import requests
 from auditlog.registry import auditlog
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
@@ -229,7 +230,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                     self.initials = self.get_initials()
                     self.joined = timezone.now()
 
-                if os.getenv("DEV_ENV") == "False":
+                if not settings.DEV_ENV:
                     self.send_welcome_mail()
 
             if short == "HC":

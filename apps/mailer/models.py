@@ -26,12 +26,18 @@ class Email(models.Model):
     error = models.TextField(null=True)
 
     def send(self):
+        if (cc := self.cc_email) is not None:
+            cc = cc.split(",")
+
+        if (bcc := self.bcc_email) is not None:
+            bcc = bcc.split(",")
+
         try:
             EmailMultiAlternatives(
                 subject=self.subject,
                 to=self.to_email.split(","),
-                cc=self.cc_email.split(",") if self.cc_email is not None else None,
-                bcc=self.bcc_email.split(",") if self.bcc_email is not None else None,
+                cc=cc,
+                bcc=bcc,
                 from_email=self.from_email or os.getenv("EMAIL_ADDRESS"),
                 body=self.text_body,
                 alternatives=[(self.html_body, "text/html")],

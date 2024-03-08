@@ -33,7 +33,6 @@ def aggregate_quarterly_hours():
     - `quarter_hours` is the sum of all three month-wise aggregates.
     - `quarter_active` is a boolean flag indicating whether a user has met currency requirements.
       This requirement is 6 hours for staff members and 3 hours for everybody else.
-
     """
     now = timezone.now().replace(year=2023)  # TODO: Remove year override used for testing
     quarter = (now.month - 1) // 3  # zero indexed (e.g. 0: Jan - Mar, 1: Apr - Jun, etc.)
@@ -144,8 +143,8 @@ def aggregate_quarterly_hours():
                     ),
                 ),
             ),
-            quarter_t1_hours=Value(timedelta(0)),     # TODO
-            quarter_t1_active=Value(False),           # TODO
+            quarter_t1_hours=Value(timedelta(0)),  # TODO
+            quarter_t1_active=Value(False),  # TODO
             training_hours=Subquery(
                 TrainingSession.objects.filter(
                     student_id=OuterRef("cid"),
@@ -222,7 +221,7 @@ def get_top_positions():
     position_durations = {}
 
     for session in sessions:
-        position = session.facility + "_" + session.level
+        position = f"{session.facility}_{session.level}"
         if position in position_durations:
             position_durations[position] += session.duration
         else:

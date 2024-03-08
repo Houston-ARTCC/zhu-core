@@ -1,6 +1,6 @@
-import os
 from datetime import datetime
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 
@@ -13,7 +13,7 @@ class Command(BaseCommand):
     help = "Sends notification to controllers who have not fulfilled their activity requirements for the month"  # noqa: A003
 
     def handle(self, *args, **options):
-        if os.getenv("DEV_ENV") == "True":
+        if settings.DEV_ENV:
             return
 
         hours = get_user_hours()

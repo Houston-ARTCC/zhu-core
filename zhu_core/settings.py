@@ -24,10 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Loads environment variables from .env file
 load_dotenv(BASE_DIR / ".env")
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv("DEV_ENV", "") == "True"
+
 # Initialize Sentry.io SDK for error handling
-if os.getenv("DEV_ENV", "") == "False" and os.getenv("SENTRY_DSN"):
+if not DEBUG and (dsn := os.getenv("SENTRY_DSN")):
     sentry_sdk.init(
-        dsn=os.getenv("SENTRY_DSN"),
+        dsn=dsn,
         integrations=[DjangoIntegration()],
         traces_sample_rate=0.75,
         send_default_pii=True,
@@ -40,16 +43,13 @@ if os.getenv("DEV_ENV", "") == "False" and os.getenv("SENTRY_DSN"):
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEV_ENV", "") == "True"
+SECURE_HSTS_SECONDS = not DEBUG
 
-SECURE_HSTS_SECONDS = os.getenv("DEV_ENV", "") == "False"
+SECURE_SSL_REDIRECT = not DEBUG
 
-SECURE_SSL_REDIRECT = os.getenv("DEV_ENV", "") == "False"
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 
-SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("DEV_ENV", "") == "False"
-
-SECURE_HSTS_PRELOAD = os.getenv("DEV_ENV", "") == "False"
+SECURE_HSTS_PRELOAD = not DEBUG
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"] + os.getenv("ALLOWED_HOSTS", "").split(",")
 

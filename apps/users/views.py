@@ -142,25 +142,6 @@ class SimplifiedActiveUserListView(APIView):
         )
 
 
-# class EventScoreActiveUserListView(APIView):
-#     permission_classes = [IsStaff]
-
-#     def get(self, request):
-#         """
-#         Get list of all active users sorted by first name.
-#         Includes basic information and event score.
-#         Sorted into home, visiting, and mavp controllers.
-#         """
-#         users = User.objects.filter(status=Status.ACTIVE).order_by("first_name")
-#         return Response(
-#             {
-#                 "home": EventScoreUserSerializer(users.filter(roles__short="HC"), many=True).data,
-#                 "visiting": EventScoreUserSerializer(users.filter(roles__short="VC"), many=True).data,
-#                 "mavp": EventScoreUserSerializer(users.filter(roles__short="MC"), many=True).data,
-#             }
-#         )
-
-
 class AllUserListView(APIView):
     permission_classes = [IsStaff]
 
