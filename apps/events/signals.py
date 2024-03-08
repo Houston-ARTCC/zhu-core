@@ -1,13 +1,10 @@
 import os
 
 from discord_webhook import DiscordEmbed, DiscordWebhook
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
 
 from apps.events.models import Event
 
 
-@receiver(pre_save, sender=Event)
 def event_webhook_edited(instance, **kwargs):
     """
     This signal posts an embedded message in the designated
@@ -23,7 +20,6 @@ def event_webhook_edited(instance, **kwargs):
     post_event_webhook(instance)
 
 
-@receiver(post_save, sender=Event)
 def event_webhook_created(instance, created, **kwargs):
     """
     This signal posts an embedded message in the designated
@@ -34,7 +30,7 @@ def event_webhook_created(instance, created, **kwargs):
 
 
 def post_event_webhook(event):
-    if os.getenv("EVENTS_WEBHOOK_URL") is None:
+    if not os.getenv("EVENTS_WEBHOOK_URL"):
         return
 
     url = f"https://www.zhuartcc.org/events/{event.id}"

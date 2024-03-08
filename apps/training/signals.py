@@ -1,10 +1,8 @@
 import os
 
 import requests
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 
-from .models import Level, Status, TrainingSession
+from .models import Level, Status
 
 
 def get_default_position(intance):
@@ -24,7 +22,6 @@ def get_default_position(intance):
         return "HOU_CTR"
 
 
-@receiver(pre_save, sender=TrainingSession)
 def update_ctrs(instance, **kwargs):
     """
     This signal ensures that training sessions remain synced

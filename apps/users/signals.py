@@ -2,10 +2,9 @@ import json
 from datetime import timedelta
 
 from auditlog.models import LogEntry
-from django.db.models.signals import m2m_changed
 from django.utils import timezone
 
-from .models import Role, User
+from .models import Role
 
 
 def user_roles_changed(instance, action, pk_set, **kwargs):
@@ -50,6 +49,3 @@ def user_roles_changed(instance, action, pk_set, **kwargs):
                 action=LogEntry.Action.UPDATE,
                 changes=json.dumps({"roles": [str(before), str(after)]}),
             )
-
-
-m2m_changed.connect(user_roles_changed, sender=User.roles.through)
