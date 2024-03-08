@@ -38,7 +38,7 @@ if os.getenv("DEV_ENV", "") == "False" and os.getenv("SENTRY_DSN"):
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "evrf9qiqh6dnaad+i10r!vcaz2dx1@37779vp0sh5x1147f%pg")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEV_ENV", "") == "True"
@@ -51,7 +51,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("DEV_ENV", "") == "False"
 
 SECURE_HSTS_PRELOAD = os.getenv("DEV_ENV", "") == "False"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"] + os.getenv("ALLOWED_HOSTS", "").split(",")
 
 
 # Application definition
@@ -164,11 +164,12 @@ WSGI_APPLICATION = "zhu_core.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        "OPTIONS": {
-            "timeout": 20,
-        },
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
     }
 }
 

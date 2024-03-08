@@ -241,12 +241,6 @@ class User(AbstractBaseUser, PermissionsMixin):
                     params={"apikey": os.getenv("VATUSA_API_TOKEN")},
                 )
 
-            if short == 'VC':
-                requests.post(
-                    f'https://api.vatusa.net/v2/facility/{os.getenv("FACILITY_IATA")}/roster/manageVisitor/{self.cid}/',
-                    params={'apikey': os.getenv('VATUSA_API_TOKEN')},
-                )
-
             self.status = Status.ACTIVE
 
         self.save()
