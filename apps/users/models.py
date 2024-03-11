@@ -231,9 +231,6 @@ class User(AbstractBaseUser, PermissionsMixin):
                     self.initials = self.get_initials()
                     self.joined = timezone.now()
 
-                if not settings.DEV_ENV:
-                    self.send_welcome_mail()
-
             if short == "HC":
                 self.home_facility = "ZHU"
 
@@ -249,22 +246,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         self.roles.remove(*self.roles.filter(short__in=["HC", "VC"]))
         self.add_role(short)
-
-    def send_welcome_mail(self):
-        context = {
-            "user": self,
-            "staff": {
-                "atm": User.objects.filter(roles__short="ATM").first(),
-                "datm": User.objects.filter(roles__short="DATM").first(),
-                "ta": User.objects.filter(roles__short="TA").first(),
-            },
-        }
-        Email(
-            subject="Welcome to Houston ARTCC!",
-            html_body=render_to_string("welcome_email.html", context=context),
-            text_body=render_to_string("welcome_email.txt", context=context),
-            to_email=self.email,
-        ).save()
 
     def update_loa_status(self):
         loa_filter = self.loas.filter(start__lt=date.today(), end__gt=date.today(), approved=True)
