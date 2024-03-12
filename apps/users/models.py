@@ -4,7 +4,6 @@ from datetime import date, datetime, timedelta
 import pytz
 import requests
 from auditlog.registry import auditlog
-from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
