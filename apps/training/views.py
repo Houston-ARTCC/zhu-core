@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+from django.db.models import Max, Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -12,9 +15,9 @@ from zhu_core.permissions import IsController, IsMember, IsOwner, IsPut, IsTrain
 from .models import DayOfWeek, MentorAvailability, Status, TrainingRequest, TrainingSession
 from .serializers import (
     BaseTrainingRequestSerializer,
-    BaseTrainingSessionSerializer,
     BasicMentorAvailabilitySerializer,
     MentorAvailabilitySerializer,
+    TrainingRequestSerializer,
     TrainingSessionSerializer,
 )
 
@@ -60,7 +63,7 @@ class SessionInstanceView(APIView):
         """
         session = get_object_or_404(TrainingSession, id=session_id)
         request.data["status"] = Status.COMPLETED
-        serializer = BaseTrainingSessionSerializer(session, data=request.data, partial=True)
+        serializer = TrainingRequestSerializer(session, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
 
@@ -80,7 +83,7 @@ class SessionInstanceView(APIView):
         Modify training session details.
         """
         session = get_object_or_404(TrainingSession, id=session_id)
-        serializer = BaseTrainingSessionSerializer(session, data=request.data, partial=True)
+        serializer = TrainingRequestSerializer(session, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -113,14 +116,14 @@ class TrainingRequestListView(APIView):
         Get list of own pending training requests.
         """
         requests = TrainingRequest.objects.filter(user=request.user, end__gt=timezone.now())
-        serializer = BaseTrainingRequestSerializer(requests, many=True)
+        serializer = TrainingRequestSerializer(requests, many=True)
         return Response(data=serializer.data)
 
     def post(self, request):
         """
         Submit a new training request.
         """
-        serializer = BaseTrainingRequestSerializer(data=request.data, context={"request": request})
+        serializer = TrainingRequestSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -128,27 +131,37 @@ class TrainingRequestListView(APIView):
 
 
 class PendingTrainingRequestListView(APIView):
-    permission_classes = [IsTrainingStaff]
+    # permission_classes = [IsTrainingStaff]
 
     def get(self, request):
         """
         Get list of all pending training requests.
         """
-        requests = TrainingRequest.objects.filter(end__gt=timezone.now())
-        data = []
-        for cid in requests.values_list("user", flat=True).distinct():
-            last_session = (
-                TrainingSession.objects.filter(student=cid, status=Status.COMPLETED).order_by("-start").first()
+        requests = (
+            TrainingRequest.objects.select_related("user")
+            .annotate(
+                last_session=Max(
+                    "user__student_sessions__start",
+                    filter=Q(user__student_sessions__status=Status.COMPLETED),
+                )
             )
-            user_requests = requests.filter(user=cid)
-            data.append(
+            .filter(end__gt=timezone.now())
+        )
+
+        sorted_requests = defaultdict(list)
+
+        for request in requests:
+            sorted_requests[request.user.cid].append(request)
+
+        return Response(
+            [
                 {
-                    "user": BasicUserSerializer(user_requests[0].user).data,
-                    "requests": BaseTrainingRequestSerializer(user_requests, many=True).data,
-                    "last_session": last_session.start.isoformat() if last_session else None,
-                }
-            )
-        return Response(data=data)
+                    "user": BasicUserSerializer(requests[0].user).data,
+                    "requests": BaseTrainingRequestSerializer(requests, many=True).data,
+                    "last_session": requests[0].last_session,
+                } for requests in sorted_requests.values()
+            ]
+        )
 
 
 class TrainingRequestInstanceView(APIView):
@@ -164,7 +177,7 @@ class TrainingRequestInstanceView(APIView):
         Accept training request.
         """
         training_request = get_object_or_404(TrainingRequest, id=request_id)
-        serializer = BaseTrainingSessionSerializer(
+        serializer = TrainingRequestSerializer(
             data={"student": training_request.user.cid, **request.data}, context={"request": request}
         )
         if serializer.is_valid():

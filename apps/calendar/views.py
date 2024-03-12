@@ -35,6 +35,7 @@ class CalendarView(APIView):
         event_serializer = CalendarEventSerializer(events, many=True)
         session_serializer = CalendarTrainingSerializer(sessions, many=True)
         booking_serializer = BookingSerializer(bookings, many=True)
+
         return Response(
             {
                 "events": event_serializer.data,

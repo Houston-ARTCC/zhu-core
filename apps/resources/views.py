@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -6,7 +8,7 @@ from rest_framework.views import APIView
 from zhu_core.permissions import IsGet, IsStaff
 
 from .models import Resource
-from .serializers import ResourceGroupedSerializer, ResourceSerializer
+from .serializers import ResourceSerializer
 
 
 class ResourceListView(APIView):
@@ -16,9 +18,17 @@ class ResourceListView(APIView):
         """
         Get list of all resources.
         """
-        resources = Resource.objects.all()
-        serializer = ResourceGroupedSerializer(resources)
-        return Response(serializer.data)
+        sorted_resources = defaultdict(list)
+
+        for resource in Resource.objects.all():
+            sorted_resources[resource.category].append(resource)
+
+        return Response(
+            {
+                category.lower(): ResourceSerializer(resources, many=True).data
+                for category, resources in sorted_resources.items()
+            }
+        )
 
     def post(self, request):
         """

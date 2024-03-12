@@ -1,6 +1,7 @@
 import os
 
 from discord_webhook import DiscordEmbed, DiscordWebhook
+from django.db.models import Count, Q
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -36,7 +37,12 @@ class EventsListView(APIView):
         """
         Get list of all events.
         """
-        events = Event.objects.filter(end__gt=timezone.now()).order_by("start")
+        events = (
+            Event.objects.filter(end__gt=timezone.now())
+            .prefetch_related("positions", "positions__shifts")
+            .annotate(available_shifts=Count("positions__shifts", filter=Q(positions__shifts__user__isnull=True)))
+            .order_by("start")
+        )
 
         if not (request.user.is_authenticated and request.user.is_staff):
             events = events.exclude(hidden=True)
@@ -68,7 +74,12 @@ class ArchivedEventsListView(APIView):
         """
         Get list of all archived events.
         """
-        events = Event.objects.filter(end__lt=timezone.now()).order_by("-start")
+        events = (
+            Event.objects.filter(end__lt=timezone.now())
+            .prefetch_related("positions", "positions__shifts")
+            .annotate(available_shifts=Count("positions__shifts", filter=Q(positions__shifts__user__isnull=True)))
+            .order_by("-start")
+        )
 
         if not (request.user.is_authenticated and request.user.is_staff):
             events = events.exclude(hidden=True)

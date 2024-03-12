@@ -85,14 +85,11 @@ class PositionSerializer(serializers.ModelSerializer):
 
 class BasicEventSerializer(serializers.ModelSerializer):
     archived = serializers.BooleanField(read_only=True, source="is_archived")
-    available_shifts = serializers.SerializerMethodField(read_only=True)
+    available_shifts = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Event
         fields = ["id", "name", "banner", "start", "end", "host", "hidden", "archived", "available_shifts"]
-
-    def get_available_shifts(self, obj):
-        return PositionShift.objects.filter(position__event=obj, user__isnull=True).count()
 
 
 class EventSerializer(serializers.ModelSerializer):

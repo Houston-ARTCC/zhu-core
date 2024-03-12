@@ -32,11 +32,17 @@ class TrainingSessionSerializer(BaseTrainingSessionSerializer):
 
 
 class BaseTrainingRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingRequest
+        fields = ["id", "start", "end", "type", "level", "remarks"]
+
+
+class TrainingRequestSerializer(BaseTrainingRequestSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
 
     class Meta:
         model = TrainingRequest
-        fields = ["id", "user", "start", "end", "type", "level", "remarks"]
+        fields = BaseTrainingRequestSerializer.Meta.fields + ["user"]
 
     def validate(self, data):
         if data.get("user").training_requests.filter(end__gt=timezone.now()).count() >= 7:
