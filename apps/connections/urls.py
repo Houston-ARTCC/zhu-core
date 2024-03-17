@@ -10,4 +10,5 @@ urlpatterns = [
     path("top/positions/", views.TopPositionsView.as_view()),
     path("sessions/<int:cid>/", views.ControllerSessionsView.as_view()),
     path("daily/<int:year>/", views.DailyStatisticsView.as_view()),
+    path("daily/<int:year>/<int:cid>/", views.UserDailyStatisticsView.as_view()),
 ]

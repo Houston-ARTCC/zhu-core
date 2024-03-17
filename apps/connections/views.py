@@ -106,3 +106,15 @@ class DailyStatisticsView(APIView):
         connections = get_daily_statistics(year)
         serializer = DailyConnectionsSerializer(connections, many=True)
         return Response(serializer.data)
+
+
+class UserDailyStatisticsView(APIView):
+    def get(self, request, year, cid):
+        """
+        Get list of controlling hours for every
+        day of the given year for the given user.
+        """
+        user = get_object_or_404(User, cid=cid)
+        connections = get_daily_statistics(year, user)
+        serializer = DailyConnectionsSerializer(connections, many=True)
+        return Response(serializer.data)
