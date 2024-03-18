@@ -159,7 +159,8 @@ class PendingTrainingRequestListView(APIView):
                     "user": BasicUserSerializer(requests[0].user).data,
                     "requests": BaseTrainingRequestSerializer(requests, many=True).data,
                     "last_session": requests[0].last_session,
-                } for requests in sorted_requests.values()
+                }
+                for requests in sorted_requests.values()
             ]
         )
 

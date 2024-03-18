@@ -26,7 +26,7 @@ class ActiveUserListView(APIView):
         Get list of all active users sorted by first name.
         Sorted into home and visiting controllers.
         """
-        users = User.objects.filter(status=Status.ACTIVE).order_by("first_name")
+        users = User.objects.filter(status=Status.ACTIVE).prefetch_related("roles").order_by("first_name")
         if request.user.is_authenticated and request.user.is_staff:
             serializer = AuthenticatedUserSerializer
         else:
@@ -140,18 +140,6 @@ class SimplifiedActiveUserListView(APIView):
                 "visiting": BasicUserSerializer(users.filter(roles__short="VC"), many=True).data,
             }
         )
-
-
-class AllUserListView(APIView):
-    permission_classes = [IsStaff]
-
-    def get(self, request):
-        """
-        Get list of all users sorted by first name.
-        """
-        users = User.objects.order_by("first_name")
-        serializer = AuthenticatedUserSerializer(users, many=True)
-        return Response(serializer.data)
 
 
 class NewestUserListView(APIView):
