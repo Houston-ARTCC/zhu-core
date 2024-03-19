@@ -51,7 +51,13 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 
 SECURE_HSTS_PRELOAD = not DEBUG
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"] + os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+]
+
+if hosts := os.getenv("ALLOWED_HOSTS"):
+    ALLOWED_HOSTS += hosts.split(",")
 
 
 # Application definition
@@ -118,10 +124,11 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://www.zhuartcc.org",
-    "https://beta.zhuartcc.org",
-    "http://www.zhuartcc.devel:3000",
+    "http://localhost:3000",
 ]
+
+if origins := os.getenv("ALLOWED_ORIGINS"):
+    CORS_ALLOWED_ORIGINS += origins.split(",")
 
 CORS_ALLOW_HEADERS = [
     "accept",
