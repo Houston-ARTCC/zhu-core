@@ -78,9 +78,10 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
-    "USER_ID_FIELD": "cid",
+    "REFRESH_TOKEN_LIFETIME": timedelta(weeks=1),
+    "ROTATE_REFRESH_TOKENS": True,
     "UPDATE_LAST_LOGIN": True,
+    "USER_ID_FIELD": "cid",
 }
 
 INSTALLED_APPS = [

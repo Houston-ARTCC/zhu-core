@@ -57,7 +57,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
             requests.get(
                 f"{settings.VATSIM_CONNECT_URL}/api/user/",
                 headers={
-                    "Authorization": "Bearer " + auth.get("access_token"),
+                    "Authorization": f"Bearer {auth.get('access_token')}",
                     "Accept": "application/json",
                 },
             )
@@ -66,9 +66,9 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
         )
 
         # Get user's home division. If they are in VATUSA get their home facility.
-        division = "VAT" + data.get("vatsim").get("division").get("id")
+        division = f"VAT{data.get('vatsim').get('division').get('id')}"
         if division == "VATUSA":
-            req = requests.get("https://api.vatusa.net/v2/user/" + data.get("cid"))
+            req = requests.get(f"https://api.vatusa.net/v2/user/{data.get('cid')}")
             if req.status_code == 200:
                 division = req.json().get("data").get("facility")
 

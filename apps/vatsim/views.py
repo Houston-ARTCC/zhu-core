@@ -30,10 +30,12 @@ class UserProfileView(APIView):
                 "email": request.user.email,
                 "rating": request.user.rating,
                 "facility": request.user.home_facility,
-                "is_member": request.user.is_member,
-                "is_training_staff": request.user.is_training_staff,
-                "is_staff": request.user.is_staff,
-                "is_senior_staff": request.user.is_senior_staff,
-                "is_admin": request.user.is_admin,
+                "permissions": {
+                    "is_member": request.user.is_member,
+                    "is_training_staff": request.user.is_training_staff,
+                    "is_staff": request.user.is_staff,
+                    "is_senior_staff": request.user.is_senior_staff,
+                    "is_admin": request.user.is_admin,
+                },
             }
         )
