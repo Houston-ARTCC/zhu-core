@@ -1,25 +1,28 @@
 import os
+from enum import IntEnum
 
 import requests
 
-from .models import Level, Status
+from .models import Status
+from .models import Type as SessionType
 
 
-def get_default_position(intance):
-    if intance.level == Level.MINOR_GROUND:
-        return "AUS_GND"
-    if intance.level == Level.MAJOR_GROUND:
-        return "IAH_GND"
-    if intance.level == Level.MINOR_TOWER:
-        return "AUS_TWR"
-    if intance.level == Level.MAJOR_TOWER:
-        return "IAH_TWR"
-    if intance.level == Level.MINOR_APPROACH:
-        return "AUS_APP"
-    if intance.level == Level.MAJOR_APPROACH:
-        return "IAH_APP"
-    if intance.level == Level.CENTER:
-        return "HOU_CTR"
+class Location(IntEnum):
+    Classroom = 0
+    Live = 1
+    Sweatbox = 2
+
+
+def session_type_to_location(session_type: SessionType) -> Location:
+    match session_type:
+        case SessionType.CLASSROOM:
+            return Location.Classroom
+        case SessionType.SWEATBOX:
+            return Location.Sweatbox
+        case SessionType.ONLINE:
+            return Location.Live
+        case SessionType.OTS:
+            return Location.Live
 
 
 def update_ctrs(instance, **kwargs):
@@ -37,12 +40,12 @@ def update_ctrs(instance, **kwargs):
         "apikey": os.getenv("VATUSA_API_TOKEN"),
         "instructor_id": instance.instructor.cid,
         "session_date": instance.start.strftime("%Y-%m-%d %H:%M"),
-        "position": instance.position if instance.position else get_default_position(instance),
+        "position": instance.position,
         "duration": f"{int(hours):02}:{int(minutes):02}",
         "movements": instance.movements,
         "score": instance.progress,
         "notes": "No notes provided." if instance.notes == "" else instance.notes,
-        "location": 1 if instance.type == 2 else 2 if instance.type == 1 else 0,
+        "location": session_type_to_location(instance.type),
         "ots_status": instance.ots_status,
     }
 

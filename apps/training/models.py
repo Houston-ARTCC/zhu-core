@@ -12,13 +12,13 @@ class Type(models.IntegerChoices):
 
 
 class Level(models.IntegerChoices):
-    MINOR_GROUND = 0, "Minor Ground"
-    MAJOR_GROUND = 1, "Major Ground"
-    MINOR_TOWER = 2, "Minor Tower"
-    MAJOR_TOWER = 3, "Major Tower"
-    MINOR_APPROACH = 4, "Minor Approach"
-    MAJOR_APPROACH = 5, "Major Approach"
-    CENTER = 6, "Center"
+    GROUND = 0, "Ground"
+    GROUND_T1 = 1, "Ground (T1)"
+    TOWER = 2, "Tower"
+    TOWER_T1 = 3, "Tower (T1)"
+    APPROACH = 4, "Approach"
+    APPROACH_T1 = 5, "Approach (T1)"
+    CENTER = 6, "Center (T2)"
 
 
 class Status(models.IntegerChoices):

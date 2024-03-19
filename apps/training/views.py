@@ -15,6 +15,7 @@ from zhu_core.permissions import IsController, IsMember, IsOwner, IsPut, IsTrain
 from .models import DayOfWeek, MentorAvailability, Status, TrainingRequest, TrainingSession
 from .serializers import (
     BaseTrainingRequestSerializer,
+    BaseTrainingSessionSerializer,
     BasicMentorAvailabilitySerializer,
     MentorAvailabilitySerializer,
     TrainingRequestSerializer,
@@ -63,7 +64,7 @@ class SessionInstanceView(APIView):
         """
         session = get_object_or_404(TrainingSession, id=session_id)
         request.data["status"] = Status.COMPLETED
-        serializer = TrainingRequestSerializer(session, data=request.data, partial=True)
+        serializer = BaseTrainingSessionSerializer(session, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
 
@@ -83,7 +84,7 @@ class SessionInstanceView(APIView):
         Modify training session details.
         """
         session = get_object_or_404(TrainingSession, id=session_id)
-        serializer = TrainingRequestSerializer(session, data=request.data, partial=True)
+        serializer = BaseTrainingSessionSerializer(session, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -131,7 +132,7 @@ class TrainingRequestListView(APIView):
 
 
 class PendingTrainingRequestListView(APIView):
-    # permission_classes = [IsTrainingStaff]
+    permission_classes = [IsTrainingStaff]
 
     def get(self, request):
         """
@@ -149,7 +150,6 @@ class PendingTrainingRequestListView(APIView):
         )
 
         sorted_requests = defaultdict(list)
-
         for request in requests:
             sorted_requests[request.user.cid].append(request)
 
@@ -178,7 +178,7 @@ class TrainingRequestInstanceView(APIView):
         Accept training request.
         """
         training_request = get_object_or_404(TrainingRequest, id=request_id)
-        serializer = TrainingRequestSerializer(
+        serializer = BaseTrainingSessionSerializer(
             data={"student": training_request.user.cid, **request.data}, context={"request": request}
         )
         if serializer.is_valid():
