@@ -52,8 +52,8 @@ class RecentAnnouncementListView(APIView):
 
     def get(self, request):
         """
-        Get list of 3 newest announcements.
+        Get list of 4 newest announcements.
         """
-        announcements = Announcement.objects.all().order_by("-posted")[:3]
+        announcements = Announcement.objects.all().order_by("-posted")[:4]
         serializer = AnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)
