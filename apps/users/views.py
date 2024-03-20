@@ -147,7 +147,7 @@ class NewestUserListView(APIView):
         """
         Get list of 3 newest controllers.
         """
-        users = User.objects.all().order_by("-joined")[:3]
+        users = User.objects.exclude(status=Status.NON_MEMBER).order_by("-joined")[:3]
         serializer = BasicUserSerializer(users, many=True)
         return Response(serializer.data)
 
