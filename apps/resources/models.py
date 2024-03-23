@@ -5,12 +5,12 @@ from django.db import models
 
 
 class Category(models.TextChoices):
-    POLY = "POLY", "Policy"
-    PROC = "PROC", "Procedure"
-    LOA = "LOA", "LOA"
-    VATIS = "vATIS", "vATIS Profile"
-    RVM = "RVM", "RVM List"
-    REF = "REF", "Reference"
+    POLY = "poly", "Policy"
+    PROC = "proc", "Procedure"
+    LOA = "loa", "LOA"
+    VATIS = "vatis", "vATIS Profile"
+    RVM = "rvm", "RVM List"
+    REF = "ref", "Reference"
 
 
 class Resource(models.Model):
