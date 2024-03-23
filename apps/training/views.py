@@ -42,7 +42,7 @@ class SessionListView(APIView):
         """
         Get list of user's training sessions.
         """
-        sessions = TrainingSession.objects.filter(student__cid=cid)
+        sessions = TrainingSession.objects.filter(student__cid=cid).prefetch_related("instructor", "student")
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
@@ -213,7 +213,7 @@ class MentorHistoryListView(APIView):
         """
         Get list of mentor's training sessions.
         """
-        sessions = TrainingSession.objects.filter(instructor__cid=cid)
+        sessions = TrainingSession.objects.filter(instructor__cid=cid).prefetch_related("instructor", "student")
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
