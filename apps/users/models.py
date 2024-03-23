@@ -1,7 +1,6 @@
 import os
-from datetime import date, datetime, timedelta
+from datetime import date
 
-import pytz
 import requests
 from auditlog.registry import auditlog
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -162,38 +161,26 @@ class User(AbstractBaseUser, PermissionsMixin):
         # Imported in here to avoid a circular dependency
         from apps.visit.models import VisitingApplication
 
-        rating_check = self.rating not in [Rating.UNK, Rating.OBS, Rating.S1]
+        vatusa_checklist = requests.get(
+            f"https://api.vatusa.net/v2/user/{self.cid}/transfer/checklist",
+            params={"apikey": os.getenv("VATUSA_API_TOKEN")},
+        ).json()
 
-        rating_time = requests.get(f"https://api.vatsim.net/api/ratings/{self.cid}/").json()
-        if rating_time.get("lastratingchange") is not None:
-            last_rating_change = pytz.utc.localize(
-                datetime.strptime(rating_time.get("lastratingchange"), "%Y-%m-%dT%H:%M:%S")
-            )
-            rating_time_check = timezone.now() - last_rating_change >= timedelta(days=90)
-        else:
-            rating_time_check = True
-
-        rating_hours = requests.get(f"https://api.vatsim.net/api/ratings/{self.cid}/rating_times/").json()
-        if rating_hours.get(self.rating.lower()) is not None:
-            rating_hours_check = rating_hours.get(self.rating.lower()) > 50
-        else:
-            rating_hours_check = False
+        print(vatusa_checklist)
 
         membership_check = not self.is_member
-
         pending_application_check = not VisitingApplication.objects.filter(user=self).exists()
 
         return {
-            "rating_check": rating_check,
-            "rating_time_check": rating_time_check,
-            "rating_hours_check": rating_hours_check,
+            "has_home_facility": vatusa_checklist["data"]["hasHome"],
+            "rce_completed": vatusa_checklist["data"]["needbasic"],
+            "has_s3_rating": vatusa_checklist["data"]["hasRating"],
+            "time_since_visit": vatusa_checklist["data"]["60days"],
+            "time_since_promo": vatusa_checklist["data"]["promo"],
+            "controlling_time": vatusa_checklist["data"]["50hrs"],
             "membership_check": membership_check,
             "pending_application_check": pending_application_check,
-            "is_eligible": rating_check
-            and rating_time_check
-            and rating_hours_check
-            and membership_check
-            and pending_application_check,
+            "is_eligible": vatusa_checklist["data"]["visiting"] and membership_check and pending_application_check,
         }
 
     def get_initials(self):
