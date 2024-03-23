@@ -11,7 +11,7 @@ Your training request has been picked up by a member of training staff and a tra
     - Level: {{ session.get_level_display }}
 
 
-If you have any questions, don't hesitate to reach out to zhu-ta@vatusa.net.
+If you have any questions, don't hesitate to reach out to training@houston.center.
 
 
 {{ session.instructor.full_name }}

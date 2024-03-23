@@ -5,7 +5,7 @@ Your request for a leave of absence has been approved by the ARTCC administratio
 As a reminder, your LOA will be active from {{ loa.start|date:'N j, Y' }} until {{ loa.end|date:'N j, Y' }}.
 
 
-If you have any questions, don't hesitate to reach out to zhu-datm@vatusa.net.
+If you have any questions, don't hesitate to reach out to management@houston.center.
 
 
 If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
