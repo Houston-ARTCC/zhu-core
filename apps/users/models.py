@@ -20,7 +20,6 @@ def create_profile_path(instance, filename):
 
 def default_endorsements():
     return {
-        "del": False,
         "gnd": False,
         "hou_gnd": False,
         "iah_gnd": False,
