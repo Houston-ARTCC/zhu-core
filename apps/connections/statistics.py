@@ -2,39 +2,23 @@ from datetime import date, timedelta
 
 from dateutil.relativedelta import relativedelta
 from django.db import models
-from django.db.models import (
-    Case,
-    Exists,
-    ExpressionWrapper,
-    F,
-    OuterRef,
-    Q,
-    Subquery,
-    Sum,
-    Value,
-    When,
-)
+from django.db.models import Case, Exists, ExpressionWrapper, F, OuterRef, Q, Subquery, Sum, Value, When
+from django.db.models.functions import Coalesce
+from django.db.models.lookups import GreaterThanOrEqual
+from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from apps.training.models import Status as TrainingStatus
 from apps.training.models import TrainingSession
-from apps.users.models import Rating, Role, User
+from apps.users.models import Role, User
 from apps.users.models import Status as UserStatus
 
 from .models import ControllerSession
 
 
-def aggregate_quarterly_hours():
-    """Performs several aggregates on each active user's controlling sessions.
-
-    - `month_1_hours`, `month_2_hours`, and `month_3_hours` are the collective hours spent controlling any
-      ZHU position within the first, second, and third months of the current quarter, respectively.
-
-    - `quarter_hours` is the sum of all three month-wise aggregates.
-    - `quarter_active` is a boolean flag indicating whether a user has met currency requirements.
-      This requirement is 6 hours for staff members and 3 hours for everybody else.
-    """
-    now = timezone.now().replace(year=2023)  # TODO: Remove year override used for testing
+def aggregate_quarterly_hours(queryset: QuerySet[User]):
+    """Performs several aggregates on each active user's controlling sessions."""
+    now = timezone.now()
     quarter = (now.month - 1) // 3  # zero indexed (e.g. 0: Jan - Mar, 1: Apr - Jun, etc.)
 
     month_1_start = date(now.year, quarter * 3 + 1, 1)
@@ -46,120 +30,145 @@ def aggregate_quarterly_hours():
     month_3_start = month_2_start + relativedelta(months=1)
     month_3_end = month_3_start + relativedelta(day=31)
 
-    return (
-        User.objects.exclude(status=UserStatus.NON_MEMBER)
-        .values("cid")  # Forces the aggregate functions to "GROUP BY" cid only
-        .annotate(
-            month_1_hours=Sum(
-                "sessions__duration",
-                filter=Q(sessions__start__date__range=[month_1_start, month_1_end]),
+    # Specifying "cid" forces the aggregate functions to only "GROUP BY" cid
+    return queryset.values("cid").annotate(
+        month_1_hours=Sum(
+            "sessions__duration",
+            filter=Q(sessions__start__date__range=[month_1_start, month_1_end]),
+        ),
+        month_2_hours=Sum(
+            "sessions__duration",
+            filter=Q(sessions__start__date__range=[month_2_start, month_2_end]),
+        ),
+        month_3_hours=Sum(
+            "sessions__duration",
+            filter=Q(sessions__start__date__range=[month_3_start, month_3_end]),
+        ),
+        quarter_hours=Sum(
+            "sessions__duration",
+            filter=Q(sessions__start__date__range=[month_1_start, month_3_end]),
+        ),
+        quarter_quota=Case(
+            # Controllers with a staff role are expected to complete at least 6 controlling hours as per P001 [3-2]
+            When(
+                Exists(
+                    Role.objects.filter(
+                        users__cid=OuterRef("cid"),
+                        short__in=["ATM", "DATM", "TA", "ATA", "FE", "AFE", "EC", "AEC", "WM", "AWM"],
+                    )
+                ),
+                then=Value(timedelta(hours=6)),
             ),
-            month_2_hours=Sum(
-                "sessions__duration",
-                filter=Q(sessions__start__date__range=[month_2_start, month_2_end]),
+            # All other controllers are expected to complete at least 3 controlling hours as per P001 [3-3-1]
+            default=timedelta(hours=3),
+        ),
+        quarter_active=Coalesce(
+            GreaterThanOrEqual(F("quarter_hours"), F("quarter_quota")),
+            Value(False),
+        ),
+        hou_gnd_hours=Sum(
+            "sessions__duration",
+            filter=(
+                Q(sessions__callsign__iregex=r"^HOU(_\w+)?_GND$")
+                & Q(sessions__start__date__range=[month_1_start, month_3_end])
             ),
-            month_3_hours=Sum(
-                "sessions__duration",
-                filter=Q(sessions__start__date__range=[month_3_start, month_3_end]),
+        ),
+        hou_twr_hours=Sum(
+            "sessions__duration",
+            filter=(
+                Q(sessions__callsign__iregex=r"^HOU(_\w+)?_TWR$")
+                & Q(sessions__start__date__range=[month_1_start, month_3_end])
             ),
-            quarter_hours=Sum(
-                "sessions__duration",
-                filter=Q(sessions__start__date__range=[month_1_start, month_3_end]),
+        ),
+        hou_hours=Case(
+            When(endorsements__hou_twr=True, then=F("hou_twr_hours")),
+            When(endorsements__hou_gnd=True, then=F("hou_gnd_hours")),
+        ),
+        iah_gnd_hours=Sum(
+            "sessions__duration",
+            filter=(
+                Q(sessions__callsign__iregex=r"^IAH(_\w+)?_GND$")
+                & Q(sessions__start__date__range=[month_1_start, month_3_end])
             ),
-            quarter_active=Case(
-                # Controllers with a staff role are expected to complete at least 6 controlling hours as per P001 [3-2]
+        ),
+        iah_twr_hours=Sum(
+            "sessions__duration",
+            filter=(
+                Q(sessions__callsign__iregex=r"^IAH(_\w+)?_TWR$")
+                & Q(sessions__start__date__range=[month_1_start, month_3_end])
+            ),
+        ),
+        iah_hours=Case(
+            When(endorsements__iah_twr=True, then=F("iah_twr_hours")),
+            When(endorsements__iah_gnd=True, then=F("iah_gnd_hours")),
+        ),
+        i90_hours=Sum(
+            "sessions__duration",
+            filter=(
+                Q(sessions__callsign__iregex=r"^I90(_\w+)?_APP$")
+                & Q(sessions__start__date__range=[month_1_start, month_3_end])
+            ),
+        ),
+        zhu_hours=Sum(
+            "sessions__duration",
+            filter=(
+                Q(sessions__callsign__iregex=r"^HOU(_\w+)?_CTR$")
+                & Q(sessions__start__date__range=[month_1_start, month_3_end])
+            ),
+        ),
+        t1_hours=Case(
+            When(endorsements__zhu=True, then=F("zhu_hours") + F("i90_hours")),
+            When(endorsements__i90=True, then=F("i90_hours")),
+            When(
+                (Q(endorsements__iah_twr=True) | Q(endorsements__iah_gnd=True))
+                & (Q(endorsements__hou_twr=True) | Q(endorsements__hou_gnd=True)),
+                then=Coalesce(
+                    F("iah_hours") + F("hou_hours"),
+                    F("iah_hours"),
+                    F("hou_hours"),
+                ),
+            ),
+            When(endorsements__iah_twr=True, then=F("iah_twr_hours")),
+            When(endorsements__iah_gnd=True, then=F("iah_gnd_hours")),
+            When(endorsements__hou_twr=True, then=F("hou_twr_hours")),
+            When(endorsements__hou_gnd=True, then=F("hou_gnd_hours")),
+        ),
+        t1_active=ExpressionWrapper(
+            Coalesce(
+                GreaterThanOrEqual(F("t1_hours"), timedelta(hours=3)),
+                False,
+            )
+            & Case(
                 When(
-                    Exists(
-                        Role.objects.filter(
-                            users__cid=OuterRef("cid"),
-                            short__in=["ATM", "DATM", "TA", "ATA", "FE", "AFE", "EC", "AEC", "WM", "AWM"],
-                        )
-                    ),
+                    (Q(endorsements__iah_twr=True) | Q(endorsements__iah_gnd=True))
+                    & (Q(endorsements__hou_twr=True) | Q(endorsements__hou_gnd=True)),
                     then=ExpressionWrapper(
-                        Q(quarter_hours__gte=timedelta(hours=6)),
+                        GreaterThanOrEqual(F("iah_hours"), timedelta(hours=1))
+                        & GreaterThanOrEqual(F("hou_hours"), timedelta(hours=1)),
                         output_field=models.BooleanField(),
                     ),
                 ),
-                # All other controllers are expected to complete at least 3 controlling hours as per P001 [3-3-1]
-                default=ExpressionWrapper(
-                    Q(quarter_hours__gte=timedelta(hours=3)),
-                    output_field=models.BooleanField(),
-                ),
-                output_field=models.BooleanField(),
+                default=True,
             ),
-            quarter_hou_t1_hours=Case(
-                When(
-                    endorsements__hou_twr=True,
-                    then=Sum(
-                        "sessions__duration",
-                        filter=(
-                            Q(sessions__callsign__iregex=r"^HOU(_\w+)?_TWR$")
-                            & Q(sessions__start__date__range=[month_1_start, month_3_end])
-                        ),
-                    ),
-                ),
-                When(
-                    endorsements__hou_gnd=True,
-                    then=Sum(
-                        "sessions__duration",
-                        filter=(
-                            Q(sessions__callsign__iregex=r"^HOU(_\w+)?_GND$")
-                            & Q(sessions__start__date__range=[month_1_start, month_3_end])
-                        ),
-                    ),
-                ),
-            ),
-            quarter_iah_t1_hours=Case(
-                When(
-                    endorsements__iah_twr=True,
-                    then=Sum(
-                        "sessions__duration",
-                        filter=(
-                            Q(sessions__callsign__iregex=r"^IAH(_\w+)?_TWR$")
-                            & Q(sessions__start__date__range=[month_1_start, month_3_end])
-                        ),
-                    ),
-                ),
-                When(
-                    endorsements__iah_gnd=True,
-                    then=Sum(
-                        "sessions__duration",
-                        filter=(
-                            Q(sessions__callsign__iregex=r"^IAH(_\w+)?_GND$")
-                            & Q(sessions__start__date__range=[month_1_start, month_3_end])
-                        ),
-                    ),
-                ),
-            ),
-            quarter_i90_t1_hours=Case(
-                When(
-                    endorsements__i90_app=True,
-                    then=Sum(
-                        "sessions__duration",
-                        filter=(
-                            Q(sessions__callsign__iregex=r"^I90(_\w+)?_APP$")
-                            & Q(sessions__start__date__range=[month_1_start, month_3_end])
-                        ),
-                    ),
-                ),
-            ),
-            quarter_t1_hours=Value(timedelta(0)),  # TODO
-            quarter_t1_active=Value(False),  # TODO
-            training_hours=Subquery(
-                TrainingSession.objects.filter(
-                    student_id=OuterRef("cid"),
-                    status=TrainingStatus.COMPLETED,
-                    start__date__range=[month_1_start, month_3_end],
-                )
-                .annotate(duration=F("end") - F("start"))
-                .values("student")
-                .annotate(total=Sum("duration"))
-                .values("total"),
-                output_field=models.DurationField(),
-            ),
-            # Controllers with an OBS rating are expected to complete at least three training hours as per P001 [3-3-2]
-            training_active=Q(rating=Rating.OBS) & Q(training_hours__gte=timedelta(hours=3)),
-        )
+            output_field=models.BooleanField(),
+        ),
+        training_hours=Subquery(
+            TrainingSession.objects.filter(
+                student_id=OuterRef("cid"),
+                status=TrainingStatus.COMPLETED,
+                start__date__range=[month_1_start, month_3_end],
+            )
+            .annotate(duration=F("end") - F("start"))
+            .values("student")
+            .annotate(total=Sum("duration"))
+            .values("total"),
+            output_field=models.DurationField(),
+        ),
+        # Controllers with an OBS rating are expected to complete at least three training hours as per P001 [3-3-2]
+        training_active=Coalesce(
+            GreaterThanOrEqual(F("training_hours"), timedelta(hours=3)),
+            False,
+        ),
     )
 
 
@@ -180,11 +189,14 @@ def get_annotated_statistics(*, admin: bool = False):
     if admin:
         values.extend(
             [
-                "quarter_hou_t1_hours",
-                "quarter_iah_t1_hours",
-                "quarter_i90_t1_hours",
-                "quarter_t1_hours",
-                "quarter_t1_active",
+                "hou_gnd_hours",
+                "hou_twr_hours",
+                "iah_gnd_hours",
+                "iah_twr_hours",
+                "i90_hours",
+                "zhu_hours",
+                "t1_hours",
+                "t1_active",
                 "training_hours",
                 "training_active",
             ]

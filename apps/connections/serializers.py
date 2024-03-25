@@ -47,12 +47,8 @@ class StatisticsSerializer(serializers.ModelSerializer):
 
 
 class AdminStatisticsSerializer(StatisticsSerializer):
-    quarter_hou_t1_hours = CustomDurationField()
-    quarter_iah_t1_hours = CustomDurationField()
-    quarter_i90_t1_hours = CustomDurationField()
-
-    # quarter_t1_hours = CustomDurationField()
-    # quarter_t1_active = BooleanField()
+    t1_hours = CustomDurationField()
+    t1_active = BooleanField()
 
     training_hours = CustomDurationField()
     training_active = BooleanField()
@@ -60,24 +56,37 @@ class AdminStatisticsSerializer(StatisticsSerializer):
     class Meta:
         model = User
         fields = [
-            "cid",
-            "first_name",
-            "last_name",
-            "initials",
-            "rating",
-            "is_staff",
-            "month_1_hours",
-            "month_2_hours",
-            "month_3_hours",
-            "quarter_hours",
-            "quarter_active",
-            "quarter_hou_t1_hours",
-            "quarter_iah_t1_hours",
-            "quarter_i90_t1_hours",
-            # "quarter_t1_hours",
-            # "quarter_t1_active",
+            *StatisticsSerializer.Meta.fields,
+            "t1_hours",
+            "t1_active",
             "training_hours",
             "training_active",
+        ]
+
+
+class StatusStatisticsSerializer(AdminStatisticsSerializer):
+    endorsements = serializers.JSONField()
+    quarter_quota = CustomDurationField()
+
+    hou_gnd_hours = CustomDurationField()
+    hou_twr_hours = CustomDurationField()
+    iah_gnd_hours = CustomDurationField()
+    iah_twr_hours = CustomDurationField()
+    i90_hours = CustomDurationField()
+    zhu_hours = CustomDurationField()
+
+    class Meta:
+        model = User
+        fields = [
+            *AdminStatisticsSerializer.Meta.fields,
+            "endorsements",
+            "quarter_quota",
+            "hou_gnd_hours",
+            "hou_twr_hours",
+            "iah_gnd_hours",
+            "iah_twr_hours",
+            "i90_hours",
+            "zhu_hours",
         ]
 
 

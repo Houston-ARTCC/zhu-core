@@ -26,7 +26,7 @@ def default_endorsements():
         "hou_twr": False,
         "iah_twr": False,
         "app": False,
-        "i90_app": False,
+        "i90": False,
         "zhu": False,
     }
 
