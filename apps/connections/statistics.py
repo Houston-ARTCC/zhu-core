@@ -140,7 +140,9 @@ def aggregate_quarterly_hours(queryset: QuerySet[User]):
             )
             & Case(
                 When(
-                    (Q(endorsements__iah_twr=True) | Q(endorsements__iah_gnd=True))
+                    Q(endorsements__zhu=False)
+                    & Q(endorsements__i90=False)
+                    & (Q(endorsements__iah_twr=True) | Q(endorsements__iah_gnd=True))
                     & (Q(endorsements__hou_twr=True) | Q(endorsements__hou_gnd=True)),
                     then=ExpressionWrapper(
                         GreaterThanOrEqual(F("iah_hours"), timedelta(hours=1))
