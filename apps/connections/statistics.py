@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from dateutil.relativedelta import relativedelta
 from django.db import models
-from django.db.models import Case, Exists, ExpressionWrapper, F, OuterRef, Q, Subquery, Sum, Value, When
+from django.db.models import Case, Exists, ExpressionWrapper, F, Func, OuterRef, Q, Subquery, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.db.models.lookups import GreaterThanOrEqual
 from django.db.models.query import QuerySet
@@ -213,14 +213,17 @@ def get_top_controllers():
     hour sums for the current month (hours) sorted by most
     controlling hours (controllers with no hours are not included).
     """
-    curr_time = timezone.now()
+    now = timezone.now()
+
+    month_start = date(now.year, now.month, 1)
+    month_end = month_start + relativedelta(day=31)
 
     return (
         User.objects.exclude(status=UserStatus.NON_MEMBER)
         .annotate(
             hours=Sum(
                 "sessions__duration",
-                filter=Q(sessions__start__month=curr_time.month) & Q(sessions__start__year=curr_time.year),
+                filter=Q(sessions__start__date__range=[month_start, month_end]),
             )
         )
         .exclude(hours__isnull=True)
@@ -229,27 +232,35 @@ def get_top_controllers():
 
 
 def get_top_positions():
-    curr_time = timezone.now()
+    """
+    Returns query set of normalized position name (no infix) annotated with controlling
+    hour sums for the current month (hours) sorted by most controlling hours.
+    """
+    now = timezone.now()
 
-    sessions = ControllerSession.objects.filter(start__month=curr_time.month, start__year=curr_time.year)
-    position_durations = {}
+    month_start = date(now.year, now.month, 1)
+    month_end = month_start + relativedelta(day=31)
 
-    for session in sessions:
-        position = f"{session.facility}_{session.level}"
-        if position in position_durations:
-            position_durations[position] += session.duration
-        else:
-            position_durations[position] = session.duration
-
-    sorted_positions = sorted(position_durations, key=position_durations.get, reverse=True)
-    return [{"position": position, "hours": position_durations[position]} for position in sorted_positions]
+    return (
+        ControllerSession.objects.filter(start__date__range=[month_start, month_end])
+        .annotate(
+            position=Func(
+                F("callsign"),
+                Value(r"_\w+_"),
+                Value("_"),
+                function="REGEXP_REPLACE",
+            )
+        )
+        .values("position")
+        .annotate(hours=Sum("duration"))
+        .order_by("-hours")
+    )
 
 
 def get_daily_statistics(year, user=None):
     """
-    Returns a query dictionary of every day of the
-    given year annotated with the controlling hours
-    for that day.
+    Returns a query dictionary of every day of the given year
+    annotated with the controlling hours for that day.
     """
     sessions = ControllerSession.objects.filter(start__year=year)
     if user:

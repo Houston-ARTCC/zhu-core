@@ -22,7 +22,7 @@ class OnlineControllerSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class StatisticsSerializer(serializers.ModelSerializer):
+class StatisticsSerializer(BasicUserSerializer):
     month_1_hours = CustomDurationField()
     month_2_hours = CustomDurationField()
     month_3_hours = CustomDurationField()
@@ -33,10 +33,7 @@ class StatisticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "cid",
-            "first_name",
-            "last_name",
-            "initials",
+            *BasicUserSerializer.Meta.fields,
             "rating",
             "month_1_hours",
             "month_2_hours",
