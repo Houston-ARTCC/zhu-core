@@ -110,7 +110,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     status = models.IntegerField(default=Status.NON_MEMBER, choices=Status.choices)
     initials = models.CharField(max_length=2, null=True, blank=True)
     joined = models.DateTimeField(null=True, blank=True)
-    endorsements = models.JSONField(default=default_endorsements)
+    endorsements = models.JSONField(null=True)
 
     # Flags
     prevent_event_signup = models.BooleanField(default=False)
@@ -197,7 +197,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         return initials.rjust(2, "A")
 
-    def set_membership(self, short, override=True):
+    def set_membership(self, short):
         """Sets the user to home, visiting, or non-member.
 
         Automatically removes any other membership roles.
@@ -210,22 +210,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         if short is None:
             self.status = Status.NON_MEMBER
+            self.endorsements = None
         else:
             if self.status == Status.NON_MEMBER:
-                if override:
-                    self.initials = self.get_initials()
-                    self.joined = timezone.now()
+                self.status = Status.ACTIVE
+                self.endorsements = default_endorsements()
+                self.initials = self.get_initials()
+                self.joined = timezone.now()
 
             if short == "HC":
                 self.home_facility = "ZHU"
-
-            if short == "VC":
+            elif short == "VC":
                 requests.post(
                     f"https://api.vatusa.net/v2/facility/ZHU/roster/manageVisitor/{self.cid}/",
                     params={"apikey": os.getenv("VATUSA_API_TOKEN")},
                 )
-
-            self.status = Status.ACTIVE
 
         self.save()
 

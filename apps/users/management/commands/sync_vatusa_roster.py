@@ -15,18 +15,18 @@ def sync_home_roster():
     for user in home_roster:
         query = User.objects.filter(cid=user.get("cid"))
         if not query.exists():
-            User.objects.create_user(
+            user_obj = User.objects.create_user(
                 cid=user.get("cid"),
                 email=user.get("email"),
                 first_name=user.get("fname"),
                 last_name=user.get("lname"),
                 rating=user.get("rating_short"),
-            ).set_membership("HC")
+            )
         else:
             user_obj = query.first()
             user_obj.rating = user.get("rating_short")
-            user_obj.save()
-            user_obj.set_membership("HC")
+
+        user_obj.set_membership("HC")
 
     # Checks for users that were removed from VATUSA roster.
     cids = [user.get("cid") for user in home_roster]
