@@ -8,7 +8,6 @@ urlpatterns = [
     path("auth/", include("apps.vatsim.urls")),
     path("api/administration/", include("apps.administration.urls")),
     path("api/announcements/", include("apps.announcements.urls")),
-    path("api/booking/", include("apps.booking.urls")),
     path("api/calendar/", include("apps.calendar.urls")),
     path("api/connections/", include("apps.connections.urls")),
     path("api/events/", include("apps.events.urls")),

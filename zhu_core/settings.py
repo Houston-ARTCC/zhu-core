@@ -99,7 +99,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "apps.administration",
     "apps.announcements",
-    "apps.booking",
     "apps.calendar",
     "apps.connections",
     "apps.events.app.EventsConfig",
