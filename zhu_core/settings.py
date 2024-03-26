@@ -77,11 +77,13 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(weeks=1),
     "ROTATE_REFRESH_TOKENS": True,
     "UPDATE_LAST_LOGIN": True,
     "USER_ID_FIELD": "cid",
+    "TOKEN_OBTAIN_SERIALIZER": "apps.vatsim.serializers.VatsimTokenObtainSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "apps.vatsim.serializers.VatsimTokenRefreshSerializer",
 }
 
 INSTALLED_APPS = [

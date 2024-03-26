@@ -50,27 +50,29 @@ def rating_int_to_short(rating_int):
     Converts VATSIM integer representation of controller
     rating to rating short.
     """
-    if rating_int == 1:
-        return "OBS"
-    elif rating_int == 2:
-        return "S1"
-    elif rating_int == 3:
-        return "S2"
-    elif rating_int == 4:
-        return "S3"
-    elif rating_int == 5:
-        return "C1"
-    elif rating_int == 7:
-        return "C3"
-    elif rating_int == 8:
-        return "I1"
-    elif rating_int == 10:
-        return "I3"
-    elif rating_int == 11:
-        return "SUP"
-    elif rating_int == 12:
-        return "ADM"
-    return ""
+    match rating_int:
+        case 1:
+            return "OBS"
+        case 2:
+            return "S1"
+        case 3:
+            return "S2"
+        case 4:
+            return "S3"
+        case 5:
+            return "C1"
+        case 7:
+            return "C3"
+        case 8:
+            return "I1"
+        case 10:
+            return "I3"
+        case 11:
+            return "SUP"
+        case 12:
+            return "ADM"
+        case _:
+            return ""
 
 
 class CustomDurationField(DurationField):

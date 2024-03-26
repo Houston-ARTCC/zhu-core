@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from apps.mailer.models import Email
-from zhu_core.utils import OverwriteStorage, base26decode, base26encode
+from zhu_core.utils import OverwriteStorage, base26decode, base26encode, rating_int_to_short
 
 
 def create_profile_path(instance, filename):
@@ -256,6 +256,13 @@ class User(AbstractBaseUser, PermissionsMixin):
             ).save()
 
         self.save()
+
+    def update_rating(self):
+        vatsim_data = requests.get(f"https://api.vatsim.net/api/ratings/{self.cid}").json()
+
+        if rating_short := rating_int_to_short(vatsim_data.get("rating")):
+            self.rating = rating_short
+            self.save()
 
     def add_role(self, short):
         self.roles.add(*Role.objects.filter(short=short))
