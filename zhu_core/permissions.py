@@ -46,15 +46,6 @@ class IsStaff(BasePermission):
         return request.user.is_authenticated and request.user.is_staff or request.user.is_superuser
 
 
-class IsSeniorStaff(BasePermission):
-    """
-    Allows access to the ATM, DATM, TA, and FE.
-    """
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_senior_staff or request.user.is_superuser
-
-
 class IsAdmin(BasePermission):
     """
     Allows access to the ATM and DATM.

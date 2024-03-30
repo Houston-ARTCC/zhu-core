@@ -62,6 +62,5 @@ class ProfileSerializer(serializers.ModelSerializer):
             "is_member": user.is_member,
             "is_training_staff": user.is_training_staff,
             "is_staff": user.is_staff,
-            "is_senior_staff": user.is_senior_staff,
             "is_admin": user.is_admin,
         }

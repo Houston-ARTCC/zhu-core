@@ -5,14 +5,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.mailer.models import Email
-from zhu_core.permissions import IsGet, IsSeniorStaff
+from zhu_core.permissions import IsAdmin, IsGet
 
 from .models import Feedback
 from .serializers import BaseFeedbackSerializer, FeedbackSerializer
 
 
 class FeedbackListView(APIView):
-    permission_classes = [(IsGet & IsSeniorStaff) | (~IsGet & IsAuthenticated)]
+    permission_classes = [(IsGet & IsAdmin) | (~IsGet & IsAuthenticated)]
 
     def get(self, request):
         """
@@ -43,7 +43,7 @@ class FeedbackListView(APIView):
 
 
 class FeedbackInstanceView(APIView):
-    permission_classes = [IsSeniorStaff]
+    permission_classes = [IsAdmin]
 
     def put(self, request, feedback_id):
         """

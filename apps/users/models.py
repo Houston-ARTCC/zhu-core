@@ -139,20 +139,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         )
 
     @property
-    def is_senior_staff(self):
-        return self.roles.filter(short__in=["ATM", "DATM", "TA", "FE"]).exists() or self.is_superuser
-
-    @property
     def is_admin(self):
         return self.roles.filter(short__in=["ATM", "DATM"]).exists() or self.is_superuser
-
-    @property
-    def training_staff_role(self):
-        return self.roles.filter(short__in=["INS", "MTR"]).first()
-
-    @property
-    def staff_role(self):
-        return self.roles.filter(short__in=["ATM", "DATM", "TA", "ATA", "FE", "AFE", "EC", "AEC", "WM", "AWM"]).first()
 
     @property
     def visiting_eligibility(self):
@@ -164,8 +152,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             f"https://api.vatusa.net/v2/user/{self.cid}/transfer/checklist",
             params={"apikey": os.getenv("VATUSA_API_TOKEN")},
         ).json()
-
-        print(vatusa_checklist)
 
         membership_check = not self.is_member
         pending_application_check = not VisitingApplication.objects.filter(user=self).exists()
