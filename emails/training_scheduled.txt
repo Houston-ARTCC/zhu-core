@@ -1,6 +1,10 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-Your training request has been picked up by a member of training staff and a training session has been scheduled! Below are the details of the session:
+Your training request has been picked up by a member of training staff and a training session has been scheduled.
+
+Here are the details of the session:
 
     - Instructor: {{ session.instructor.full_name }}
     - Date: {{ session.start|date:'N j, Y' }}
@@ -9,13 +13,3 @@ Your training request has been picked up by a member of training staff and a tra
     - Position: {{ session.position }}
     - Type: {{ session.get_type_display }}
     - Level: {{ session.get_level_display }}
-
-
-If you have any questions, don't hesitate to reach out to training@houston.center.
-
-
-{{ session.instructor.full_name }}
-{{ session.instructor.training_staff_role.long }}
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

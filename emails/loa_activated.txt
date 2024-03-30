@@ -1,11 +1,8 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-Your leave of absence is now active and you are officially on LOA status. You will not be expected to fulfill your monthly activity requirements for the duration of your LOA.
+You have been placed on a leave of absence. You are not expected to fulfill currency requirements
+during your leave, however, you may still be expected to fulfill them by the end of the quarter.
 
-As a reminder, your LOA will be active from {{ loa.start|date:'N j, Y' }} until {{ loa.end|date:'N j, Y' }}.
-
-
-If you have any questions, don't hesitate to reach out to management@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
+As a reminder, your LOA will be in effect from {{ loa.start|date:'N j, Y' }} until {{ loa.end|date:'N j, Y' }}.

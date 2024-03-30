@@ -1,9 +1,11 @@
 import os
 import traceback
 from smtplib import SMTPException
+from typing import Any
 
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 
@@ -13,7 +15,32 @@ class Status(models.IntegerChoices):
     SENT = 2, "Sent"
 
 
+class EmailManager(models.Manager):
+    def queue(
+        self,
+        *,
+        to,
+        subject: str,
+        from_email: str,
+        template: str,
+        context: dict[str, Any] | None = {},
+        cc=None,
+    ):
+        context.update(user=to, subject=subject)
+
+        Email.objects.create(
+            subject=subject,
+            html_body=render_to_string(f"{template}.html", context=context),
+            text_body=render_to_string(f"{template}.txt", context=context),
+            from_email=from_email,
+            to_email=to.email,
+            cc_email=cc.email if cc is not None else None,
+        )
+
+
 class Email(models.Model):
+    objects = EmailManager()
+
     subject = models.CharField(max_length=255)
     html_body = models.TextField()
     text_body = models.TextField()

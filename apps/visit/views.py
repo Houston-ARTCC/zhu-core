@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -31,13 +30,12 @@ class VisitingListView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            context = {"user": request.user}
-            Email(
-                subject="We have received your visiting request!",
-                html_body=render_to_string("visiting_request_received.html", context=context),
-                text_body=render_to_string("visiting_request_received.txt", context=context),
-                to_email=request.user.email,
-            ).save()
+            Email.objects.queue(
+                to=request.user,
+                subject="We have received your visiting request",
+                from_email="management@houston.center",
+                template="visiting_request_received",
+            )
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -61,13 +59,13 @@ class VisitingInstanceView(APIView):
         """
         application = get_object_or_404(VisitingApplication, id=application_id)
 
-        context = {"user": application.user, "reason": request.data.get("reason")}
-        Email(
-            subject="An update on your visiting request.",
-            html_body=render_to_string("visiting_request_rejected.html", context=context),
-            text_body=render_to_string("visiting_request_rejected.txt", context=context),
-            to_email=application.user.email,
-        ).save()
+        Email.objects.queue(
+            to=application.user,
+            subject="An update on your visiting request",
+            from_email="management@houston.center",
+            template="visiting_request_rejected",
+            context={"reason": request.data.get("reason")},
+        )
 
         application.delete()
 

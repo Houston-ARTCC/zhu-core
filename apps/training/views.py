@@ -2,7 +2,6 @@ from collections import defaultdict
 
 from django.db.models import Max, Q
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
@@ -68,13 +67,13 @@ class SessionInstanceView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            context = {"user": serializer.instance.student, "session": session}
-            Email(
-                subject="Training session filed!",
-                html_body=render_to_string("training_filed.html", context=context),
-                text_body=render_to_string("training_filed.txt", context=context),
-                to_email=serializer.instance.student.email,
-            ).save()
+            Email.objects.queue(
+                to=serializer.instance.student,
+                subject="Training session filed",
+                from_email="training@houston.center",
+                template="training_filed",
+                context={"session": session},
+            )
 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -98,13 +97,14 @@ class SessionInstanceView(APIView):
         session.status = Status.CANCELLED
         session.save()
 
-        context = {"user": session.student, "session": session}
-        Email(
+        Email.objects.queue(
+            to=session.student,
+            cc=session.instructor,
             subject="Training session cancelled",
-            html_body=render_to_string("training_cancelled.html", context=context),
-            text_body=render_to_string("training_cancelled.txt", context=context),
-            to_email=session.student.email,
-        ).save()
+            from_email="training@houston.center",
+            template="training_cancelled",
+            context={"session": session},
+        )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -185,14 +185,14 @@ class TrainingRequestInstanceView(APIView):
             training_request.delete()
             serializer.save()
 
-            context = {"user": serializer.instance.student, "session": serializer.instance}
-            Email(
-                subject="Training session scheduled!",
-                html_body=render_to_string("training_scheduled.html", context=context),
-                text_body=render_to_string("training_scheduled.txt", context=context),
-                to_email=serializer.instance.student.email,
-                cc_email=serializer.instance.instructor.email,
-            ).save()
+            Email.objects.queue(
+                to=serializer.instance.student,
+                cc=serializer.instance.instructor,
+                subject="Training session scheduled",
+                from_email="training@houston.center",
+                template="training_scheduled",
+                context={"session": serializer.instance},
+            )
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -6,7 +6,6 @@ from auditlog.registry import auditlog
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-from django.template.loader import render_to_string
 from django.utils import timezone
 
 from apps.mailer.models import Email
@@ -237,23 +236,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         if loa_filter.exists() and self.status == Status.ACTIVE:
             self.status = Status.LOA
 
-            context = {"user": self, "loa": loa_filter.first()}
-            Email(
-                subject="You have been placed on a leave of absence",
-                html_body=render_to_string("loa_activated.html", context=context),
-                text_body=render_to_string("loa_activated.txt", context=context),
-                to_email=self.email,
-            ).save()
+            Email.objects.queue(
+                to=self,
+                subject="See you soon!",
+                from_email="management@houston.center",
+                template="loa_activated",
+                context={"loa": loa_filter.first()},
+            )
         elif self.status == Status.LOA:
             self.status = Status.ACTIVE
 
-            context = {"user": self}
-            Email(
-                subject="Welcome back to Houston!",
-                html_body=render_to_string("loa_deactivated.html", context=context),
-                text_body=render_to_string("loa_deactivated.txt", context=context),
-                to_email=self.email,
-            ).save()
+            Email.objects.queue(
+                to=self,
+                subject="Welcome back!",
+                from_email="management@houston.center",
+                template="loa_deactivated",
+            )
 
         self.save()
 

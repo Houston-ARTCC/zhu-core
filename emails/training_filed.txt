@@ -1,10 +1,7 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
 Your training session on {{ session.start|date:'N j, Y' }} with {{ session.instructor.full_name }} has been filed!
 
-More information regarding the session, including the notes that your instructor submitted, can be found at the training center at https://zhuartcc.org/training.
-
-If you have any questions, don't hesitate to reach out to training@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
+More information, including any notes taken throughout the session, can be found at the training center at https://zhuartcc.org/training.

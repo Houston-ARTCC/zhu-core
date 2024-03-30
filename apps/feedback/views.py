@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -31,13 +30,13 @@ class FeedbackListView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            context = {"user": request.user, "feedback": serializer.instance}
-            Email(
-                subject="We have received your feedback!",
-                html_body=render_to_string("feedback_received.html", context=context),
-                text_body=render_to_string("feedback_received.txt", context=context),
-                to_email=request.user.email,
-            ).save()
+            Email.objects.queue(
+                to=request.user,
+                subject="We have received your feedback",
+                from_email="management@houston.center",
+                template="feedback_submitted",
+                context={"feedback": serializer.instance},
+            )
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -54,15 +53,14 @@ class FeedbackInstanceView(APIView):
         feedback.approved = True
         feedback.save()
 
-        context = {"user": feedback.pilot, "feedback": feedback}
-        Email(
-            subject="Your feedback has been approved!",
-            html_body=render_to_string("feedback_approved.html", context=context),
-            text_body=render_to_string("feedback_approved.txt", context=context),
-            to_email=feedback.pilot.email,
-        ).save()
-
-        # TODO: Send controller email about feedback
+        if feedback.controller:
+            Email.objects.queue(
+                to=feedback.controller,
+                subject="Somebody left you feedback",
+                from_email="management@houston.center",
+                template="feedback_received",
+                context={"feedback": feedback},
+            )
 
         return Response(status=status.HTTP_200_OK)
 
@@ -72,13 +70,4 @@ class FeedbackInstanceView(APIView):
         """
         feedback = get_object_or_404(Feedback, id=feedback_id)
         feedback.delete()
-
-        context = {"user": feedback.pilot, "feedback": feedback, "reason": request.data.get("reason")}
-        Email(
-            subject="An update on your feedback.",
-            html_body=render_to_string("feedback_rejected.html", context=context),
-            text_body=render_to_string("feedback_rejected.txt", context=context),
-            to_email=feedback.pilot.email,
-        ).save()
-
         return Response(status=status.HTTP_204_NO_CONTENT)

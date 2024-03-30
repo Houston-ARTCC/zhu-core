@@ -30,8 +30,7 @@ def aggregate_quarterly_hours(queryset: QuerySet[User]):
     month_3_start = month_2_start + relativedelta(months=1)
     month_3_end = month_3_start + relativedelta(day=31)
 
-    # Specifying "cid" forces the aggregate functions to only "GROUP BY" cid
-    return queryset.values("cid").annotate(
+    return queryset.annotate(
         month_1_hours=Sum(
             "sessions__duration",
             filter=Q(sessions__start__date__range=[month_1_start, month_1_end]),

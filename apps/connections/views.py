@@ -29,7 +29,7 @@ class StatisticsView(APIView):
 
     def get(self, request):
         users = User.objects.exclude(status=Status.NON_MEMBER)
-        statistics = aggregate_quarterly_hours(users).values(*StatisticsSerializer.Meta.fields)
+        statistics = aggregate_quarterly_hours(users.values("cid")).values(*StatisticsSerializer.Meta.fields)
 
         return Response(
             {
@@ -44,7 +44,7 @@ class AdminStatisticsView(APIView):
 
     def get(self, request):
         users = User.objects.exclude(status=Status.NON_MEMBER)
-        statistics = aggregate_quarterly_hours(users).values(*AdminStatisticsSerializer.Meta.fields)
+        statistics = aggregate_quarterly_hours(users.values("cid")).values(*AdminStatisticsSerializer.Meta.fields)
 
         return Response(
             {

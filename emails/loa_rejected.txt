@@ -1,11 +1,7 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-Your request for a leave of absence has been rejected by the ARTCC administration for the following reason
+Your request for a leave of absence has been rejected by the ARTCC administration for the following reason:
 
 {{ reason }}
-
-
-If you have any questions, don't hesitate to reach out to management@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

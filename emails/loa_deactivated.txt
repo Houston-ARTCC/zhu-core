@@ -1,9 +1,9 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-Your leave of absence has expired and you will now be marked as an active controller on the roster. You are now expected to fulfill your monthly activity requirements.
+Welcome back from your leave of absence!
 
-
-If you have any questions, don't hesitate to reach out to management@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
+You are now subject to quarterly currency requirements. If your leave impacts your ability to meet these
+requirements by the end of the quarter, please reach out to the ATM or DATM through Discord or by sending
+an email to management@zhuartcc.org to avoid being erroneously removed from the roster.

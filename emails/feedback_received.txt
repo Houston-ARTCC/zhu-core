@@ -1,9 +1,14 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-We have received your feedback for {{ feedback.controller.full_name|default:'the Houston ARTCC' }}! Please hold tight while our senior staff reviews the feedback to ensure that it is valid. You will be notified once a decision is made.
+You have received feedback for a recent controlling session. Here are the details:
 
-
-If you have any questions, don't hesitate to reach out to management@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
+    - Rating: {{ feedback.rating }}
+    {% if feedback.pilot_callsign is not None %}
+    - Pilot: {{ feedback.pilot_callsign }}
+    {% endif %}
+    {% if feedback.event is not None %}
+    - Pilot: {{ feedback.event.name }}
+    {% endif %}
+    - Comments: {{ feedback.comments }}

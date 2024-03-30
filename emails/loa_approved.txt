@@ -1,11 +1,8 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-Your request for a leave of absence has been approved by the ARTCC administration. You will receive an email once you are officially placed on LOA status
+Your request for a leave of absence has been approved by the ARTCC administration.
+You will receive an additional email once your leave is in effect.
 
 As a reminder, your LOA will be active from {{ loa.start|date:'N j, Y' }} until {{ loa.end|date:'N j, Y' }}.
-
-
-If you have any questions, don't hesitate to reach out to management@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

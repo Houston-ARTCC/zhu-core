@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
@@ -72,13 +71,13 @@ class LOAAdminInstanceView(APIView):
         loa.approved = True
         loa.save()
 
-        context = {"user": loa.user, "loa": loa}
-        Email(
-            subject="Your LOA request has been approved",
-            html_body=render_to_string("loa_approved.html", context=context),
-            text_body=render_to_string("loa_approved.txt", context=context),
-            to_email=loa.user.email,
-        ).save()
+        Email.objects.queue(
+            to=loa.user,
+            subject="Your LOA has been approved",
+            from_email="management@houston.center",
+            template="loa_approved",
+            context={"loa": loa},
+        )
 
         return Response(status=status.HTTP_200_OK)
 
@@ -88,13 +87,13 @@ class LOAAdminInstanceView(APIView):
         """
         loa = get_object_or_404(LOA, id=loa_id, approved=False)
 
-        context = {"user": loa.user, "reason": request.data.get("reason")}
-        Email(
+        Email.objects.queue(
+            to=loa.user,
             subject="An update on your LOA request",
-            html_body=render_to_string("loa_rejected.html", context=context),
-            text_body=render_to_string("loa_rejected.txt", context=context),
-            to_email=loa.user.email,
-        ).save()
+            from_email="management@houston.center",
+            template="loa_rejected",
+            context={"reason": request.data.get("reason")},
+        )
 
         loa.delete()
 

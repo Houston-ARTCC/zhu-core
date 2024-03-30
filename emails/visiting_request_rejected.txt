@@ -1,11 +1,9 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-Thank you for your interest in becoming a visiting controller at the Virtual Houston ARTCC. Unfortunately, your visiting application has been denied for the following reason:
+Thank you for your interest in becoming a visiting controller at the Virtual Houston ARTCC.
+
+Unfortunately, your visiting application has been denied for the following reason:
 
 {{ reason }}
-
-
-If you have any questions, don't hesitate to reach out to management@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.

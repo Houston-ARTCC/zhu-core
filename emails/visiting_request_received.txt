@@ -1,6 +1,6 @@
+{% load filters %}
+
 Hello {{ user.first_name }},
 
-We have received your request to visit the Virtual Houston ARTCC! Please hold tight while our administration reviews your visiting request. You will be notified once a decision is made.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
+We have received your request to visit the Virtual Houston ARTCC. Please hold tight while our
+administration reviews your visiting request. You will be notified once this is done.

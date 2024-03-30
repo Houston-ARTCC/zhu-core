@@ -2,11 +2,8 @@
 
 Hello {{ user.first_name }},
 
-You are receiving this email to inform you that you have not fulfilled your monthly activity requirements. During Q{{ quarter }} {{ year }}, you have controlled for {{ user.curr_hours|format_timedelta }}. To maintain roster currency you need to control for {{ user.activity_requirement|timedelta_hours }} hours.
+You are receiving this email to inform you that you have not fulfilled your quarterly activity
+requirements as per General Policy P0001, Chapter 3, Section 3. This may put you at risk for
+removal from the Houston ARTCC controller roster.
 
-Not fulfilling your hours by the end of the month puts you at risk for removal from the Houston ARTCC roster.
-
-If you are unable to fulfill your activity requirements or if you have any questions, don't hesitate to reach out to management@houston.center.
-
-
-If you would like to edit your email preferences, you can do so at https://zhuartcc.org/settings.
+Please sign in at https://houston.center/dashboard/status to see your current status for the quarter.

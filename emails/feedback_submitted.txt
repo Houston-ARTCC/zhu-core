@@ -1,0 +1,6 @@
+{% load filters %}
+
+Hello {{ user.first_name }},
+
+Thank you for submitting feedback for {{ feedback.controller.full_name|default:'the Houston ARTCC' }}!
+Your feedback is valuable to us, and we may reach out to you if we need to follow up on your comments.
