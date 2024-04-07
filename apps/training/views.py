@@ -219,19 +219,31 @@ class MentorHistoryListView(APIView):
 
 
 class NotificationView(APIView):
-    permission_classes = [IsTrainingStaff]
+    permission_classes = [IsMember]
 
     def get(self, request):
         """
         Returns notification counts for training center categories.
         """
-        request_users = TrainingRequest.objects.filter(end__gt=timezone.now()).values_list("user")
-        scheduled_sessions = TrainingSession.objects.filter(status=Status.SCHEDULED, instructor=request.user)
+
+        scheduled_sessions = TrainingSession.objects.filter(status=Status.SCHEDULED, student=request.user)
+        training_requests = 0
+        instructor_sessions = 0
+
+        if request.user.is_training_staff:
+            training_requests = (
+                TrainingRequest.objects.filter(end__gt=timezone.now()).values_list("user").distinct().count()
+            )
+            instructor_sessions = TrainingSession.objects.filter(
+                status=Status.SCHEDULED,
+                instructor=request.user,
+            ).count()
 
         return Response(
             {
-                "training_requests": len(set(request_users)),
-                "scheduled_sessions": len(scheduled_sessions),
+                "scheduled_sessions": scheduled_sessions,
+                "training_requests": training_requests,
+                "instructor_sessions": instructor_sessions,
             }
         )
 
