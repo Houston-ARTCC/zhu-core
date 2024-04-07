@@ -65,7 +65,7 @@ class Email(models.Model):
                 to=self.to_email.split(","),
                 cc=cc,
                 bcc=bcc,
-                from_email=self.from_email or os.getenv("EMAIL_ADDRESS"),
+                from_email=f"Houston ARTCC <{self.from_email or os.getenv("EMAIL_ADDRESS")}>",
                 body=self.text_body,
                 alternatives=[(self.html_body, "text/html")],
             ).send()
