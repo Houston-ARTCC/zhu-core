@@ -1,4 +1,3 @@
-import os
 import traceback
 from smtplib import SMTPException
 from typing import Any
@@ -44,10 +43,10 @@ class Email(models.Model):
     subject = models.CharField(max_length=255)
     html_body = models.TextField()
     text_body = models.TextField()
-    from_email = models.EmailField(null=True)
+    from_email = models.EmailField()
     to_email = models.TextField()
-    cc_email = models.CharField(max_length=255, null=True)
-    bcc_email = models.CharField(max_length=255, null=True)
+    cc_email = models.CharField(max_length=255, blank=True, null=True)
+    bcc_email = models.CharField(max_length=255, blank=True, null=True)
     status = models.IntegerField(choices=Status.choices, default=Status.PENDING)
     last_attempt = models.DateTimeField(null=True)
     error = models.TextField(null=True)
@@ -65,7 +64,7 @@ class Email(models.Model):
                 to=self.to_email.split(","),
                 cc=cc,
                 bcc=bcc,
-                from_email=f"Houston ARTCC <{self.from_email or os.getenv("EMAIL_ADDRESS")}>",
+                from_email=f"Houston ARTCC <{self.from_email}>",
                 body=self.text_body,
                 alternatives=[(self.html_body, "text/html")],
             ).send()

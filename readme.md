@@ -51,7 +51,6 @@ All commands assume that you are at the root of the `zhu-core` repository that y
     | `EMAIL_HOST_USER`                   |  Email server username                                               | `"username"`         |
     | `EMAIL_HOST_PASSWORD`               |  Email server password                                               | `"password"`         |
     | `EMAIL_USE_TLS`                     |  Use TLS for SMTP                                                    | `True`               |
-    | `EMAIL_ADDRESS`                     |  Email address used for outgoing mail                                | `"from@example.com"` |
     | `EVENTS_WEBHOOK_URL` **[Optional]** |  Discord channel webhook for posting events                          |                      |
     </details>
 
