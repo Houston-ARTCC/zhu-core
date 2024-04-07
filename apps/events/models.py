@@ -61,10 +61,6 @@ class PositionShift(models.Model):
     def end(self):
         return self.start + self.position.shift_duration
 
-    def assign_user(self, user):
-        self.user = user
-        self.save()
-
     def __str__(self):
         return f'{self.position} ({self.start.strftime("%H:%M")}z - {self.end.strftime("%H:%M")}z)'
 
@@ -77,7 +73,8 @@ class ShiftRequest(models.Model):
     user = models.ForeignKey(User, models.CASCADE, related_name="shift_requests")
 
     def accept_request(self):
-        self.shift.assign_user(self.user)
+        self.shift.user = self.user
+        self.shift.save()
 
     def __str__(self):
         return f"{self.user.full_name} for {self.shift}"

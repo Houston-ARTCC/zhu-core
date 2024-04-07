@@ -14,7 +14,7 @@ class Command(BaseCommand):
         users = User.objects.filter(status=Status.ACTIVE)
         statistics = aggregate_quarterly_hours(users)
 
-        for user in statistics.filter(quarter_active=False):
+        for user in statistics.filter(active=False):
             Email.objects.queue(
                 to=user,
                 subject="Quarterly activity reminder",

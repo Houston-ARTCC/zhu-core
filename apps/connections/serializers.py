@@ -58,6 +58,7 @@ class AdminStatisticsSerializer(StatisticsSerializer):
             "t1_active",
             "training_hours",
             "training_active",
+            "joined",
         ]
 
 

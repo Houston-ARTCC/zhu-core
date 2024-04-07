@@ -102,7 +102,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data.get("end") < data.get("start"):
-            raise serializers.ValidationError("The end time cannot be before the start time!")
+            raise serializers.ValidationError("The end time cannot be before the start time")
 
         return data
 

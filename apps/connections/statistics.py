@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from apps.training.models import Status as TrainingStatus
 from apps.training.models import TrainingSession
-from apps.users.models import Role, User
+from apps.users.models import Rating, Role, User
 from apps.users.models import Status as UserStatus
 
 from .models import ControllerSession
@@ -169,6 +169,10 @@ def aggregate_quarterly_hours(queryset: QuerySet[User]):
         training_active=Coalesce(
             GreaterThanOrEqual(F("training_hours"), timedelta(hours=3)),
             False,
+        ),
+        active=Case(
+            When(rating=Rating.OBS, then=F("training_active")),
+            default=F("quarter_active"),
         ),
     )
 
