@@ -226,7 +226,7 @@ class NotificationView(APIView):
         Returns notification counts for training center categories.
         """
 
-        scheduled_sessions = TrainingSession.objects.filter(status=Status.SCHEDULED, student=request.user)
+        scheduled_sessions = TrainingSession.objects.filter(status=Status.SCHEDULED, student=request.user).count()
         training_requests = 0
         instructor_sessions = 0
 
