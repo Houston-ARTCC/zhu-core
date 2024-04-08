@@ -217,9 +217,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.add_role(short)
 
     def update_loa_status(self):
-        loa_filter = self.loas.filter(start__lt=date.today(), end__gt=date.today(), approved=True)
+        loa_filter = self.loas.filter(start__lt=date.today(), approved=True)
 
-        if loa_filter.exists() and self.status == Status.ACTIVE:
+        if loa_filter.filter(end__gte=date.today()).exists() and self.status == Status.ACTIVE:
             self.status = Status.LOA
 
             Email.objects.queue(
@@ -229,7 +229,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                 template="loa_activated",
                 context={"loa": loa_filter.first()},
             )
-        elif self.status == Status.LOA:
+        elif loa_filter.filter(end__lt=date.today()).exists() and self.status == Status.LOA:
             self.status = Status.ACTIVE
 
             Email.objects.queue(
