@@ -194,9 +194,14 @@ class User(AbstractBaseUser, PermissionsMixin):
             return
 
         if short is None:
+            self.roles.clear()
+
             self.status = Status.NON_MEMBER
             self.endorsements = None
         else:
+            self.roles.remove(*self.roles.filter(short__in=["HC", "VC"]))
+            self.add_role(short)
+
             if self.status == Status.NON_MEMBER:
                 self.status = Status.ACTIVE
                 self.endorsements = default_endorsements()
@@ -212,9 +217,6 @@ class User(AbstractBaseUser, PermissionsMixin):
                 )
 
         self.save()
-
-        self.roles.remove(*self.roles.filter(short__in=["HC", "VC"]))
-        self.add_role(short)
 
     def update_loa_status(self):
         loa_filter = self.loas.filter(start__lt=date.today(), approved=True)

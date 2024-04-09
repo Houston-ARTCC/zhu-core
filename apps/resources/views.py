@@ -25,7 +25,7 @@ class ResourceListView(APIView):
 
         return Response(
             {
-                category.lower(): ResourceSerializer(resources, many=True).data
+                category: ResourceSerializer(resources, many=True).data
                 for category, resources in sorted_resources.items()
             }
         )
