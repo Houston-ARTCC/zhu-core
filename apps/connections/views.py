@@ -42,9 +42,11 @@ class StatisticsView(APIView):
 class AdminStatisticsView(APIView):
     permission_classes = [IsStaff]
 
-    def get(self, request):
+    def get(self, request, year: int | None = None, quarter: int | None = None):
         users = User.objects.exclude(status=Status.NON_MEMBER)
-        statistics = aggregate_quarterly_hours(users.values("cid")).values(*AdminStatisticsSerializer.Meta.fields)
+        statistics = aggregate_quarterly_hours(users.values("cid"), year, quarter).values(
+            *AdminStatisticsSerializer.Meta.fields
+        )
 
         return Response(
             {
@@ -57,12 +59,12 @@ class AdminStatisticsView(APIView):
 class QuarterlyStatusView(APIView):
     permission_classes = [IsMember]
 
-    def get(self, request):
+    def get(self, request, year: int | None = None, quarter: int | None = None):
         """
         Get own quarterly status
         """
         user = User.objects.filter(cid=request.user.cid)
-        statistics = aggregate_quarterly_hours(user).values(*StatusStatisticsSerializer.Meta.fields)
+        statistics = aggregate_quarterly_hours(user, year, quarter).values(*StatusStatisticsSerializer.Meta.fields)
         serializer = StatusStatisticsSerializer(statistics.first())
         return Response(serializer.data)
 

@@ -16,12 +16,22 @@ from apps.users.models import Status as UserStatus
 from .models import ControllerSession
 
 
-def aggregate_quarterly_hours(queryset: QuerySet[User]):
-    """Performs several aggregates on each active user's controlling sessions."""
-    now = timezone.now()
-    quarter = (now.month - 1) // 3  # zero indexed (e.g. 0: Jan - Mar, 1: Apr - Jun, etc.)
+def aggregate_quarterly_hours(queryset: QuerySet[User], year: int | None = None, quarter: int | None = None):
+    """Performs several aggregates on each active user's controlling sessions.
 
-    month_1_start = date(now.year, quarter * 3 + 1, 1)
+    If either year or quarter are not provided, the filter is set to the current date.
+
+    Args:
+        queryset: Users to aggregate statistics on
+        year: Year filter for connections
+        quarter: Quarter filter for connections, zero-indexed (e.g. 0: Jan - Mar, 1: Apr - Jun, etc.)
+    """
+    if year is None or quarter is None:
+        now = timezone.now()
+        year = now.year
+        quarter = (now.month - 1) // 3
+
+    month_1_start = date(year, quarter * 3 + 1, 1)
     month_1_end = month_1_start + relativedelta(day=31)
 
     month_2_start = month_1_start + relativedelta(months=1)
