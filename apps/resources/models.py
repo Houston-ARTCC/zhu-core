@@ -29,7 +29,9 @@ class Resource(models.Model):
 
     @property
     def size(self):
-        return os.path.getsize(self.path.path)
+        if os.path.exists(self.path.path):
+            return os.path.getsize(self.path.path)
+        return 0
 
     def __str__(self):
         return self.name
