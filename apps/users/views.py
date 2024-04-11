@@ -17,7 +17,7 @@ from zhu_core.permissions import IsAdmin, IsController, IsDelete, IsGet, IsPut, 
 from zhu_core.settings import BASE_DIR
 
 from .models import Status, User
-from .serializers import AuthenticatedUserSerializer, BasicUserSerializer, UserSerializer
+from .serializers import AdminEditUserSerializer, AuthenticatedUserSerializer, BasicUserSerializer, UserSerializer
 
 
 class ActiveUserListView(APIView):
@@ -28,13 +28,13 @@ class ActiveUserListView(APIView):
         """
         users = User.objects.filter(status=Status.ACTIVE).prefetch_related("roles").order_by("first_name")
         if request.user.is_authenticated and request.user.is_staff:
-            serializer = AuthenticatedUserSerializer
+            serializer_class = AuthenticatedUserSerializer
         else:
-            serializer = UserSerializer
+            serializer_class = UserSerializer
         return Response(
             {
-                "home": serializer(users.filter(roles__short="HC"), many=True).data,
-                "visiting": serializer(users.filter(roles__short="VC"), many=True).data,
+                "home": serializer_class(users.filter(roles__short="HC"), many=True).data,
+                "visiting": serializer_class(users.filter(roles__short="VC"), many=True).data,
             }
         )
 
@@ -47,10 +47,12 @@ class UserInstanceView(APIView):
         Get user details.
         """
         user = get_object_or_404(User, ~Q(status=Status.NON_MEMBER), cid=cid)
+
         if request.user.is_authenticated and request.user.is_staff:
             serializer = AuthenticatedUserSerializer(user)
         else:
             serializer = UserSerializer(user)
+
         return Response(serializer.data)
 
     def put(self, request, cid):
@@ -84,10 +86,16 @@ class UserInstanceView(APIView):
         Modify user details.
         """
         user = get_object_or_404(User, cid=cid)
-        serializer = AuthenticatedUserSerializer(user, data=request.data, partial=True)
+
+        if request.user.is_admin:
+            serializer_class = AdminEditUserSerializer
+        else:
+            serializer_class = AuthenticatedUserSerializer
+
+        serializer = serializer_class(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, cid):

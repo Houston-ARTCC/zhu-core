@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from zhu_core.utils import StrictReadOnlyFieldsMixin
+
 from .models import Role, User
 
 
@@ -29,9 +31,9 @@ class UserSerializer(serializers.ModelSerializer):
         return {"short": obj.rating, "long": obj.get_rating_display()}
 
 
-class AuthenticatedUserSerializer(serializers.ModelSerializer):
+class AuthenticatedUserSerializer(StrictReadOnlyFieldsMixin, serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(read_only=True)
-    roles = RoleSerializer(many=True)
+    roles = RoleSerializer(many=True, read_only=True)
     profile = serializers.ImageField(read_only=True)
 
     class Meta:
@@ -40,6 +42,10 @@ class AuthenticatedUserSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         return {"short": obj.rating, "long": obj.get_rating_display()}
+
+
+class AdminEditUserSerializer(AuthenticatedUserSerializer):
+    roles = RoleSerializer(many=True)
 
     def update(self, instance, validated_data):
         roles = validated_data.pop("roles", [])

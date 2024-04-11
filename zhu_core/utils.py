@@ -3,6 +3,7 @@ import os
 import requests
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from rest_framework import serializers
 from rest_framework.fields import DurationField
 
 
@@ -88,3 +89,30 @@ class OverwriteStorage(FileSystemStorage):
         if self.exists(name):
             os.remove(str(settings.MEDIA_ROOT) + "/" + name)
         return name
+
+
+class StrictReadOnlyFieldsMixin:
+    """Raises error if read only fields passed to input data."""
+
+    default_error_messages = {"read_only": "This field is read only"}
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        if not hasattr(self, "initial_data"):
+            return attrs
+
+        declared_read_only = {field_name for field_name, field in self.fields.items() if field.read_only}
+        meta_read_only = set(getattr(self.Meta, "read_only_fields", set()))
+
+        received_read_only_fields = set(self.initial_data) & (declared_read_only | meta_read_only)
+
+        if received_read_only_fields:
+            raise serializers.ValidationError(
+                {
+                    field_name: serializers.ErrorDetail(self.error_messages["read_only"], code="read_only")
+                    for field_name in received_read_only_fields
+                }
+            )
+
+        return attrs
