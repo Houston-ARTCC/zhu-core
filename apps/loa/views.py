@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
@@ -41,11 +42,12 @@ class LOAInstanceView(APIView):
         Cancel leave of absence.
         """
         loa = get_object_or_404(LOA, id=loa_id, user=request.user)
-        loa.delete()
+        loa.end = timezone.now() - relativedelta(days=1)
+        loa.save()
 
         request.user.update_loa_status()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_200_OK)
 
 
 class LOAAdminListView(APIView):
