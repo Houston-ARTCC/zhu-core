@@ -119,7 +119,7 @@ class EventInstanceView(APIView):
         Post positions to designated events Discord channel.
         """
         event = get_object_or_404(Event, id=event_id)
-        url = f"https://www.zhuartcc.org/events/{event.id}"
+        url = f"https://houston.center/events/{event.id}"
         webhook = DiscordWebhook(url=os.getenv("EVENTS_WEBHOOK_URL"))
         embed = DiscordEmbed(
             title=f':calendar: "{event.name}"',

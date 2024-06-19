@@ -4,4 +4,4 @@ Hello {{ user.first_name }},
 
 Your training session on {{ session.start|date:'N j, Y' }} with {{ session.instructor.full_name }} has been filed!
 
-More information, including any notes taken throughout the session, can be found at the training center at https://zhuartcc.org/training.
+More information, including any notes taken throughout the session, can be found at the training center at https://houston.center/training.

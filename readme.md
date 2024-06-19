@@ -32,26 +32,26 @@ All commands assume that you are at the root of the `zhu-core` repository that y
     <summary>Environment Field Descriptions</summary>
 
     *All strings must be surrounded with double quotes. Integers and booleans must be on their own.*
-    | Field                               | Description                                                          | Example              |
-    | ----------------------------------- | -------------------------------------------------------------------- | -------------------- |
-    | `DEV_ENV`                           |  Enables debug mode. **Must be `False` in production**               | `True`               |
-    | `ALLOWED_HOSTS`                     |  Comma separated list of domains and IPs that the server will run on | `"api.zhuartcc.org"` |
-    | `SECRET_KEY`                        |  Django secret key. Can be generated [here](https://djecrety.ir/)    |                      |
-    | `SENTRY_DSN` **[Optional]**         |  Sentry DSN for error logging                                        |                      |
-    | `STATIC_ROOT` **[Optional]**        |  Root directory for static files. Defaults to `./static`             | `"/home/.../static"` |
-    | `MEDIA_ROOT` **[Optional]**         |  Root directory for uploaded files. Defaults to `./media`            | `"/home/.../media"`  |
-    | `VATSIM_CONNECT_CLIENT_ID`          |  Client ID for VATSIM Connect                                        |                      |
-    | `VATSIM_CONNECT_CLIENT_SECRET`      |  Client Secret for VATSIM Connect                                    |                      |
-    | `VATSIM_CONNECT_REDIRECT_URI`       |  Redirect URI for VATSIM Connect                                     |                      |
-    | `VATUSA_API_TOKEN`                  |  Token for VATUSA API                                                |                      |
-    | `AVWX_API_TOKEN` **[Optional]**     |  [AVWX](https://avwx.rest/) API token for pulling METARs             |                      |
-    | `POSITION_PREFIXES`                 |  Comma separated list of all airport IATA codes                      | `"HOU,IAH,AUS"`      |
-    | `EMAIL_HOST`                        |  Email server hostname                                               | `"smtp.mailtrap.io"` |
-    | `EMAIL_PORT`                        |  Email server port                                                   | `2525`               |
-    | `EMAIL_HOST_USER`                   |  Email server username                                               | `"username"`         |
-    | `EMAIL_HOST_PASSWORD`               |  Email server password                                               | `"password"`         |
-    | `EMAIL_USE_TLS`                     |  Use TLS for SMTP                                                    | `True`               |
-    | `EVENTS_WEBHOOK_URL` **[Optional]** |  Discord channel webhook for posting events                          |                      |
+    | Field                               | Description                                                          | Example                |
+    | ----------------------------------- | -------------------------------------------------------------------- | ---------------------- |
+    | `DEV_ENV`                           |  Enables debug mode. **Must be `False` in production**               | `True`                 |
+    | `ALLOWED_HOSTS`                     |  Comma separated list of domains and IPs that the server will run on | `"api.houston.center"` |
+    | `SECRET_KEY`                        |  Django secret key. Can be generated [here](https://djecrety.ir/)    |                        |
+    | `SENTRY_DSN` **[Optional]**         |  Sentry DSN for error logging                                        |                        |
+    | `STATIC_ROOT` **[Optional]**        |  Root directory for static files. Defaults to `./static`             | `"/home/.../static"`   |
+    | `MEDIA_ROOT` **[Optional]**         |  Root directory for uploaded files. Defaults to `./media`            | `"/home/.../media"`    |
+    | `VATSIM_CONNECT_CLIENT_ID`          |  Client ID for VATSIM Connect                                        |                        |
+    | `VATSIM_CONNECT_CLIENT_SECRET`      |  Client Secret for VATSIM Connect                                    |                        |
+    | `VATSIM_CONNECT_REDIRECT_URI`       |  Redirect URI for VATSIM Connect                                     |                        |
+    | `VATUSA_API_TOKEN`                  |  Token for VATUSA API                                                |                        |
+    | `AVWX_API_TOKEN` **[Optional]**     |  [AVWX](https://avwx.rest/) API token for pulling METARs             |                        |
+    | `POSITION_PREFIXES`                 |  Comma separated list of all airport IATA codes                      | `"HOU,IAH,AUS"`        |
+    | `EMAIL_HOST`                        |  Email server hostname                                               | `"smtp.mailtrap.io"`   |
+    | `EMAIL_PORT`                        |  Email server port                                                   | `2525`                 |
+    | `EMAIL_HOST_USER`                   |  Email server username                                               | `"username"`           |
+    | `EMAIL_HOST_PASSWORD`               |  Email server password                                               | `"password"`           |
+    | `EMAIL_USE_TLS`                     |  Use TLS for SMTP                                                    | `True`                 |
+    | `EVENTS_WEBHOOK_URL` **[Optional]** |  Discord channel webhook for posting events                          |                        |
     </details>
 
 4. Create database tables.
