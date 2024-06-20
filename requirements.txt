@@ -1,3 +1,4 @@
+anymail==10.3
 asgiref==3.7.2
 bleach==6.1.0
 certifi==2024.2.2
