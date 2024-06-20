@@ -237,6 +237,8 @@ MEDIA_ROOT = os.getenv("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 # Email configuration
 
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+
 if DEBUG:
     # Logs all emails to stdout for development.
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -250,6 +252,10 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+
+ANYMAIL = {
+    "MAILGUN_API_KEY": os.getenv("MAILGUN_API_KEY"),
+}
 
 
 # Miscellaneous
