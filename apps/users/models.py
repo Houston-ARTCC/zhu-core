@@ -7,6 +7,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from requests.adapters import HTTPAdapter, Retry
 
 from apps.mailer.models import Email
 from zhu_core.utils import OverwriteStorage, base26decode, base26encode, rating_int_to_short
@@ -244,7 +245,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.save()
 
     def update_rating(self):
-        vatsim_data = requests.get(f"https://api.vatsim.net/api/ratings/{self.cid}").json()
+        session = requests.Session()
+        session.mount(
+            "https://",
+            HTTPAdapter(
+                max_retries=Retry(
+                    total=3,
+                    backoff_factor=0.1,
+                    status_forcelist=[500, 502, 503, 504],
+                )
+            )
+        )
+        vatsim_data = session.get(f"https://api.vatsim.net/api/ratings/{self.cid}").json()
 
         if rating_short := rating_int_to_short(vatsim_data.get("rating")):
             self.rating = rating_short
