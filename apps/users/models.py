@@ -149,24 +149,41 @@ class User(AbstractBaseUser, PermissionsMixin):
         # Imported in here to avoid a circular dependency
         from apps.visit.models import VisitingApplication
 
-        vatusa_checklist = requests.get(
+        resp = requests.get(
             f"https://api.vatusa.net/v2/user/{self.cid}/transfer/checklist",
             params={"apikey": os.getenv("VATUSA_API_TOKEN")},
-        ).json()
+        )
+
+        if resp.status_code != 200:
+            return {
+                "has_vatusa_user": False,
+                "has_home_facility": False,
+                "rce_completed": False,
+                "has_s3_rating": False,
+                "time_since_visit": False,
+                "time_since_promo": False,
+                "controlling_time": False,
+                "membership_check": False,
+                "pending_application_check": False,
+                "is_eligible": False,
+            }
+
+        checklist = resp.json()["data"]
 
         membership_check = not self.is_member
         pending_application_check = not VisitingApplication.objects.filter(user=self).exists()
 
         return {
-            "has_home_facility": vatusa_checklist["data"]["hasHome"],
-            "rce_completed": vatusa_checklist["data"]["needbasic"],
-            "has_s3_rating": vatusa_checklist["data"]["hasRating"],
-            "time_since_visit": vatusa_checklist["data"]["60days"],
-            "time_since_promo": vatusa_checklist["data"]["promo"],
-            "controlling_time": vatusa_checklist["data"]["50hrs"],
+            "has_vatusa_user": True,
+            "has_home_facility": checklist["hasHome"],
+            "rce_completed": checklist["needbasic"],
+            "has_s3_rating": checklist["hasRating"],
+            "time_since_visit": checklist["60days"],
+            "time_since_promo": checklist["promo"],
+            "controlling_time": checklist["50hrs"],
             "membership_check": membership_check,
             "pending_application_check": pending_application_check,
-            "is_eligible": vatusa_checklist["data"]["visiting"] and membership_check and pending_application_check,
+            "is_eligible": checklist["visiting"] and membership_check and pending_application_check,
         }
 
     def get_initials(self):
