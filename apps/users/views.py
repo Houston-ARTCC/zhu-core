@@ -63,8 +63,7 @@ class UserInstanceView(APIView):
 
         if "avatar" in request.data:
             if request.data.get("avatar"):
-                img_data = base64.b64decode(request.data.get("avatar"))
-                img = Image.open(BytesIO(img_data))
+                img = Image.open(request.data.get("avatar"))
                 img = img.resize((500, 500), Image.ANTIALIAS)
 
                 profile_io = BytesIO()
