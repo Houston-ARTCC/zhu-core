@@ -1,4 +1,3 @@
-import base64
 import os
 from io import BytesIO
 
@@ -64,7 +63,7 @@ class UserInstanceView(APIView):
         if "avatar" in request.data:
             if request.data.get("avatar"):
                 img = Image.open(request.data.get("avatar"))
-                img = img.resize((500, 500), Image.ANTIALIAS)
+                img = img.resize((500, 500), Image.LANCZOS)
 
                 profile_io = BytesIO()
                 img.save(profile_io, "PNG")
