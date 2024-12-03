@@ -5,6 +5,7 @@ import requests
 from django.core.files import File
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
 from PIL import Image
 from rest_framework import status
 from rest_framework.response import Response
@@ -13,7 +14,7 @@ from rest_framework.views import APIView
 from apps.feedback.models import Feedback
 from apps.feedback.serializers import BasicFeedbackSerializer
 from zhu_core.permissions import IsAdmin, IsController, IsDelete, IsGet, IsPut, IsStaff, IsTrainingStaff
-from zhu_core.settings import BASE_DIR
+from zhu_core.settings import MEDIA_ROOT
 
 from .models import Status, User
 from .serializers import AdminEditUserSerializer, AuthenticatedUserSerializer, BasicUserSerializer, UserSerializer
@@ -68,9 +69,10 @@ class UserInstanceView(APIView):
                 profile_io = BytesIO()
                 img.save(profile_io, "PNG")
 
-                user.profile = File(profile_io, name=f"{user.cid}.png")
-            else:
-                os.remove(BASE_DIR / f"media/profile/{user.cid}.png")
+                filename = get_random_string(length=8) + ".png"
+                user.profile = File(profile_io, name=filename)
+            elif user.profile:
+                os.remove(os.path.join(MEDIA_ROOT, user.profile.name))
                 user.profile = None
         if "biography" in request.data:
             user.biography = request.data.get("biography")
