@@ -1,8 +1,6 @@
 import os
 
 import requests
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from rest_framework import serializers
 from rest_framework.fields import DurationField
 
