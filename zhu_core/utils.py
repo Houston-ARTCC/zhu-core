@@ -84,13 +84,6 @@ class CustomDurationField(DurationField):
         return f"{int(hours):02}:{int(minutes):02}"
 
 
-class OverwriteStorage(FileSystemStorage):
-    def get_available_name(self, name, max_length=None):
-        if self.exists(name):
-            os.remove(str(settings.MEDIA_ROOT) + "/" + name)
-        return name
-
-
 class StrictReadOnlyFieldsMixin:
     """Raises error if read only fields passed to input data."""
 

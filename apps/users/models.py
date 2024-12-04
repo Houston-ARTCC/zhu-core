@@ -10,11 +10,7 @@ from django.utils import timezone
 from requests.adapters import HTTPAdapter, Retry
 
 from apps.mailer.models import Email
-from zhu_core.utils import OverwriteStorage, base26decode, base26encode, rating_int_to_short
-
-
-def create_profile_path(instance, filename):
-    return f"profile/{filename}"
+from zhu_core.utils import base26decode, base26encode, rating_int_to_short
 
 
 def default_endorsements():
@@ -98,7 +94,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField()
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)
-    profile = models.ImageField(upload_to=create_profile_path, null=True, blank=True, storage=OverwriteStorage())
+    profile = models.ImageField(upload_to="profile/", null=True, blank=True)
     biography = models.TextField(null=True, blank=True)
 
     # VATSIM Details

@@ -62,6 +62,10 @@ class UserInstanceView(APIView):
         user = get_object_or_404(User, cid=cid)
 
         if "avatar" in request.data:
+            if user.profile:
+                os.remove(os.path.join(MEDIA_ROOT, user.profile.name))
+                user.profile = None
+
             if request.data.get("avatar"):
                 img = Image.open(request.data.get("avatar"))
                 img = img.resize((500, 500), Image.LANCZOS)
@@ -69,11 +73,8 @@ class UserInstanceView(APIView):
                 profile_io = BytesIO()
                 img.save(profile_io, "PNG")
 
-                filename = get_random_string(length=8) + ".png"
-                user.profile = File(profile_io, name=filename)
-            elif user.profile:
-                os.remove(os.path.join(MEDIA_ROOT, user.profile.name))
-                user.profile = None
+                user.profile = File(profile_io, name=f"{get_random_string(8)}.png")
+
         if "biography" in request.data:
             user.biography = request.data.get("biography")
 

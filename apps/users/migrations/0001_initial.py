@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254)),
                 ('first_name', models.CharField(max_length=32)),
                 ('last_name', models.CharField(max_length=32)),
-                ('profile', models.ImageField(blank=True, null=True, storage=zhu_core.utils.OverwriteStorage(), upload_to=apps.users.models.create_profile_path)),
+                ('profile', models.ImageField(blank=True, null=True, upload_to='profile/')),
                 ('biography', models.TextField(blank=True, null=True)),
                 ('rating', models.CharField(choices=[('', 'Unknown'), ('OBS', 'Observer'), ('S1', 'Student 1'), ('S2', 'Student 2'), ('S3', 'Student 3'), ('C1', 'Controller'), ('C3', 'Senior Controller'), ('I1', 'Instructor'), ('I3', 'Senior Instructor'), ('SUP', 'Supervisor'), ('ADM', 'Administrator')], max_length=3)),
                 ('home_facility', models.CharField(max_length=16)),
