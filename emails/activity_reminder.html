@@ -11,6 +11,16 @@
         </div>
     </td>
 </tr>
+{% if user.rating == "OBS" %}
+<tr>
+    <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+        <div style="font-family:Tahoma;font-size:18px;line-height:1;text-align:left;color:#111827;">
+            If you have been actively filing training requests, you may ignore this email. Observers who
+            are making a good faith effort to complete their training are exempt from this requirement.
+        </div>
+    </td>
+</tr>
+{% endif %}
 <tr>
     <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
         <div style="font-family:Tahoma;font-size:18px;line-height:1;text-align:left;color:#111827;">

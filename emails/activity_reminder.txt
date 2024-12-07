@@ -6,4 +6,9 @@ You are receiving this email to inform you that you have not fulfilled your quar
 requirements as per General Policy P0001, Chapter 3, Section 3. This may put you at risk for
 removal from the Houston ARTCC controller roster.
 
+{% if user.rating == "OBS" %}
+If you have been actively filing training requests, you may ignore this email. Observers who
+are making a good faith effort to complete their training are exempt from this requirement.
+{% endif %}
+
 Please sign in at https://houston.center/dashboard/status to see your current status for the quarter.
