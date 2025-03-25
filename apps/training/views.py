@@ -34,6 +34,18 @@ class ScheduledSessionListView(APIView):
         return Response(serializer.data)
 
 
+class AllSessionListView(APIView):
+    permission_classes = [IsTrainingStaff]
+
+    def get(self, request):
+        """
+        Get list of all training sessions.
+        """
+        sessions = TrainingSession.objects.all()
+        serializer = TrainingSessionSerializer(sessions, many=True)
+        return Response(serializer.data)
+
+
 class SessionListView(APIView):
     permission_classes = [IsTrainingStaff | IsController]
 
