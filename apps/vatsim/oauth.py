@@ -50,6 +50,7 @@ def process_oauth(code: str) -> User:
         )
     else:
         user = user_query.first()
+        user.email = data.get("personal").get("email")
         user.home_facility = get_home_facility(
             user.cid,
             data.get('vatsim').get('division').get('id'),

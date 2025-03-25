@@ -24,6 +24,7 @@ def sync_home_roster():
             )
         else:
             user_obj = query.first()
+            user_obj.email = user.get("email")
             user_obj.rating = user.get("rating_short")
 
         user_obj.set_membership("HC")
