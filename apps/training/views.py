@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import timedelta
 
 from django.db.models import Max, Q
 from django.shortcuts import get_object_or_404
@@ -41,7 +42,8 @@ class AllSessionListView(APIView):
         """
         Get list of all training sessions.
         """
-        sessions = TrainingSession.objects.select_related("instructor", "student")
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        sessions = TrainingSession.objects.filter(start__gte=thirty_days_ago).select_related("instructor", "student")
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
