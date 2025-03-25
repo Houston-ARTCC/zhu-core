@@ -41,7 +41,7 @@ class AllSessionListView(APIView):
         """
         Get list of all training sessions.
         """
-        sessions = TrainingSession.objects.all()
+        sessions = TrainingSession.objects.select_related("instructor", "student")
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
 
