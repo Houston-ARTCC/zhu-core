@@ -115,7 +115,7 @@ class EventSerializer(serializers.ModelSerializer):
             Q(callsign__iendswith="APP") | Q(callsign__iendswith="DEP"),
         )
         local_positions = positions.filter(
-            Q(callsign__iendswith="TWR") | Q(callsign__iendswith="GND") | Q(callsign__iendswith="DEL"),
+            Q(callsign__iendswith="TWR") | Q(callsign__iendswith="GND") | Q(callsign__iendswith="RMP") | Q(callsign__iendswith="DEL"),
         )
         return {
             "enroute": PositionSerializer(enroute_positions, many=True).data,
