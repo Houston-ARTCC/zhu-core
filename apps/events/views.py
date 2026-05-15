@@ -1,7 +1,7 @@
 import os
 
 from discord_webhook import DiscordEmbed, DiscordWebhook
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -95,7 +95,19 @@ class EventInstanceView(APIView):
         """
         Get event details.
         """
-        event = get_object_or_404(Event, id=event_id)
+        event = get_object_or_404(
+            Event.objects.prefetch_related(
+                Prefetch(
+                    "positions__shifts",
+                    queryset=PositionShift.objects.select_related("user"),
+                ),
+                Prefetch(
+                    "positions__shifts__requests",
+                    queryset=ShiftRequest.objects.select_related("user"),
+                ),
+            ),
+            id=event_id,
+        )
 
         if event.hidden and not request.user.is_staff:
             raise PermissionDenied("You do not have permission to view this event.")

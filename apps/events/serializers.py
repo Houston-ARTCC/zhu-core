@@ -1,4 +1,3 @@
-from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -107,17 +106,18 @@ class EventSerializer(serializers.ModelSerializer):
         return data
 
     def get_positions(self, obj):
-        positions = EventPosition.objects.filter(event=obj)
-        enroute_positions = positions.filter(
-            Q(callsign__iendswith="CTR") | Q(callsign__iendswith="FSS") | Q(callsign__iendswith="TMU"),
-        )
-        tracon_positions = positions.filter(
-            Q(callsign__iendswith="APP") | Q(callsign__iendswith="DEP"),
-        )
-        local_positions = positions.filter(
-            Q(callsign__iendswith="TWR") | Q(callsign__iendswith="GND")
-            | Q(callsign__iendswith="RMP") | Q(callsign__iendswith="DEL"),
-        )
+        # Iterate over the prefetched relation so the N+1 prefetch in
+        # EventInstanceView is actually used (filtering in Python avoids
+        # firing a fresh queryset per category).
+        positions = list(obj.positions.all())
+
+        def ends_with_any(callsign, suffixes):
+            cs = callsign.lower()
+            return any(cs.endswith(s) for s in suffixes)
+
+        enroute_positions = [p for p in positions if ends_with_any(p.callsign, ("ctr", "fss", "tmu"))]
+        tracon_positions = [p for p in positions if ends_with_any(p.callsign, ("app", "dep"))]
+        local_positions = [p for p in positions if ends_with_any(p.callsign, ("twr", "gnd", "rmp", "del"))]
         return {
             "enroute": PositionSerializer(enroute_positions, many=True).data,
             "tracon": PositionSerializer(tracon_positions, many=True).data,
