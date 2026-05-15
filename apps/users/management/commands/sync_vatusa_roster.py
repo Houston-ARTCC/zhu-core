@@ -40,7 +40,28 @@ def sync_visit_roster():
     visit_roster = get_vatusa_roster("visit")
     remote_cids = {user["cid"] for user in visit_roster}
 
-    # Users that have been added to the local roster but not the VATUSA roster.
+    # Pull VATUSA visitors into local — users added directly via VATUSA
+    # (without going through the site's visiting application) would
+    # otherwise never appear on the site roster.
+    for user in visit_roster:
+        query = User.objects.filter(cid=user.get("cid"))
+        if not query.exists():
+            user_obj = User.objects.create_user(
+                cid=user.get("cid"),
+                email=user.get("email"),
+                first_name=user.get("fname"),
+                last_name=user.get("lname"),
+                rating=user.get("rating_short"),
+            )
+        else:
+            user_obj = query.first()
+            user_obj.email = user.get("email")
+            user_obj.rating = user.get("rating_short")
+
+        user_obj.set_membership("VC")
+
+    # Push site-applied visitors up to VATUSA in case set_membership's POST
+    # didn't land at approval time.
     for local_cid in User.objects.filter(roles__short="VC").values_list("cid", flat=True):
         if local_cid not in remote_cids:
             requests.post(
