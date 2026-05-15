@@ -45,8 +45,9 @@ class AuditLogView(ListAPIView):
     serializer_class = LogEntrySerializer
 
     def get_queryset(self):
+        base = LogEntry.objects.select_related("actor", "content_type")
         if query := self.request.GET.get("query"):
-            return LogEntry.objects.annotate(
+            return base.annotate(
                 user=Case(
                     When(
                         actor__isnull=False,
@@ -60,4 +61,4 @@ class AuditLogView(ListAPIView):
                     default=Value("System"),
                 )
             ).filter(Q(object_repr__icontains=query) | Q(changes__icontains=query) | Q(user__icontains=query))
-        return LogEntry.objects.all()
+        return base.all()
