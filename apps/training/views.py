@@ -1,7 +1,9 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Max, Q
+from auditlog.models import LogEntry
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, Max, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
@@ -9,8 +11,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.mailer.models import Email
+from apps.users.models import User
 from apps.users.serializers import BasicUserSerializer
-from zhu_core.permissions import IsController, IsMember, IsOwner, IsPut, IsTrainingStaff
+from zhu_core.permissions import IsController, IsMember, IsOwner, IsPut, IsStaff, IsTrainingStaff
 
 from .models import DayOfWeek, MentorAvailability, Status, TrainingRequest, TrainingSession
 from .serializers import (
@@ -218,6 +221,38 @@ class TrainingRequestInstanceView(APIView):
         training_request = self.get_object(request_id)
         training_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TrainingRequestHistoryView(APIView):
+    """
+    Per-student summary of training request creations, sourced from the
+    auditlog. Only captures requests created after TrainingRequest was
+    registered with auditlog.
+    """
+    permission_classes = [IsStaff]
+
+    def get(self, request):
+        content_type = ContentType.objects.get_for_model(TrainingRequest)
+        rows = (
+            LogEntry.objects.filter(content_type=content_type, action=LogEntry.Action.CREATE)
+            .exclude(actor__isnull=True)
+            .values("actor")
+            .annotate(count=Count("id"), last_request=Max("timestamp"))
+            .order_by("-last_request")
+        )
+
+        actor_ids = [row["actor"] for row in rows]
+        users = {user.cid: user for user in User.objects.filter(cid__in=actor_ids)}
+
+        return Response([
+            {
+                "user": BasicUserSerializer(users[row["actor"]]).data,
+                "count": row["count"],
+                "last_request": row["last_request"],
+            }
+            for row in rows
+            if row["actor"] in users
+        ])
 
 
 class MentorHistoryListView(APIView):
