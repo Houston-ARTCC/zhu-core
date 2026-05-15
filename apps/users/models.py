@@ -269,7 +269,18 @@ class User(AbstractBaseUser, PermissionsMixin):
                 )
             )
         )
-        vatsim_data = session.get(f"https://api.vatsim.net/api/ratings/{self.cid}").json()
+        try:
+            response = session.get(
+                f"https://api.vatsim.net/api/ratings/{self.cid}",
+                timeout=10,
+            )
+            response.raise_for_status()
+            vatsim_data = response.json()
+        except (requests.RequestException, ValueError):
+            # VATSIM returned non-2xx or non-JSON (HTML maintenance page, 404
+            # for unknown CIDs, etc). Skip this user instead of crashing the
+            # whole update_user_ratings command.
+            return
 
         if rating_short := rating_int_to_short(vatsim_data.get("rating")):
             self.rating = rating_short
