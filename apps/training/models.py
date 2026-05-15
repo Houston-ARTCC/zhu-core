@@ -103,3 +103,4 @@ class MentorAvailability(models.Model):
 
 
 auditlog.register(TrainingSession)
+auditlog.register(TrainingRequest)
