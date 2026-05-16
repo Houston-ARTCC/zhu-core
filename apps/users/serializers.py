@@ -54,6 +54,40 @@ class AdminEditUserSerializer(AuthenticatedUserSerializer):
         return instance
 
 
+class EndorsementOnlyEditSerializer(serializers.ModelSerializer):
+    """
+    Lets training staff edit endorsements without touching anything else.
+    Mentors are restricted to flipping endorsements they themselves hold;
+    Instructors can flip any endorsement.
+    """
+
+    class Meta:
+        model = User
+        fields = ["endorsements"]
+
+    def __init__(self, *args, allowed_keys=None, **kwargs):
+        self._allowed_keys = allowed_keys
+        super().__init__(*args, **kwargs)
+
+    def validate_endorsements(self, value):
+        if self._allowed_keys is None:
+            return value
+        bad = [key for key in value if key not in self._allowed_keys]
+        if bad:
+            raise serializers.ValidationError(
+                f"Not authorized to modify these endorsements: {', '.join(bad)}"
+            )
+        return value
+
+    def update(self, instance, validated_data):
+        # Merge into existing dict so partial updates don't blow away keys.
+        new = validated_data.get("endorsements", {})
+        merged = {**(instance.endorsements or {}), **new}
+        instance.endorsements = merged
+        instance.save()
+        return instance
+
+
 class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

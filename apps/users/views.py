@@ -13,11 +13,17 @@ from rest_framework.views import APIView
 
 from apps.feedback.models import Feedback
 from apps.feedback.serializers import BasicFeedbackSerializer
-from zhu_core.permissions import IsAdmin, IsController, IsDelete, IsGet, IsPut, IsStaff, IsTrainingStaff
+from zhu_core.permissions import IsAdmin, IsController, IsDelete, IsGet, IsPatch, IsPut, IsStaff, IsTrainingStaff
 from zhu_core.settings import MEDIA_ROOT
 
 from .models import Status, User
-from .serializers import AdminEditUserSerializer, AuthenticatedUserSerializer, BasicUserSerializer, UserSerializer
+from .serializers import (
+    AdminEditUserSerializer,
+    AuthenticatedUserSerializer,
+    BasicUserSerializer,
+    EndorsementOnlyEditSerializer,
+    UserSerializer,
+)
 
 
 class ActiveUserListView(APIView):
@@ -40,7 +46,7 @@ class ActiveUserListView(APIView):
 
 
 class UserInstanceView(APIView):
-    permission_classes = [(IsDelete & IsAdmin) | (IsPut & IsController) | (IsGet | IsStaff)]
+    permission_classes = [(IsDelete & IsAdmin) | (IsPut & IsController) | (IsPatch & (IsStaff | IsTrainingStaff)) | (IsGet | IsStaff)]
 
     def get(self, request, cid):
         """
@@ -85,15 +91,36 @@ class UserInstanceView(APIView):
     def patch(self, request, cid):
         """
         Modify user details.
+
+        - Training admins (TA/ATA) and admins get the full AdminEditUserSerializer.
+        - Instructors get endorsement-only edits (any endorsement).
+        - Mentors get endorsement-only edits, restricted to endorsements they hold.
+        - Anyone else (e.g. self-edit by non-staff) falls back to AuthenticatedUserSerializer.
         """
         user = get_object_or_404(User, cid=cid)
+        requester = request.user
 
-        if request.user.is_admin:
-            serializer_class = AdminEditUserSerializer
+        if requester.is_training_admin:
+            serializer = AdminEditUserSerializer(user, data=request.data, partial=True)
+        elif requester.is_staff:
+            serializer = AuthenticatedUserSerializer(user, data=request.data, partial=True)
+        elif requester.is_training_staff:
+            # MTR (without INS) is restricted to endorsements they themselves hold.
+            is_mentor_only = (
+                requester.roles.filter(short="MTR").exists()
+                and not requester.roles.filter(short="INS").exists()
+            )
+            allowed_keys = None
+            if is_mentor_only:
+                allowed_keys = {
+                    key for key, value in (requester.endorsements or {}).items() if value
+                }
+            serializer = EndorsementOnlyEditSerializer(
+                user, data=request.data, partial=True, allowed_keys=allowed_keys
+            )
         else:
-            serializer_class = AuthenticatedUserSerializer
+            serializer = AuthenticatedUserSerializer(user, data=request.data, partial=True)
 
-        serializer = serializer_class(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

@@ -136,6 +136,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         )
 
     @property
+    def is_training_admin(self):
+        return self.roles.filter(short__in=["ATM", "DATM", "TA", "ATA"]).exists() or self.is_superuser
+
+    @property
     def is_admin(self):
         return self.roles.filter(short__in=["ATM", "DATM"]).exists() or self.is_superuser
 

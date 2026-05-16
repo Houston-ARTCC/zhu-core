@@ -82,6 +82,15 @@ class IsPut(BasePermission):
         return request.method == "PUT"
 
 
+class IsPatch(BasePermission):
+    """
+    Allows access to PATCH requests.
+    """
+
+    def has_permission(self, request, view):
+        return request.method == "PATCH"
+
+
 class IsDelete(BasePermission):
     """
     Allows access to DELETE requests.
@@ -89,3 +98,12 @@ class IsDelete(BasePermission):
 
     def has_permission(self, request, view):
         return request.method == "DELETE"
+
+
+class IsTrainingAdmin(BasePermission):
+    """
+    Allows access to ARTCC training admin staff (TA/ATA + ATM/DATM).
+    """
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.is_training_admin

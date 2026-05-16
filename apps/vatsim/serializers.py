@@ -55,12 +55,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["cid", "first_name", "last_name", "email", "rating", "home_facility", "permissions"]
+        fields = ["cid", "first_name", "last_name", "email", "rating", "home_facility", "endorsements", "permissions"]
 
     def get_permissions(self, user):
         return {
             "is_member": user.is_member,
             "is_training_staff": user.is_training_staff,
+            "is_training_admin": user.is_training_admin,
             "is_staff": user.is_staff,
             "is_admin": user.is_admin,
+            # 'all' = may flip any endorsement on any user
+            # 'own' = may only flip endorsements they themselves hold (MTR without INS)
+            "endorsement_scope": (
+                "all"
+                if user.is_training_admin
+                    or user.is_staff
+                    or user.roles.filter(short="INS").exists()
+                else "own"
+            ),
         }
