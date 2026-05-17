@@ -89,7 +89,7 @@ class OnlineControllersView(APIView):
         """
         Get list of all online controllers.
         """
-        controllers = OnlineController.objects.all()
+        controllers = OnlineController.objects.select_related("user")
         serializer = OnlineControllerSerializer(controllers, many=True)
         return Response(serializer.data)
 

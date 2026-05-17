@@ -23,7 +23,11 @@ class CalendarView(APIView):
         }
         """
         events = Event.objects.filter(start__month=month, start__year=year)
-        sessions = TrainingSession.objects.filter(start__month=month, start__year=year).exclude(status=Status.CANCELLED)
+        sessions = (
+            TrainingSession.objects.filter(start__month=month, start__year=year)
+            .exclude(status=Status.CANCELLED)
+            .select_related("student")
+        )
 
         if not (request.user.is_authenticated and request.user.is_staff):
             events = events.exclude(hidden=True)

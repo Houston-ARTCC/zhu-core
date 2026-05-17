@@ -379,7 +379,7 @@ class EventScoreListView(APIView):
         else:
             raise PermissionDenied("You do not have permission to view scores for this user.")
 
-        scores = EventScore.objects.filter(user=user)
+        scores = EventScore.objects.filter(user=user).select_related("event")
         serializer = EventScoreSerializer(scores, many=True)
         return Response(serializer.data)
 
