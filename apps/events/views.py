@@ -141,16 +141,18 @@ class EventInstanceView(APIView):
             color="109cf1",
         )
         for position in event.positions.all():
-            embed.add_embed_field(
-                name=position.callsign,
-                value="\n".join(
-                    [
-                        f"`{i + 1}` *{shift.user.full_name}*" if shift.user is not None else f"`{i + 1}`"
-                        for i, shift in enumerate(position.shifts.all())
-                    ]
-                ),
+            shifts = "\n".join(
+                [
+                    f"`{i + 1}` *{shift.user.full_name}*" if shift.user is not None else f"`{i + 1}`"
+                    for i, shift in enumerate(position.shifts.all())
+                ]
             )
-        embed.set_image(url=event.banner)
+            # Discord rejects an embed field with an empty value.
+            embed.add_embed_field(name=position.callsign, value=shifts or "No shifts assigned")
+
+        # Discord rejects an embed image with an empty URL.
+        if event.banner:
+            embed.set_image(url=event.banner)
         webhook.add_embed(embed)
         res = webhook.execute()
 
