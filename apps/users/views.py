@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from io import BytesIO
 
 import requests
@@ -200,38 +201,31 @@ class StaffListView(APIView):
         """
         Get list of ARTCC staff.
         """
-        atm = BasicUserSerializer(User.objects.filter(roles__short="ATM").first()).data
-        datm = BasicUserSerializer(User.objects.filter(roles__short="DATM").first()).data
-        ta = BasicUserSerializer(User.objects.filter(roles__short="TA").first()).data
-        fe = BasicUserSerializer(User.objects.filter(roles__short="FE").first()).data
-        ec = BasicUserSerializer(User.objects.filter(roles__short="EC").first()).data
-        wm = BasicUserSerializer(User.objects.filter(roles__short="WM").first()).data
+        shorts = ["ATM", "DATM", "TA", "ATA", "FE", "AFE", "EC", "AEC", "WM", "AWM", "INS", "MTR", "WEB"]
+        users = User.objects.filter(roles__short__in=shorts).prefetch_related("roles").distinct()
+
+        by_role = defaultdict(list)
+        for user in users:
+            for role in user.roles.all():
+                if role.short in shorts:
+                    by_role[role.short].append(user)
+
+        def head(short):
+            return BasicUserSerializer(by_role[short][0]).data if by_role[short] else None
+
+        def many(short):
+            return BasicUserSerializer(by_role[short], many=True).data
+
         return Response(
             {
-                "atm": {
-                    "user": atm if atm.get("cid") else None,
-                },
-                "datm": {
-                    "user": datm if datm.get("cid") else None,
-                },
-                "ta": {
-                    "user": ta if ta.get("cid") else None,
-                    "assistants": BasicUserSerializer(User.objects.filter(roles__short="ATA"), many=True).data,
-                },
-                "fe": {
-                    "user": fe if fe.get("cid") else None,
-                    "assistants": BasicUserSerializer(User.objects.filter(roles__short="AFE"), many=True).data,
-                },
-                "ec": {
-                    "user": ec if ec.get("cid") else None,
-                    "assistants": BasicUserSerializer(User.objects.filter(roles__short="AEC"), many=True).data,
-                },
-                "wm": {
-                    "user": wm if wm.get("cid") else None,
-                    "assistants": BasicUserSerializer(User.objects.filter(roles__short="AWM"), many=True).data,
-                },
-                "ins": BasicUserSerializer(User.objects.filter(roles__short="INS"), many=True).data,
-                "mtr": BasicUserSerializer(User.objects.filter(roles__short="MTR"), many=True).data,
-                "web": BasicUserSerializer(User.objects.filter(roles__short="WEB"), many=True).data,
+                "atm": {"user": head("ATM")},
+                "datm": {"user": head("DATM")},
+                "ta": {"user": head("TA"), "assistants": many("ATA")},
+                "fe": {"user": head("FE"), "assistants": many("AFE")},
+                "ec": {"user": head("EC"), "assistants": many("AEC")},
+                "wm": {"user": head("WM"), "assistants": many("AWM")},
+                "ins": many("INS"),
+                "mtr": many("MTR"),
+                "web": many("WEB"),
             }
         )
