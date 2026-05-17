@@ -22,18 +22,6 @@ class FeedbackListView(APIView):
         serializer = FeedbackSerializer(feedback, many=True)
         return Response(serializer.data)
 
-
-class ApprovedFeedbackListView(APIView):
-    """
-    Admin-only history of all approved feedback, most recent first.
-    """
-    permission_classes = [IsAdmin]
-
-    def get(self, request):
-        feedback = Feedback.objects.filter(approved=True).order_by("-created")
-        serializer = FeedbackSerializer(feedback, many=True)
-        return Response(serializer.data)
-
     def post(self, request):
         """
         Add a new feedback.
@@ -52,6 +40,18 @@ class ApprovedFeedbackListView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ApprovedFeedbackListView(APIView):
+    """
+    Admin-only history of all approved feedback, most recent first.
+    """
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        feedback = Feedback.objects.filter(approved=True).order_by("-created")
+        serializer = FeedbackSerializer(feedback, many=True)
+        return Response(serializer.data)
 
 
 class FeedbackInstanceView(APIView):
