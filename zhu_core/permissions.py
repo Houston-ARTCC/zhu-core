@@ -98,12 +98,3 @@ class IsDelete(BasePermission):
 
     def has_permission(self, request, view):
         return request.method == "DELETE"
-
-
-class IsTrainingAdmin(BasePermission):
-    """
-    Allows access to ARTCC training admin staff (TA/ATA + ATM/DATM).
-    """
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_training_admin
