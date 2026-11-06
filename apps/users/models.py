@@ -144,6 +144,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.roles.filter(short__in=["ATM", "DATM"]).exists() or self.is_superuser
 
     @property
+    def can_view_audit_log(self):
+        return self.roles.filter(short__in=["ATM", "DATM", "FE", "WM"]).exists() or self.is_superuser
+
+    @property
     def visiting_eligibility(self):
         """Check if authenticated user is eligible to apply as a visiting controller."""
         # Imported in here to avoid a circular dependency

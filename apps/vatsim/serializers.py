@@ -64,6 +64,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "is_training_admin": user.is_training_admin,
             "is_staff": user.is_staff,
             "is_admin": user.is_admin,
+            "can_view_audit_log": user.can_view_audit_log,
             # 'all' = may flip any endorsement on any user
             # 'own' = may only flip endorsements they themselves hold (MTR without INS)
             "endorsement_scope": (

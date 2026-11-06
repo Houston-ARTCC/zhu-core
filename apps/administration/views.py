@@ -12,7 +12,7 @@ from apps.events.models import SupportRequest
 from apps.feedback.models import Feedback
 from apps.loa.models import LOA
 from apps.visit.models import VisitingApplication
-from zhu_core.permissions import IsStaff
+from zhu_core.permissions import CanViewAuditLog, IsStaff
 
 from .serializers import LogEntrySerializer
 
@@ -40,7 +40,7 @@ class AuditLogPagination(PageNumberPagination):
 
 
 class AuditLogView(ListAPIView):
-    permission_classes = [IsStaff]
+    permission_classes = [CanViewAuditLog]
     pagination_class = AuditLogPagination
     serializer_class = LogEntrySerializer
 

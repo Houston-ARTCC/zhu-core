@@ -55,6 +55,15 @@ class IsAdmin(BasePermission):
         return request.user.is_authenticated and request.user.is_admin or request.user.is_superuser
 
 
+class CanViewAuditLog(BasePermission):
+    """
+    Allows access to the ATM, DATM, FE, and WM.
+    """
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.can_view_audit_log
+
+
 class CanVisit(BasePermission):
     """
     Allows access to users who are eligible to visit the ARTCC.
