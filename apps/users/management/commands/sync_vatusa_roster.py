@@ -11,6 +11,9 @@ from zhu_core.utils import get_vatusa_roster
 def sync_home_roster():
     home_roster = get_vatusa_roster()
 
+    # An empty list would otherwise remove every home controller below.
+    assert home_roster, "VATUSA returned an empty home roster."
+
     # Checks for users that do not exist on local roster.
     for user in home_roster:
         query = User.objects.filter(cid=user.get("cid"))
@@ -67,6 +70,7 @@ def sync_visit_roster():
             requests.post(
                 f"https://api.vatusa.net/v2/facility/ZHU/roster/manageVisitor/{local_cid}/",
                 params={"apikey": os.getenv("VATUSA_API_TOKEN")},
+                timeout=30,
             )
 
 

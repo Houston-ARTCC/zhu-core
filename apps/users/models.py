@@ -236,6 +236,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                 requests.post(
                     f"https://api.vatusa.net/v2/facility/ZHU/roster/manageVisitor/{self.cid}/",
                     params={"apikey": os.getenv("VATUSA_API_TOKEN")},
+                    timeout=30,
                 )
 
         self.save()
