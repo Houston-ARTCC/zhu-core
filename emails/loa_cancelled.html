@@ -1,0 +1,19 @@
+{% extends "template.html" %}
+{% load filters %}
+
+{% block content %}
+<tr>
+    <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+        <div style="font-family:Tahoma;font-size:18px;line-height:1;text-align:left;color:#111827;">
+            Your leave of absence from <b>{{ loa.start|date:'N j, Y' }}</b> until <b>{{ loa.end|date:'N j, Y' }}</b> has been cancelled by the ARTCC administration.
+        </div>
+    </td>
+</tr>
+<tr>
+    <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+        <div style="font-family:Tahoma;font-size:18px;line-height:1;text-align:left;color:#111827;">
+            Please reach out to the ARTCC administration if you have any questions.
+        </div>
+    </td>
+</tr>
+{% endblock %}

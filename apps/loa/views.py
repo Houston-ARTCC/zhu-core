@@ -85,9 +85,25 @@ class LOAAdminInstanceView(APIView):
 
     def delete(self, request, loa_id):
         """
-        Reject LOA request.
+        Cancel an approved LOA, or reject an LOA request.
         """
-        loa = get_object_or_404(LOA, id=loa_id, approved=False)
+        loa = get_object_or_404(LOA, id=loa_id)
+
+        if loa.approved:
+            Email.objects.queue(
+                to=loa.user,
+                subject="Your LOA has been cancelled",
+                from_email="management@houston.center",
+                template="loa_cancelled",
+                context={"loa": loa},
+            )
+
+            loa.end = timezone.now() - relativedelta(days=1)
+            loa.save()
+
+            loa.user.update_loa_status()
+
+            return Response(status=status.HTTP_200_OK)
 
         Email.objects.queue(
             to=loa.user,

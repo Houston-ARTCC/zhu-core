@@ -1,0 +1,7 @@
+{% load filters %}
+
+Hello {{ user.first_name }},
+
+Your leave of absence from {{ loa.start|date:'N j, Y' }} until {{ loa.end|date:'N j, Y' }} has been cancelled by the ARTCC administration.
+
+Please reach out to the ARTCC administration if you have any questions.
