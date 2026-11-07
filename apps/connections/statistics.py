@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from dateutil.relativedelta import relativedelta
 from django.db import models
-from django.db.models import Case, Exists, ExpressionWrapper, F, Func, OuterRef, Q, Subquery, Sum, Value, When
+from django.db.models import Case, Exists, F, Func, OuterRef, Q, Subquery, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.db.models.lookups import GreaterThanOrEqual
 from django.db.models.query import QuerySet
@@ -89,10 +89,6 @@ def aggregate_quarterly_hours(queryset: QuerySet[User], year: int | None = None,
                 & Q(sessions__start__date__range=[month_1_start, month_3_end])
             ),
         ),
-        hou_hours=Case(
-            When(endorsements__hou_twr=True, then=F("hou_twr_hours")),
-            When(endorsements__hou_gnd=True, then=F("hou_gnd_hours")),
-        ),
         iah_gnd_hours=Sum(
             "sessions__duration",
             filter=(
@@ -106,10 +102,6 @@ def aggregate_quarterly_hours(queryset: QuerySet[User], year: int | None = None,
                 Q(sessions__callsign__iregex=r"^IAH(_\w+)?_TWR$")
                 & Q(sessions__start__date__range=[month_1_start, month_3_end])
             ),
-        ),
-        iah_hours=Case(
-            When(endorsements__iah_twr=True, then=F("iah_twr_hours")),
-            When(endorsements__iah_gnd=True, then=F("iah_gnd_hours")),
         ),
         i90_hours=Sum(
             "sessions__duration",
@@ -128,40 +120,12 @@ def aggregate_quarterly_hours(queryset: QuerySet[User], year: int | None = None,
         t1_hours=Case(
             When(endorsements__zhu=True, then=F("zhu_hours") + F("i90_hours")),
             When(endorsements__i90=True, then=F("i90_hours")),
-            When(
-                (Q(endorsements__iah_twr=True) | Q(endorsements__iah_gnd=True))
-                & (Q(endorsements__hou_twr=True) | Q(endorsements__hou_gnd=True)),
-                then=Coalesce(
-                    F("iah_hours") + F("hou_hours"),
-                    F("iah_hours"),
-                    F("hou_hours"),
-                ),
-            ),
             When(endorsements__iah_twr=True, then=F("iah_twr_hours")),
             When(endorsements__iah_gnd=True, then=F("iah_gnd_hours")),
-            When(endorsements__hou_twr=True, then=F("hou_twr_hours")),
-            When(endorsements__hou_gnd=True, then=F("hou_gnd_hours")),
         ),
-        t1_active=ExpressionWrapper(
-            Coalesce(
-                GreaterThanOrEqual(F("t1_hours"), timedelta(hours=3)),
-                False,
-            )
-            & Case(
-                When(
-                    Q(endorsements__zhu=False)
-                    & Q(endorsements__i90=False)
-                    & (Q(endorsements__iah_twr=True) | Q(endorsements__iah_gnd=True))
-                    & (Q(endorsements__hou_twr=True) | Q(endorsements__hou_gnd=True)),
-                    then=ExpressionWrapper(
-                        GreaterThanOrEqual(F("iah_hours"), timedelta(hours=1))
-                        & GreaterThanOrEqual(F("hou_hours"), timedelta(hours=1)),
-                        output_field=models.BooleanField(),
-                    ),
-                ),
-                default=True,
-            ),
-            output_field=models.BooleanField(),
+        t1_active=Coalesce(
+            GreaterThanOrEqual(F("t1_hours"), timedelta(hours=3)),
+            False,
         ),
         training_hours=Subquery(
             TrainingSession.objects.filter(
