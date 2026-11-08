@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-import pytz
+from dateutil.parser import isoparse
 from django.core.management.base import BaseCommand
 
 from apps.connections.models import OnlineController
@@ -32,9 +32,7 @@ class Command(BaseCommand):
                     OnlineController(
                         user=user.first(),
                         callsign=callsign,
-                        online_since=pytz.utc.localize(
-                            datetime.strptime(connection.get("logon_time")[:-2], "%Y-%m-%dT%H:%M:%S.%f")
-                        ),
+                        online_since=isoparse(connection.get("logon_time")),
                     ).save()
 
         print(f"{datetime.now()} :: update_online_controllers :: SUCCESS")
