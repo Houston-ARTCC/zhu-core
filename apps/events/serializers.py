@@ -151,3 +151,11 @@ class EventScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventScore
         fields = ["event", "score", "notes"]
+
+
+class EventSignupSerializer(BasicUserSerializer):
+    requests = serializers.IntegerField()
+    score = serializers.FloatField(allow_null=True)
+
+    class Meta(BasicUserSerializer.Meta):
+        fields = BasicUserSerializer.Meta.fields + ["rating", "requests", "score"]

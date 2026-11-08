@@ -1,7 +1,7 @@
 import os
 
 from discord_webhook import DiscordEmbed, DiscordWebhook
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Avg, Count, OuterRef, Prefetch, Q, Subquery
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
@@ -22,6 +22,7 @@ from .serializers import (
     BasicEventSerializer,
     EventScoreSerializer,
     EventSerializer,
+    EventSignupSerializer,
     PositionPreset,
     PositionPresetSerializer,
     PositionSerializer,
@@ -383,6 +384,28 @@ class EventScoreListView(APIView):
 
         scores = EventScore.objects.filter(user=user).select_related("event")
         serializer = EventScoreSerializer(scores, many=True)
+        return Response(serializer.data)
+
+
+class EventSignupListView(APIView):
+    permission_classes = [IsStaff]
+
+    def get(self, request, event_id):
+        """
+        Get everyone who requested a shift for the event, with their average event score.
+        """
+        average_score = (
+            EventScore.objects.filter(user=OuterRef("pk"))
+            .values("user")
+            .annotate(average=Avg("score"))
+            .values("average")
+        )
+        users = (
+            User.objects.filter(shift_requests__shift__position__event_id=event_id)
+            .annotate(requests=Count("shift_requests"), score=Subquery(average_score))
+            .order_by("cid")
+        )
+        serializer = EventSignupSerializer(users, many=True)
         return Response(serializer.data)
 
 
