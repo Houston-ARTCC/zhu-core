@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from apps.mailer.models import Email
 from apps.users.models import User
 from apps.users.serializers import BasicUserSerializer
-from zhu_core.permissions import IsController, IsMember, IsOwner, IsPut, IsStaff, IsTrainingStaff
+from zhu_core.permissions import IsController, IsGet, IsMember, IsOwner, IsPut, IsStaff, IsTrainingStaff
 
 from .models import DayOfWeek, MentorAvailability, Status, TrainingRequest, TrainingSession
 from .serializers import (
@@ -52,7 +52,7 @@ class AllSessionListView(APIView):
 
 
 class SessionListView(APIView):
-    permission_classes = [IsTrainingStaff | IsController]
+    permission_classes = [IsTrainingStaff | (IsGet & IsController)]
 
     def get(self, request, cid):
         """
@@ -61,6 +61,27 @@ class SessionListView(APIView):
         sessions = TrainingSession.objects.filter(student__cid=cid).prefetch_related("instructor", "student")
         serializer = TrainingSessionSerializer(sessions, many=True)
         return Response(serializer.data)
+
+    def post(self, request, cid):
+        """
+        Log a completed session that wasn't booked from a training request.
+        """
+        serializer = BaseTrainingSessionSerializer(
+            data={**request.data, "student": cid, "status": Status.COMPLETED}, context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+
+            Email.objects.queue(
+                to=serializer.instance.student,
+                subject="Training session filed",
+                from_email="training@houston.center",
+                template="training_filed",
+                context={"session": serializer.instance},
+            )
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SessionInstanceView(APIView):
